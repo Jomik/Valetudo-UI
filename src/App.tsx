@@ -1,48 +1,66 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+import { makeStyles } from '@material-ui/core/styles';
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
+import HomeIcon from '@material-ui/icons/Home';
+import SettingsIcon from '@material-ui/icons/Settings';
+import MapIcon from '@material-ui/icons/Map';
+import React from 'react';
+import { Home } from './home/Home';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    title: {
-      flexGrow: 1,
-    },
-  }),
-);
+const useStyles = makeStyles({
+  root: {},
+});
 
-const App = () => {
+export const App = (): JSX.Element => {
   const classes = useStyles();
+  const [path, setPath] = React.useState(window.location.pathname);
+
+  const handleChange = React.useCallback((_event: React.ChangeEvent<unknown>, newValue: string) => {
+    setPath(newValue);
+  }, []);
 
   return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="menu"
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            News
-          </Typography>
-          <Button color="inherit">Login</Button>
-        </Toolbar>
-      </AppBar>
-    </div>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/map">
+          <span>Map</span>
+        </Route>
+        <Route path="/settings">
+          <span>Settings</span>
+        </Route>
+        <Route path="/">
+          <Home />
+        </Route>
+      </Switch>
+
+      <BottomNavigation
+        value={path}
+        onChange={handleChange}
+        className={classes.root}
+      >
+        <BottomNavigationAction
+          component={Link}
+          to="/"
+          label="Home"
+          value="/"
+          icon={<HomeIcon />}
+        />
+        <BottomNavigationAction
+          component={Link}
+          to="/map"
+          label="Map"
+          value="/map"
+          icon={<MapIcon />}
+        />
+        <BottomNavigationAction
+          component={Link}
+          to="/settings"
+          label="Settings"
+          value="/settings"
+          icon={<SettingsIcon />}
+        />
+      </BottomNavigation>
+    </BrowserRouter>
   );
 };
-
-export default App;
