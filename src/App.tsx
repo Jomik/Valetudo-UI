@@ -9,6 +9,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import AboutIcon from '@material-ui/icons/Info';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -71,6 +72,19 @@ const Nav =(): JSX.Element => {
     setMobileOpen(false);
   },[location.pathname]);
 
+  const pageTitle = React.useMemo(() => {
+    switch (location.pathname) {
+    case '/about':
+      return 'About';
+    case '/map':
+      return 'Map';
+    case '/settings':
+      return 'Settings';
+    default:
+      return 'Valetudo';
+    }
+  }, [location.pathname]);
+
   const handleClose = React.useCallback(() => {
     setMobileOpen(false);
   }, []);
@@ -98,6 +112,10 @@ const Nav =(): JSX.Element => {
           <ListItemIcon><SettingsIcon /></ListItemIcon>
           <ListItemText primary='Settings' />
         </ListItem>
+        <ListItem button component={Link} to="/about">
+          <ListItemIcon><AboutIcon /></ListItemIcon>
+          <ListItemText primary='About' />
+        </ListItem>
       </List>
     </div>
   ), [classes.toolbar]);
@@ -116,7 +134,7 @@ const Nav =(): JSX.Element => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-                        Valetudo
+            {pageTitle}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -167,6 +185,9 @@ const App = (): JSX.Element => {
           </Route>
           <Route path="/settings">
             <span>Settings</span>
+          </Route>
+          <Route path="/about">
+            <span>About</span>
           </Route>
           <Route path="/">
             <Dashboard />
