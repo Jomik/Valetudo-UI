@@ -1,7 +1,8 @@
 {
   "editor.codeActionsOnSave": {
     "source.organizeImports": false,
-    "source.fixAll.eslint": true
+    "source.fixAll": true
   },
+"editor.formatOnSave": false,
   "typescript.tsdk": "node_modules/typescript/lib",
 }

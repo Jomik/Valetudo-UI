@@ -9,6 +9,7 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:@typescript-eslint/recommended',
+    'prettier',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -30,13 +31,13 @@ module.exports = {
     ],
   },
   rules: {
-
     indent: ['error', 2],
     '@typescript-eslint/no-unused-vars': ['warn'],
     'linebreak-style': ['error', 'unix'],
     quotes: ['error', 'single'],
     semi: ['error', 'always'],
     'comma-dangle': ['error', 'always-multiline'],
+    '@typescript-eslint/no-explicit-any': 'off',
 
     // Not necessary with React 17
     'react/jsx-uses-react': 'off',

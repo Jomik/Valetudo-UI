@@ -1,4 +1,10 @@
-import { BrowserRouter, Link, Route, Switch, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Link,
+  Route,
+  Switch,
+  useLocation,
+} from 'react-router-dom';
 import Dashboard from './Dashboard';
 import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
@@ -13,12 +19,19 @@ import AboutIcon from '@material-ui/icons/Info';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
+import {
+  makeStyles,
+  useTheme,
+  Theme,
+  createStyles,
+} from '@material-ui/core/styles';
 import React from 'react';
 
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MapIcon from '@material-ui/icons/Map';
+import Map from './Map';
+import mapData from './mapdata.json';
 
 const drawerWidth = 240;
 
@@ -27,8 +40,12 @@ const useAppStyles = makeStyles((theme: Theme) =>
     content: {
       flexGrow: 1,
       padding: theme.spacing(3),
+      [theme.breakpoints.up('sm')]: {
+        marginStart: `${drawerWidth}px`,
+      },
     },
-  }));
+  }),
+);
 
 const useNavStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -61,7 +78,7 @@ const useNavStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const Nav =(): JSX.Element => {
+const Nav = (): JSX.Element => {
   const classes = useNavStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -70,7 +87,7 @@ const Nav =(): JSX.Element => {
   const location = useLocation();
   React.useEffect(() => {
     setMobileOpen(false);
-  },[location.pathname]);
+  }, [location.pathname]);
 
   const pageTitle = React.useMemo(() => {
     switch (location.pathname) {
@@ -92,33 +109,44 @@ const Nav =(): JSX.Element => {
     setMobileOpen(true);
   }, []);
 
-  const drawer =  React.useMemo(() => (
-    <div>
-      <div className={classes.toolbar} />
-      <Divider />
-      <List>
-        <ListItem button component={Link} to="/">
-          <ListItemIcon><DashboardIcon /></ListItemIcon>
-          <ListItemText primary='Dashboard' />
-        </ListItem>
-        <ListItem button component={Link} to="/map">
-          <ListItemIcon><MapIcon /></ListItemIcon>
-          <ListItemText primary='Map' />
-        </ListItem>
-      </List>
-      <Divider />
-      <List>
-        <ListItem button component={Link} to="/settings">
-          <ListItemIcon><SettingsIcon /></ListItemIcon>
-          <ListItemText primary='Settings' />
-        </ListItem>
-        <ListItem button component={Link} to="/about">
-          <ListItemIcon><AboutIcon /></ListItemIcon>
-          <ListItemText primary='About' />
-        </ListItem>
-      </List>
-    </div>
-  ), [classes.toolbar]);
+  const drawer = React.useMemo(
+    () => (
+      <div>
+        <div className={classes.toolbar} />
+        <Divider />
+        <List>
+          <ListItem button component={Link} to="/">
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button component={Link} to="/map">
+            <ListItemIcon>
+              <MapIcon />
+            </ListItemIcon>
+            <ListItemText primary="Map" />
+          </ListItem>
+        </List>
+        <Divider />
+        <List>
+          <ListItem button component={Link} to="/settings">
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
+          </ListItem>
+          <ListItem button component={Link} to="/about">
+            <ListItemIcon>
+              <AboutIcon />
+            </ListItemIcon>
+            <ListItemText primary="About" />
+          </ListItem>
+        </List>
+      </div>
+    ),
+    [classes.toolbar],
+  );
 
   return (
     <div className={classes.root}>
@@ -181,7 +209,7 @@ const App = (): JSX.Element => {
       <main className={classes.content}>
         <Switch>
           <Route path="/map">
-            <span>Map</span>
+            <Map mapData={mapData} />
           </Route>
           <Route path="/settings">
             <span>Settings</span>
@@ -194,7 +222,6 @@ const App = (): JSX.Element => {
           </Route>
         </Switch>
       </main>
-      
     </BrowserRouter>
   );
 };
