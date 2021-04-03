@@ -21,7 +21,7 @@ module.exports = {
   },
   plugins: ['react', '@typescript-eslint'],
   settings: {
-    'react': {
+    react: {
       version: 'detect',
     },
     linkComponents: [

@@ -24,13 +24,16 @@ import {
   useTheme,
   Theme,
   createStyles,
+  ThemeProvider,
+  createMuiTheme,
 } from '@material-ui/core/styles';
 import React from 'react';
+import { CssBaseline, useMediaQuery } from '@material-ui/core';
 
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MapIcon from '@material-ui/icons/Map';
-import Map from './Map';
+import Map from './map';
 import mapData from './mapdata.json';
 
 const drawerWidth = 240;
@@ -202,27 +205,49 @@ const Nav = (): JSX.Element => {
 
 const App = (): JSX.Element => {
   const classes = useAppStyles();
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+  const theme = React.useMemo(
+    () =>
+      createMuiTheme({
+        palette: {
+          type: prefersDarkMode ? 'dark' : 'light',
+        },
+        map: {
+          free : '#0076FF',
+          occupied : '#242424',
+          segment1: '#19A1A1',
+          segment2: '#7AC037',
+          segment3: '#DF5618',
+          segment4: '#F7C841',
+          segmentFallback: '#9966CC', 
+        },
+      }),
+    [prefersDarkMode],
+  );
 
   return (
-    <BrowserRouter>
-      <Nav />
-      <main className={classes.content}>
-        <Switch>
-          <Route path="/map">
-            <Map mapData={mapData} />
-          </Route>
-          <Route path="/settings">
-            <span>Settings</span>
-          </Route>
-          <Route path="/about">
-            <span>About</span>
-          </Route>
-          <Route path="/">
-            <Dashboard />
-          </Route>
-        </Switch>
-      </main>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <CssBaseline />
+        <Nav />
+        <main className={classes.content}>
+          <Switch>
+            <Route path="/map">
+              <Map mapData={mapData} />
+            </Route>
+            <Route path="/settings">
+              <span>Settings</span>
+            </Route>
+            <Route path="/about">
+              <span>About</span>
+            </Route>
+            <Route path="/">
+              <Dashboard />
+            </Route>
+          </Switch>
+        </main>
+      </BrowserRouter></ThemeProvider>
   );
 };
 

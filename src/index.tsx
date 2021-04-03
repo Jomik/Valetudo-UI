@@ -1,14 +1,10 @@
 import ReactDOM from 'react-dom';
 import 'fontsource-roboto';
 import reportWebVitals from './reportWebVitals';
-import App  from './App';
-import { CssBaseline } from '@material-ui/core';
+import App from './App';
 
 ReactDOM.render(
-  <>
-    <CssBaseline />
-    <App />
-  </>,
+  <App />,
   document.getElementById('root'),
 );
 
