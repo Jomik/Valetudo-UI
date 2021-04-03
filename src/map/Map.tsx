@@ -2,12 +2,12 @@ import { Container, useTheme } from '@material-ui/core';
 import React from 'react';
 import { Layer, Rect, Stage } from 'react-konva';
 import { useHTMLElement } from '../hooks';
-import * as mapData from '../mapdata.json';
 import { FourColorTheoremSolver } from './map-color-finder';
+import { MapLayer as MapLayer, MapLayerType, MapData } from './MapData';
 import Pixels from './Pixels';
 
 type MapProps = {
-  mapData: typeof mapData;
+  mapData: MapData;
 };
 
 const MapPadding = 10;
@@ -30,29 +30,36 @@ const Map = (props: MapProps): JSX.Element => {
 
   const scale = containerWidth / stageWidth;
 
-  const getColor = React.useMemo(
-    () => {
-      const colorFinder = new FourColorTheoremSolver(layers, 6);
-      return (type: string, segmentId?: string): NonNullable<React.CSSProperties['color']> => {
-        const {free, occupied, segment1, segment2, segment3, segment4, segmentFallback} = theme.map;
-        switch (type) {
-        case 'floor':
-          return free;
-        case 'wall':
-          return occupied;
-        case 'segment': 
-          if (segmentId === undefined) {
-            break;
-          }
-
-          return [segment1, segment2, segment3, segment4][colorFinder.getColor(segmentId)] ?? segmentFallback;
+  const getColor = React.useMemo(() => {
+    const colorFinder = new FourColorTheoremSolver(layers, 6);
+    return (layer: MapLayer): NonNullable<React.CSSProperties['color']> => {
+      const {
+        free,
+        occupied,
+        segment1,
+        segment2,
+        segment3,
+        segment4,
+        segmentFallback,
+      } = theme.map;
+      switch (layer.type) {
+      case MapLayerType.Floor:
+        return free;
+      case MapLayerType.Wall:
+        return occupied;
+      case MapLayerType.Segment:
+        if (layer.metaData.segmentId === undefined) {
+          return segmentFallback;
         }
 
-        return segmentFallback;
-      };
-    },
-    [layers, theme.map],
-  );
+        return (
+          [segment1, segment2, segment3, segment4][
+            colorFinder.getColor(layer.metaData.segmentId)
+          ] ?? segmentFallback
+        );
+      }
+    };
+  }, [layers, theme.map]);
 
   return (
     <Container ref={containerRef}>
@@ -76,7 +83,7 @@ const Map = (props: MapProps): JSX.Element => {
           {layers.map((layer) => (
             <Pixels
               pixels={layer.pixels.map((p) => p * pixelSize)}
-              color={getColor(layer.type, layer.metaData.segmentId)}
+              color={getColor(layer)}
               pixelSize={pixelSize}
               key={`${layer.type}:${layer.metaData.segmentId}`}
             />

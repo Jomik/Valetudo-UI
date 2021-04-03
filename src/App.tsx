@@ -35,6 +35,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import MapIcon from '@material-ui/icons/Map';
 import Map from './map';
 import mapData from './mapdata.json';
+import { MapData } from './map';
 
 const drawerWidth = 240;
 
@@ -234,7 +235,7 @@ const App = (): JSX.Element => {
         <main className={classes.content}>
           <Switch>
             <Route path="/map">
-              <Map mapData={mapData} />
+              <Map mapData={mapData as MapData} />
             </Route>
             <Route path="/settings">
               <span>Settings</span>
