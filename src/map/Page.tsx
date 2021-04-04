@@ -1,5 +1,4 @@
 import {
-  Container,
   createStyles,
   FormControl,
   InputLabel,
@@ -62,7 +61,7 @@ const Page = (): JSX.Element => {
   );
 
   return (
-    <Container>
+    <>
       <FormControl className={classes.formControl}>
         <InputLabel id="map-data-select-label">Map Data</InputLabel>
         <Select
@@ -79,7 +78,7 @@ const Page = (): JSX.Element => {
         </Select>
       </FormControl>
       <Map mapData={mockMapData[mapDataKey]} />
-    </Container>
+    </>
   );
 };
 

@@ -34,7 +34,6 @@ const Pixels = (props: PixelsProps): JSX.Element => {
   return (
     <Shape
       sceneFunc={sceneFunc}
-      preventDefault={false}
       fill={color}
       width={pixelSize}
       height={pixelSize}

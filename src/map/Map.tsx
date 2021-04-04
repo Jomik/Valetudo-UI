@@ -1,5 +1,9 @@
-import { Container } from '@material-ui/core';
-import { ThemeProvider, useTheme } from '@material-ui/core/styles';
+import {
+  createStyles,
+  makeStyles,
+  ThemeProvider,
+  useTheme,
+} from '@material-ui/core/styles';
 import React from 'react';
 import { Layer, Stage } from 'react-konva';
 import { useHTMLElement } from '../hooks';
@@ -12,6 +16,14 @@ export interface MapProps {
   mapData: MapData;
 }
 
+const useStyles = makeStyles(() =>
+  createStyles({
+    container: {
+      flex: '1 1 auto',
+    },
+  })
+);
+
 const MapPadding = 10;
 const Map = (props: MapProps): JSX.Element => {
   const { mapData } = props;
@@ -20,9 +32,16 @@ const Map = (props: MapProps): JSX.Element => {
   // TODO: Remove this when Valetudo does not return empty layers.
   const filteredLayers = layers.filter((layer) => layer.metaData.area > 0);
   const theme = useTheme();
-  const [containerRef, containerWidth] = useHTMLElement(
-    0,
-    React.useCallback((element: HTMLDivElement) => element.offsetWidth, [])
+  const classes = useStyles();
+  const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
+    { containerWidth: 0, containerHeight: 0 },
+    React.useCallback(
+      (element: HTMLDivElement) => ({
+        containerWidth: element.offsetWidth,
+        containerHeight: element.offsetHeight,
+      }),
+      []
+    )
   );
 
   const minX = Math.min(
@@ -41,7 +60,10 @@ const Map = (props: MapProps): JSX.Element => {
   const stageWidth = (maxX - minX + MapPadding * 2) * pixelSize;
   const stageHeight = (maxY - minY + MapPadding * 2) * pixelSize;
 
-  const scale = containerWidth / stageWidth;
+  const stageScaleWidth = containerWidth / stageWidth;
+  const stageScaleHeight = containerHeight / stageHeight;
+  const stageScale =
+    stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
 
   const getColor = React.useMemo(() => {
     const colorFinder = new FourColorTheoremSolver(filteredLayers, 6);
@@ -75,15 +97,15 @@ const Map = (props: MapProps): JSX.Element => {
   }, [filteredLayers, theme.map]);
 
   return (
-    <Container ref={containerRef}>
+    <div ref={containerRef} className={classes.container}>
       <Stage
-        width={stageWidth * scale}
-        height={stageHeight * scale}
-        scaleX={scale}
-        scaleY={scale}
+        width={containerWidth}
+        height={containerHeight}
+        scaleX={stageScale}
+        scaleY={stageScale}
         offsetX={(minX - MapPadding) * pixelSize}
         offsetY={(minY - MapPadding) * pixelSize}
-        preventDefault={false}
+        draggable
       >
         {/*
           We have to provide the theme here to "bridge" the Stage.
@@ -111,7 +133,7 @@ const Map = (props: MapProps): JSX.Element => {
           </Layer>
         </ThemeProvider>
       </Stage>
-    </Container>
+    </div>
   );
 };
 

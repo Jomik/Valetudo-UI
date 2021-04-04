@@ -22,7 +22,6 @@ import Typography from '@material-ui/core/Typography';
 import {
   makeStyles,
   useTheme,
-  Theme,
   createStyles,
   ThemeProvider,
   createMuiTheme,
@@ -37,11 +36,17 @@ import Map from './map';
 
 const drawerWidth = 240;
 
-const useAppStyles = makeStyles((theme: Theme) =>
+const useAppStyles = makeStyles((theme) =>
   createStyles({
+    root: {
+      display: 'flex',
+      flexFlow: 'column',
+      height: '100vh',
+    },
     content: {
       flexGrow: 1,
-      padding: theme.spacing(3),
+      display: 'flex',
+      flexFlow: 'column',
       [theme.breakpoints.up('sm')]: {
         marginStart: `${drawerWidth}px`,
       },
@@ -49,7 +54,7 @@ const useAppStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const useNavStyles = makeStyles((theme: Theme) =>
+const useNavStyles = makeStyles((theme) =>
   createStyles({
     root: {
       display: 'flex',
@@ -232,24 +237,26 @@ const App = (): JSX.Element => {
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <CssBaseline />
-        <Nav />
-        <main className={classes.content}>
-          <Switch>
-            <Route path="/map">
-              <Map />
-            </Route>
-            <Route path="/settings">
-              <span>Settings</span>
-            </Route>
-            <Route path="/about">
-              <span>About</span>
-            </Route>
-            <Route path="/">
-              <Dashboard />
-            </Route>
-          </Switch>
-        </main>
+        <div className={classes.root}>
+          <CssBaseline />
+          <Nav />
+          <main className={classes.content}>
+            <Switch>
+              <Route path="/map">
+                <Map />
+              </Route>
+              <Route path="/settings">
+                <span>Settings</span>
+              </Route>
+              <Route path="/about">
+                <span>About</span>
+              </Route>
+              <Route path="/">
+                <Dashboard />
+              </Route>
+            </Switch>
+          </main>
+        </div>
       </BrowserRouter>
     </ThemeProvider>
   );
