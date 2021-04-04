@@ -1,4 +1,4 @@
-import Map from './Map';
+import Page from './Page';
 
 export * from './MapData';
-export default Map;
+export default Page;

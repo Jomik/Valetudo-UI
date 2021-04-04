@@ -1,23 +1,18 @@
 import { ShapeConfig } from 'konva/types/Shape';
 import React from 'react';
 import { Shape } from 'react-konva';
+import { pairWiseArray } from './utils';
 
-type PixelsProps = {
+interface PixelsProps {
   pixelSize: number;
   pixels: number[];
   color: string;
-};
-
-const pairWise = function* <T>(arr: T[]): Generator<[T, T]> {
-  for (let i = 0; i < arr.length; i = i + 2) {
-    yield arr.slice(i, i + 2) as [T, T];
-  }
-};
+}
 
 const Pixels = (props: PixelsProps): JSX.Element => {
   const { pixels, pixelSize, color } = props;
 
-  const coordinates = React.useMemo(() => [...pairWise(pixels)], [pixels]);
+  const coordinates = React.useMemo(() => pairWiseArray(pixels), [pixels]);
   const sceneFunc = React.useCallback<Required<ShapeConfig>['sceneFunc']>(
     (context, shape) => {
       const width = shape.getAttr('width');
@@ -33,7 +28,7 @@ const Pixels = (props: PixelsProps): JSX.Element => {
 
       context.fillStrokeShape(shape);
     },
-    [coordinates],
+    [coordinates]
   );
 
   return (

@@ -1,7 +1,7 @@
 import '@material-ui/core/styles/createMuiTheme';
 
 declare module '@material-ui/core/styles/createMuiTheme' {
-   interface Theme {
+  interface Theme {
     map: {
       free: NonNullable<React.CSSProperties['color']>;
       occupied: NonNullable<React.CSSProperties['color']>;
@@ -10,6 +10,19 @@ declare module '@material-ui/core/styles/createMuiTheme' {
       segment3: NonNullable<React.CSSProperties['color']>;
       segment4: NonNullable<React.CSSProperties['color']>;
       segmentFallback: NonNullable<React.CSSProperties['color']>;
+      path: NonNullable<React.CSSProperties['color']>;
+      noGo: {
+        stroke: NonNullable<React.CSSProperties['color']>;
+        fill: NonNullable<React.CSSProperties['color']>;
+      };
+      noMop: {
+        stroke: NonNullable<React.CSSProperties['color']>;
+        fill: NonNullable<React.CSSProperties['color']>;
+      };
+      active: {
+        stroke: NonNullable<React.CSSProperties['color']>;
+        fill: NonNullable<React.CSSProperties['color']>;
+      };
     };
   }
 
@@ -22,6 +35,19 @@ declare module '@material-ui/core/styles/createMuiTheme' {
       segment3: NonNullable<React.CSSProperties['color']>;
       segment4: NonNullable<React.CSSProperties['color']>;
       segmentFallback: NonNullable<React.CSSProperties['color']>;
+      path: NonNullable<React.CSSProperties['color']>;
+      noGo: {
+        stroke: NonNullable<React.CSSProperties['color']>;
+        fill: NonNullable<React.CSSProperties['color']>;
+      };
+      noMop: {
+        stroke: NonNullable<React.CSSProperties['color']>;
+        fill: NonNullable<React.CSSProperties['color']>;
+      };
+      active: {
+        stroke: NonNullable<React.CSSProperties['color']>;
+        fill: NonNullable<React.CSSProperties['color']>;
+      };
     };
   }
 }

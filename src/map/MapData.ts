@@ -48,17 +48,17 @@ export enum MapLayerType {
 }
 
 export enum MapEntityType {
-  Path = 'path',
-  PredictedPath = 'predicted_path',
   ChargerLocation = 'charger_location',
   RobotPosition = 'robot_position',
+  GoToTarget = 'go_to_target',
+  Path = 'path',
+  PredictedPath = 'predicted_path',
   VirtualWall = 'virtual_wall',
   NoGoArea = 'no_go_area',
   NoMopArea = 'no_mop_area',
+  ActiveZone = 'active_zone',
 }
 
 export interface MapDataMetaData {
-  vendorMapId: number;
   version: number;
 }
-

@@ -111198,10 +111198,7 @@
     {
       "__class": "PointMapEntity",
       "metaData": {},
-      "points": [
-        2561,
-        2598
-      ],
+      "points": [2561, 2598],
       "type": "charger_location"
     },
     {
@@ -111209,133 +111206,61 @@
       "metaData": {
         "angle": 183
       },
-      "points": [
-        2562,
-        2579
-      ],
+      "points": [2562, 2579],
       "type": "robot_position"
     },
     {
       "__class": "PolygonMapEntity",
       "metaData": {},
-      "points": [
-        2405,
-        2150,
-        2515,
-        2150,
-        2515,
-        2220,
-        2405,
-        2220
-      ],
+      "points": [2405, 2150, 2515, 2150, 2515, 2220, 2405, 2220],
       "type": "no_go_area"
     },
     {
       "__class": "PolygonMapEntity",
       "metaData": {},
-      "points": [
-        2400,
-        2055,
-        2445,
-        2055,
-        2445,
-        2110,
-        2400,
-        2110
-      ],
+      "points": [2400, 2055, 2445, 2055, 2445, 2110, 2400, 2110],
       "type": "no_go_area"
     },
     {
       "__class": "PolygonMapEntity",
       "metaData": {},
-      "points": [
-        2855,
-        1985,
-        2920,
-        1985,
-        2920,
-        2120,
-        2855,
-        2120
-      ],
+      "points": [2855, 1985, 2920, 1985, 2920, 2120, 2855, 2120],
       "type": "no_go_area"
     },
     {
       "__class": "PolygonMapEntity",
       "metaData": {},
-      "points": [
-        2880,
-        2350,
-        2925,
-        2350,
-        2925,
-        2610,
-        2880,
-        2610
-      ],
+      "points": [2880, 2350, 2925, 2350, 2925, 2610, 2880, 2610],
       "type": "no_go_area"
     },
     {
       "__class": "PolygonMapEntity",
       "metaData": {},
-      "points": [
-        2830,
-        2590,
-        2905,
-        2590,
-        2905,
-        2630,
-        2830,
-        2630
-      ],
+      "points": [2830, 2590, 2905, 2590, 2905, 2630, 2830, 2630],
       "type": "no_go_area"
     },
     {
       "__class": "PolygonMapEntity",
       "metaData": {},
-      "points": [
-        1979,
-        2328,
-        2187,
-        2328,
-        2187,
-        2597,
-        1979,
-        2597
-      ],
+      "points": [1979, 2328, 2187, 2328, 2187, 2597, 1979, 2597],
       "type": "no_go_area"
     },
     {
       "__class": "LineMapEntity",
       "metaData": {},
-      "points": [
-        1985,
-        1625,
-        2150,
-        1620
-      ],
+      "points": [1985, 1625, 2150, 1620],
       "type": "virtual_wall"
     },
     {
       "__class": "LineMapEntity",
       "metaData": {},
-      "points": [
-        2000,
-        1905,
-        1425,
-        1905
-      ],
+      "points": [2000, 1905, 1425, 1905],
       "type": "virtual_wall"
     },
     {
       "__class": "LineMapEntity",
       "metaData": {},
-      "points": [
-        1460,
-        1820,
-        1455,
-        2100
-      ],
+      "points": [1460, 1820, 1455, 2100],
       "type": "virtual_wall"
     }
   ]

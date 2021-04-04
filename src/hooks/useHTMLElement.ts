@@ -2,7 +2,7 @@ import React from 'react';
 
 export const useHTMLElement = <E extends HTMLElement, T>(
   defaultValue: T,
-  mapper: (element: E) => T,
+  mapper: (element: E) => T
 ): [React.MutableRefObject<E | null>, T] => {
   const [value, setValue] = React.useState<T>(defaultValue);
   const nodeRef = React.useRef<E>(null);

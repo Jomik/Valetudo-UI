@@ -34,8 +34,6 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MapIcon from '@material-ui/icons/Map';
 import Map from './map';
-import mapData from './mapdata.json';
-import { MapData } from './map';
 
 const drawerWidth = 240;
 
@@ -48,7 +46,7 @@ const useAppStyles = makeStyles((theme: Theme) =>
         marginStart: `${drawerWidth}px`,
       },
     },
-  }),
+  })
 );
 
 const useNavStyles = makeStyles((theme: Theme) =>
@@ -79,7 +77,7 @@ const useNavStyles = makeStyles((theme: Theme) =>
     drawerPaper: {
       width: drawerWidth,
     },
-  }),
+  })
 );
 
 const Nav = (): JSX.Element => {
@@ -95,14 +93,14 @@ const Nav = (): JSX.Element => {
 
   const pageTitle = React.useMemo(() => {
     switch (location.pathname) {
-    case '/about':
-      return 'About';
-    case '/map':
-      return 'Map';
-    case '/settings':
-      return 'Settings';
-    default:
-      return 'Valetudo';
+      case '/about':
+        return 'About';
+      case '/map':
+        return 'Map';
+      case '/settings':
+        return 'Settings';
+      default:
+        return 'Valetudo';
     }
   }, [location.pathname]);
 
@@ -149,7 +147,7 @@ const Nav = (): JSX.Element => {
         </List>
       </div>
     ),
-    [classes.toolbar],
+    [classes.toolbar]
   );
 
   return (
@@ -215,16 +213,20 @@ const App = (): JSX.Element => {
           type: prefersDarkMode ? 'dark' : 'light',
         },
         map: {
-          free : '#0076FF',
-          occupied : '#242424',
+          free: '#0076FF',
+          occupied: '#242424',
           segment1: '#19A1A1',
           segment2: '#7AC037',
           segment3: '#DF5618',
           segment4: '#F7C841',
-          segmentFallback: '#9966CC', 
+          segmentFallback: '#9966CC',
+          path: '#FFFFFF',
+          noGo: { stroke: '#FF0000', fill: '#75000066' },
+          noMop: { stroke: '#CC00FF', fill: '#58006E66' },
+          active: { stroke: '#35911A', fill: '#6AF5424C' },
         },
       }),
-    [prefersDarkMode],
+    [prefersDarkMode]
   );
 
   return (
@@ -235,7 +237,7 @@ const App = (): JSX.Element => {
         <main className={classes.content}>
           <Switch>
             <Route path="/map">
-              <Map mapData={mapData as MapData} />
+              <Map />
             </Route>
             <Route path="/settings">
               <span>Settings</span>
@@ -248,7 +250,8 @@ const App = (): JSX.Element => {
             </Route>
           </Switch>
         </main>
-      </BrowserRouter></ThemeProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 };
 

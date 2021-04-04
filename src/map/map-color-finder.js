@@ -96,7 +96,7 @@ export class FourColorTheoremSolver {
   createPixelToSegmentMapping(preparedLayers) {
     var pixelData = this.create2DArray(
       preparedLayers.boundaries.maxX + 1,
-      preparedLayers.boundaries.maxY + 1,
+      preparedLayers.boundaries.maxY + 1
     );
     var segmentIds = [];
     preparedLayers.segments.forEach((seg) => {
@@ -122,7 +122,7 @@ export class FourColorTheoremSolver {
         var newSegmentId = pixelData[x][y];
         graph.connectVertices(currentSegmentId, newSegmentId);
         return newSegmentId !== undefined ? newSegmentId : currentSegmentId;
-      },
+      }
     );
     return graph;
   }
