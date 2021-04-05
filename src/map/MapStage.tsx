@@ -40,6 +40,8 @@ export interface MapStageProps {
 Konva.hitOnDragEnabled = isTouchEnabled;
 
 const MapPadding = 10;
+const ScaleBound = 10;
+
 const MapStage = (props: MapStageProps): JSX.Element => {
   const { children, mapData } = props;
   const { layers, pixelSize } = mapData;
@@ -59,26 +61,26 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   const lastDist = React.useRef<number>(0);
 
   // TODO: Remove this when Valetudo does not return empty layers.
-  const filteredLayers = layers.filter((layer) => layer.metaData.area > 0);
-
-  const minX = Math.min(
-    ...filteredLayers.map((layer) => layer.dimensions.x.min)
-  );
-  const maxX = Math.max(
-    ...filteredLayers.map((layer) => layer.dimensions.x.max)
-  );
-  const minY = Math.min(
-    ...filteredLayers.map((layer) => layer.dimensions.y.min)
-  );
-  const maxY = Math.max(
-    ...filteredLayers.map((layer) => layer.dimensions.y.max)
+  const filteredLayers = React.useMemo(
+    () => layers.filter((layer) => layer.metaData.area > 0),
+    [layers]
   );
 
-  const stageWidth = (maxX - minX + MapPadding * 2) * pixelSize;
-  const stageHeight = (maxY - minY + MapPadding * 2) * pixelSize;
+  const { minX, minY, maxX, maxY } = React.useMemo(
+    () => ({
+      minX: Math.min(...filteredLayers.map((layer) => layer.dimensions.x.min)),
+      maxX: Math.max(...filteredLayers.map((layer) => layer.dimensions.x.max)),
+      minY: Math.min(...filteredLayers.map((layer) => layer.dimensions.y.min)),
+      maxY: Math.max(...filteredLayers.map((layer) => layer.dimensions.y.max)),
+    }),
+    [filteredLayers]
+  );
 
-  const stageScaleWidth = containerWidth / stageWidth;
-  const stageScaleHeight = containerHeight / stageHeight;
+  const mapWidth = (maxX - minX + MapPadding * 2) * pixelSize;
+  const mapHeight = (maxY - minY + MapPadding * 2) * pixelSize;
+
+  const stageScaleWidth = containerWidth / mapWidth;
+  const stageScaleHeight = containerHeight / mapHeight;
   const stageScale =
     stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
 
@@ -100,7 +102,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
       const newScale = bound(
         currentScale * scaleDelta,
         stageScale,
-        stageScale * pixelSize
+        stageScale * ScaleBound
       );
 
       const newPos = {
@@ -112,7 +114,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
       stage.position(newPos);
       stage.batchDraw();
     },
-    [pixelSize, stageScale]
+    [stageScale]
   );
 
   const handleScroll = React.useCallback(
