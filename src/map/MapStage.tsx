@@ -143,7 +143,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
         return;
       }
 
-      if (event.evt.touches.length < 2) {
+      if (event.evt.touches.length !== 2) {
         return;
       }
 
