@@ -38,6 +38,7 @@ export interface MapLayerDimension {
 export interface MapLayerMetaData {
   area: number;
   segmentId?: string;
+  name?: string;
   active?: boolean;
 }
 

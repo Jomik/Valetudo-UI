@@ -1,12 +1,24 @@
 import { ThemeProvider, useTheme } from '@material-ui/core/styles';
+import Konva from 'konva';
+import { KonvaEventObject } from 'konva/types/Node';
 import React from 'react';
 import { Layer } from 'react-konva';
 import { FourColorTheoremSolver } from './map-color-finder';
-import { MapLayer as MapLayer, MapLayerType, MapData } from './MapData';
+import {
+  MapLayer as MapLayer,
+  MapLayerType,
+  MapData,
+  MapLayerMetaData,
+} from './MapData';
 import MapEntityShape from './MapEntityShape';
 import MapStage from './MapStage';
 import Pixels from './Pixels';
 
+import robotSrc from '../assets/icons/robot.svg';
+import ChipShape from './ChipShape';
+
+const robotImage = new window.Image();
+robotImage.src = robotSrc;
 export interface MapProps {
   mapData: MapData;
 }
@@ -48,33 +60,74 @@ const Map = (props: MapProps): JSX.Element => {
     };
   }, [layers, theme.map]);
 
+  const handleClick = React.useCallback(
+    (event: KonvaEventObject<MouseEvent>) => {
+      const { currentTarget: stage, target } = event;
+
+      if (!(stage instanceof Konva.Stage) || !(target instanceof Konva.Shape)) {
+        return;
+      }
+
+      const { type, metaData } = target.attrs as {
+        type?: string;
+        metaData?: MapLayerMetaData;
+      };
+
+      const pointer = stage.getPointerPosition() ?? { x: 0, y: 0 };
+      const stagePosition = {
+        x: (pointer.x - stage.x()) / stage.scaleX(),
+        y: (pointer.y - stage.y()) / stage.scaleY(),
+      };
+
+      console.log(type, metaData);
+      console.log('pos', stagePosition);
+    },
+    []
+  );
+
   return (
-    <MapStage mapData={mapData}>
+    <MapStage mapData={mapData} onClick={handleClick}>
       {/*
         We have to provide the theme here to "bridge" the Stage.
         See: https://github.com/konvajs/react-konva#usage-with-react-context
       */}
-      <ThemeProvider theme={theme}>
-        <Layer>
-          {layers.map((layer) => (
-            <Pixels
-              pixels={layer.pixels.map((p) => p * pixelSize)}
-              color={getColor(layer)}
-              pixelSize={pixelSize}
-              key={`${layer.type}:${layer.metaData.segmentId}`}
-            />
-          ))}
-        </Layer>
-        <Layer>
-          {entities.map((entity, index) => (
-            <MapEntityShape
-              key={index.toString()}
-              entity={entity}
-              pixelSize={pixelSize}
-            />
-          ))}
-        </Layer>
-      </ThemeProvider>
+      {(scale) => (
+        <ThemeProvider theme={theme}>
+          <Layer>
+            {layers.map((layer, index) => (
+              <Pixels
+                key={`${layer.type}:${layer.metaData.segmentId ?? index}`}
+                points={layer.pixels.map((p) => p * pixelSize)}
+                blockSize={pixelSize}
+                fill={getColor(layer)}
+                metaData={layer.metaData}
+                type={layer.type}
+              />
+            ))}
+          </Layer>
+          <Layer listening={false}>
+            {entities.map((entity, index) => (
+              <MapEntityShape
+                key={index.toString()}
+                entity={entity}
+                pixelSize={pixelSize}
+              />
+            ))}
+            {layers
+              .filter((layer) => layer.type === MapLayerType.Segment)
+              .map((layer) => (
+                <ChipShape
+                  key={`${layer.type}:${layer.metaData.segmentId}`}
+                  text={layer.metaData.name ?? `# ${layer.metaData.segmentId}`}
+                  x={layer.dimensions.x.mid * pixelSize}
+                  y={layer.dimensions.y.mid * pixelSize}
+                  scaleX={1 / scale}
+                  scaleY={1 / scale}
+                />
+              ))}
+          </Layer>
+        </ThemeProvider>
+      )}
     </MapStage>
   );
 };

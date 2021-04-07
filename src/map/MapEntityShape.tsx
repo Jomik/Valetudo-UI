@@ -15,12 +15,12 @@ chargerImage.src = chargerSrc;
 const markerImage = new window.Image();
 markerImage.src = markerSrc;
 
-export interface MapEntityProps {
+export interface MapEntityShapeProps {
   entity: MapEntity;
   pixelSize: number;
 }
 
-const MapEntityShape = (props: MapEntityProps): JSX.Element | null => {
+const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
   const { entity, pixelSize } = props;
   const theme = useTheme();
 

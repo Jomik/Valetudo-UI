@@ -3,7 +3,7 @@ import Konva from 'konva';
 import { KonvaEventObject } from 'konva/types/Node';
 import { Vector2d } from 'konva/types/types';
 import React from 'react';
-import { Stage } from 'react-konva';
+import { Stage, StageProps } from 'react-konva';
 import { useHTMLElement } from '../hooks';
 import { MapData } from './MapData';
 import { bound } from './utils';
@@ -31,10 +31,16 @@ const useStyles = makeStyles(() =>
   })
 );
 
-export interface MapStageProps {
-  children: JSX.Element;
+export type MapStageProps = StageProps & {
+  children: (scale: number) => JSX.Element;
   mapData: MapData;
-}
+  width?: never;
+  height?: never;
+  scaleX?: never;
+  scaleY?: never;
+  offsetX?: never;
+  offsetY?: never;
+};
 
 // Do this to properly handle drag on touch devices.
 Konva.hitOnDragEnabled = isTouchEnabled;
@@ -43,7 +49,14 @@ const MapPadding = 10;
 const ScaleBound = 10;
 
 const MapStage = (props: MapStageProps): JSX.Element => {
-  const { children, mapData } = props;
+  const {
+    children,
+    mapData,
+    onWheel,
+    onTouchMove,
+    onTouchEnd,
+    ...stageConfig
+  } = props;
   const { layers, pixelSize } = mapData;
   const classes = useStyles();
   const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
@@ -112,6 +125,12 @@ const MapStage = (props: MapStageProps): JSX.Element => {
 
       stage.scale({ x: newScale, y: newScale });
       stage.position(newPos);
+      stage.find('Label').each((shape) => {
+        shape.scale({
+          x: 1 / newScale,
+          y: 1 / newScale,
+        });
+      });
       stage.batchDraw();
     },
     [stageScale]
@@ -119,6 +138,11 @@ const MapStage = (props: MapStageProps): JSX.Element => {
 
   const handleScroll = React.useCallback(
     (event: KonvaEventObject<WheelEvent>) => {
+      onWheel?.(event);
+      if (event.evt.defaultPrevented) {
+        return;
+      }
+
       event.evt.preventDefault();
       const { currentTarget: stage } = event;
       if (!(stage instanceof Konva.Stage)) {
@@ -131,11 +155,16 @@ const MapStage = (props: MapStageProps): JSX.Element => {
         (100 - event.evt.deltaY) / 100
       );
     },
-    [scaleStage]
+    [onWheel, scaleStage]
   );
 
   const handleTouchMove = React.useCallback(
     (event: KonvaEventObject<TouchEvent>) => {
+      onTouchMove?.(event);
+      if (event.evt.defaultPrevented) {
+        return;
+      }
+
       event.evt.preventDefault();
       const { currentTarget: stage } = event;
 
@@ -175,17 +204,23 @@ const MapStage = (props: MapStageProps): JSX.Element => {
       lastDist.current = dist;
       lastCenter.current = newCenter;
     },
-    [scaleStage]
+    [onTouchMove, scaleStage]
   );
 
-  const handleTouchEnd = React.useCallback(() => {
-    lastCenter.current = null;
-    lastDist.current = 0;
-  }, []);
+  const handleTouchEnd = React.useCallback(
+    (event: KonvaEventObject<TouchEvent>) => {
+      lastCenter.current = null;
+      lastDist.current = 0;
+      onTouchEnd?.(event);
+    },
+    [onTouchEnd]
+  );
 
   return (
     <div ref={containerRef} className={classes.container}>
       <Stage
+        draggable
+        {...stageConfig}
         onWheel={handleScroll}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -195,9 +230,8 @@ const MapStage = (props: MapStageProps): JSX.Element => {
         scaleY={stageScale}
         offsetX={(minX - MapPadding) * pixelSize}
         offsetY={(minY - MapPadding) * pixelSize}
-        draggable
       >
-        {children}
+        {children(stageScale)}
       </Stage>
     </div>
   );
