@@ -9,7 +9,7 @@ import {
   MapLayerType,
   MapData,
   MapLayerMetaData,
-} from './MapData';
+} from '../api';
 import MapEntityShape from './MapEntityShape';
 import MapStage from './MapStage';
 import Pixels from './Pixels';

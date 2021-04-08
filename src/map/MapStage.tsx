@@ -5,7 +5,7 @@ import { Vector2d } from 'konva/types/types';
 import React from 'react';
 import { Stage, StageProps } from 'react-konva';
 import { useHTMLElement } from '../hooks';
-import { MapData } from './MapData';
+import { MapData } from '../api';
 import { bound } from './utils';
 
 const ZeroVector: Vector2d = { x: 0, y: 0 };
@@ -87,6 +87,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
     }),
     [filteredLayers]
   );
+
   const mapWidth = (maxX - minX + MapPadding * 2) * pixelSize;
   const mapHeight = (maxY - minY + MapPadding * 2) * pixelSize;
 

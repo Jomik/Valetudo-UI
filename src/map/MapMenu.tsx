@@ -5,7 +5,7 @@ import {
   PopoverPosition,
 } from '@material-ui/core';
 import { Vector2d } from 'konva/types/types';
-import { MapLayerMetaData } from './MapData';
+import { MapLayerMetaData } from '../api';
 
 export interface MapMenuProps {
   anchorPosition?: PopoverPosition;

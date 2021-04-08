@@ -1,7 +1,7 @@
 import { useTheme } from '@material-ui/core/styles';
 import { LineConfig } from 'konva/types/shapes/Line';
 import { Image, Line } from 'react-konva';
-import { MapEntity, MapEntityType } from './MapData';
+import { MapEntity, MapEntityType } from '../api';
 import robotSrc from '../assets/icons/robot.svg';
 import chargerSrc from '../assets/icons/charger.svg';
 import markerSrc from '../assets/icons/marker_active.svg';

@@ -21,7 +21,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme, createStyles } from '@material-ui/core/styles';
 import React from 'react';
-import { CssBaseline } from '@material-ui/core';
 import {
   Dashboard as DashboardIcon,
   Settings as SettingsIcon,
@@ -201,7 +200,6 @@ const AppRouter = (): JSX.Element => {
   const classes = useAppStyles();
   return (
     <BrowserRouter>
-      <CssBaseline />
       <Nav />
       <main className={classes.content}>
         <Switch>

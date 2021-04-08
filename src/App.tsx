@@ -1,7 +1,9 @@
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import React from 'react';
-import { useMediaQuery } from '@material-ui/core';
+import { CssBaseline, useMediaQuery } from '@material-ui/core';
 import AppRouter from './AppRouter';
+import CapabilitiesProvider from './Capabilities';
+import { SnackbarProvider } from 'notistack';
 
 const App = (): JSX.Element => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -31,7 +33,13 @@ const App = (): JSX.Element => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppRouter />
+      <CssBaseline />
+
+      <SnackbarProvider maxSnack={3} autoHideDuration={5000}>
+        <CapabilitiesProvider>
+          <AppRouter />
+        </CapabilitiesProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   );
 };
