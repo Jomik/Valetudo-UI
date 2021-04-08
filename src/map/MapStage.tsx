@@ -54,9 +54,6 @@ const scalePersistentNodes = (stage: Konva.Stage) => {
     });
 };
 
-// Do this to properly handle drag on touch devices.
-Konva.hitOnDragEnabled = isTouchEnabled;
-
 const MapPadding = 10;
 const ScaleBound = 10;
 
@@ -72,6 +69,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   const { layers, pixelSize } = mapData;
   const classes = useStyles();
   const lastCenter = React.useRef<Vector2d | null>(null);
+  const lastDragCenter = React.useRef<Vector2d | null>(null);
   const lastDist = React.useRef<number>(0);
 
   // TODO: Remove this when Valetudo does not return empty layers.
@@ -146,7 +144,9 @@ const MapStage = (props: MapStageProps): JSX.Element => {
 
       stage.scale({ x: newScale, y: newScale });
       stage.position(newPos);
+
       scalePersistentNodes(stage);
+
       stage.batchDraw();
     },
     [stageScale]
@@ -188,12 +188,27 @@ const MapStage = (props: MapStageProps): JSX.Element => {
         return;
       }
 
-      if (event.evt.touches.length !== 2) {
+      if (event.evt.touches.length === 1) {
+        const [touch1] = event.evt.touches;
+        const p1 = { x: touch1.clientX, y: touch1.clientY };
+        if (lastDragCenter.current === null) {
+          lastDragCenter.current = p1;
+          return;
+        }
+
+        stage.position({
+          x: stage.x() + p1.x - lastDragCenter.current.x,
+          y: stage.y() + p1.y - lastDragCenter.current.y,
+        });
+
+        stage.batchDraw();
+
+        lastDragCenter.current = p1;
         return;
       }
 
-      if (stage.isDragging()) {
-        stage.stopDrag();
+      if (event.evt.touches.length !== 2) {
+        return;
       }
 
       const [touch1, touch2] = event.evt.touches;
@@ -226,6 +241,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   const handleTouchEnd = React.useCallback(
     (event: KonvaEventObject<TouchEvent>) => {
       lastCenter.current = null;
+      lastDragCenter.current = null;
       lastDist.current = 0;
       onTouchEnd?.(event);
     },
@@ -236,7 +252,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
     <div ref={containerRef} className={classes.container}>
       <Stage
         ref={stageRef}
-        draggable
+        draggable={!isTouchEnabled}
         {...stageConfig}
         onWheel={handleScroll}
         onTouchMove={handleTouchMove}
