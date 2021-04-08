@@ -240,9 +240,15 @@ const MapStage = (props: MapStageProps): JSX.Element => {
 
   const handleTouchEnd = React.useCallback(
     (event: KonvaEventObject<TouchEvent>) => {
-      lastCenter.current = null;
-      lastDragCenter.current = null;
       lastDist.current = 0;
+
+      if (lastDragCenter.current !== null || lastCenter.current !== null) {
+        lastCenter.current = null;
+        lastDragCenter.current = null;
+        event.evt.preventDefault();
+        return;
+      }
+
       onTouchEnd?.(event);
     },
     [onTouchEnd]
