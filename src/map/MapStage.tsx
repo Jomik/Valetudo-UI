@@ -1,6 +1,6 @@
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Konva from 'konva';
-import { KonvaEventObject } from 'konva/types/Node';
+import { KonvaEventObject, Node } from 'konva/types/Node';
 import { Vector2d } from 'konva/types/types';
 import React from 'react';
 import { Stage, StageProps } from 'react-konva';
@@ -32,7 +32,7 @@ const useStyles = makeStyles(() =>
 );
 
 export type MapStageProps = StageProps & {
-  children: (scale: number) => JSX.Element;
+  children: JSX.Element;
   mapData: MapData;
   width?: never;
   height?: never;
@@ -40,6 +40,18 @@ export type MapStageProps = StageProps & {
   scaleY?: never;
   offsetX?: never;
   offsetY?: never;
+};
+
+const scalePersistentNodes = (stage: Konva.Stage) => {
+  stage
+    .find((node: Node) => node.getAttr('persistentScale') !== undefined)
+    .each((shape) => {
+      const persistentScale = shape.getAttr('persistentScale');
+      shape.scale({
+        x: persistentScale / stage.scaleX(),
+        y: persistentScale / stage.scaleY(),
+      });
+    });
 };
 
 // Do this to properly handle drag on touch devices.
@@ -59,17 +71,6 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   } = props;
   const { layers, pixelSize } = mapData;
   const classes = useStyles();
-  const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
-    { containerWidth: 0, containerHeight: 0 },
-    React.useCallback(
-      (element: HTMLDivElement) => ({
-        containerWidth: element.offsetWidth,
-        containerHeight: element.offsetHeight,
-      }),
-      []
-    )
-  );
-
   const lastCenter = React.useRef<Vector2d | null>(null);
   const lastDist = React.useRef<number>(0);
 
@@ -88,14 +89,34 @@ const MapStage = (props: MapStageProps): JSX.Element => {
     }),
     [filteredLayers]
   );
-
   const mapWidth = (maxX - minX + MapPadding * 2) * pixelSize;
   const mapHeight = (maxY - minY + MapPadding * 2) * pixelSize;
+
+  const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
+    { containerWidth: mapWidth, containerHeight: mapHeight },
+    React.useCallback(
+      (element: HTMLDivElement) => ({
+        containerWidth: element.offsetWidth,
+        containerHeight: element.offsetHeight,
+      }),
+      []
+    )
+  );
+  const stageRef = React.useRef<Konva.Stage>(null);
 
   const stageScaleWidth = containerWidth / mapWidth;
   const stageScaleHeight = containerHeight / mapHeight;
   const stageScale =
     stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
+
+  React.useLayoutEffect(() => {
+    const stage = stageRef.current;
+    if (stage === null) {
+      return;
+    }
+    scalePersistentNodes(stage);
+    stage.batchDraw();
+  }, [stageScale]);
 
   const scaleStage = React.useCallback(
     (
@@ -125,12 +146,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
 
       stage.scale({ x: newScale, y: newScale });
       stage.position(newPos);
-      stage.find('Label').each((shape) => {
-        shape.scale({
-          x: 1 / newScale,
-          y: 1 / newScale,
-        });
-      });
+      scalePersistentNodes(stage);
       stage.batchDraw();
     },
     [stageScale]
@@ -219,6 +235,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   return (
     <div ref={containerRef} className={classes.container}>
       <Stage
+        ref={stageRef}
         draggable
         {...stageConfig}
         onWheel={handleScroll}
@@ -231,7 +248,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
         offsetX={(minX - MapPadding) * pixelSize}
         offsetY={(minY - MapPadding) * pixelSize}
       >
-        {children(stageScale)}
+        {children}
       </Stage>
     </div>
   );

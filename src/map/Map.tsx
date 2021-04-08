@@ -16,6 +16,7 @@ import Pixels from './Pixels';
 
 import robotSrc from '../assets/icons/robot.svg';
 import ChipShape from './ChipShape';
+import { pairWiseArray, pointClosestTo } from './utils';
 
 const robotImage = new window.Image();
 robotImage.src = robotSrc;
@@ -91,43 +92,46 @@ const Map = (props: MapProps): JSX.Element => {
         We have to provide the theme here to "bridge" the Stage.
         See: https://github.com/konvajs/react-konva#usage-with-react-context
       */}
-      {(scale) => (
-        <ThemeProvider theme={theme}>
-          <Layer>
-            {layers.map((layer, index) => (
-              <Pixels
-                key={`${layer.type}:${layer.metaData.segmentId ?? index}`}
-                points={layer.pixels.map((p) => p * pixelSize)}
-                blockSize={pixelSize}
-                fill={getColor(layer)}
-                metaData={layer.metaData}
-                type={layer.type}
-              />
-            ))}
-          </Layer>
-          <Layer listening={false}>
-            {entities.map((entity, index) => (
-              <MapEntityShape
-                key={index.toString()}
-                entity={entity}
-                pixelSize={pixelSize}
-              />
-            ))}
-            {layers
-              .filter((layer) => layer.type === MapLayerType.Segment)
-              .map((layer) => (
+      <ThemeProvider theme={theme}>
+        <Layer>
+          {layers.map((layer, index) => (
+            <Pixels
+              key={`${layer.type}:${layer.metaData.segmentId ?? index}`}
+              points={layer.pixels.map((p) => p * pixelSize)}
+              blockSize={pixelSize}
+              fill={getColor(layer)}
+              metaData={layer.metaData}
+              type={layer.type}
+            />
+          ))}
+        </Layer>
+        <Layer listening={false}>
+          {entities.map((entity, index) => (
+            <MapEntityShape
+              key={index.toString()}
+              entity={entity}
+              pixelSize={pixelSize}
+            />
+          ))}
+          {layers
+            .filter((layer) => layer.type === MapLayerType.Segment)
+            .map((layer) => {
+              const point = pointClosestTo(pairWiseArray(layer.pixels), [
+                layer.dimensions.x.mid,
+                layer.dimensions.y.mid,
+              ]);
+              return (
                 <ChipShape
                   key={`${layer.type}:${layer.metaData.segmentId}`}
                   text={layer.metaData.name ?? `# ${layer.metaData.segmentId}`}
-                  x={layer.dimensions.x.mid * pixelSize}
-                  y={layer.dimensions.y.mid * pixelSize}
-                  scaleX={1 / scale}
-                  scaleY={1 / scale}
+                  checked={layer.metaData.active}
+                  x={point[0] * pixelSize}
+                  y={point[1] * pixelSize}
                 />
-              ))}
-          </Layer>
-        </ThemeProvider>
-      )}
+              );
+            })}
+        </Layer>
+      </ThemeProvider>
     </MapStage>
   );
 };

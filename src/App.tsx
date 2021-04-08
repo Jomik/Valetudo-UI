@@ -225,7 +225,7 @@ const App = (): JSX.Element => {
           segment3: '#DF5618',
           segment4: '#F7C841',
           segmentFallback: '#9966CC',
-          path: '#FFFFFF',
+          path: '#FAFAFAAA',
           noGo: { stroke: '#FF0000', fill: '#75000066' },
           noMop: { stroke: '#CC00FF', fill: '#58006E66' },
           active: { stroke: '#35911A', fill: '#6AF5424C' },
