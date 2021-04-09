@@ -33,14 +33,17 @@ const drawerWidth = 240;
 const useAppStyles = makeStyles((theme) =>
   createStyles({
     content: {
-      width: '100%',
-      height: '100%',
+      height: '100vh',
       display: 'flex',
-      flexFlow: 'column',
+      flexDirection: 'column',
+      overflow: 'auto',
       [theme.breakpoints.up('sm')]: {
-        marginStart: `${drawerWidth}px`,
+        width: `calc(100vw - ${drawerWidth}px)`,
+        marginLeft: drawerWidth,
       },
     },
+    // necessary for content to be below app bar
+    toolbar: theme.mixins.toolbar,
   })
 );
 
@@ -192,7 +195,6 @@ const Nav = (): JSX.Element => {
           </Drawer>
         </Hidden>
       </nav>
-      <div className={classes.toolbar} />
     </div>
   );
 };
@@ -203,6 +205,7 @@ const AppRouter = (): JSX.Element => {
     <BrowserRouter>
       <Nav />
       <main className={classes.content}>
+        <div className={classes.toolbar} />
         <Switch>
           <Route path="/map">
             <Map />

@@ -6,7 +6,6 @@ import Map from './Map';
 
 const Page = (): JSX.Element => {
   const [{ data, loading, error }, refetch] = useLatestMap();
-
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   React.useEffect(() => {

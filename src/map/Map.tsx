@@ -4,12 +4,7 @@ import { KonvaEventObject } from 'konva/types/Node';
 import React from 'react';
 import { Layer } from 'react-konva';
 import { FourColorTheoremSolver } from './map-color-finder';
-import {
-  MapLayer as MapLayer,
-  MapLayerType,
-  MapData,
-  MapLayerMetaData,
-} from '../api';
+import { MapLayer, MapLayerType, MapData } from '../api';
 import MapEntityShape from './MapEntityShape';
 import MapStage from './MapStage';
 import Pixels from './Pixels';
@@ -71,22 +66,38 @@ const Map = (props: MapProps): JSX.Element => {
     };
   }, [layers, theme.map]);
 
+  const getLayerFromPosition = React.useCallback(
+    (position: Vector2d): MapLayer | undefined => {
+      const targetX = Math.floor(position.x / pixelSize);
+      const targetY = Math.floor(position.y / pixelSize);
+
+      return layers.find((layer) =>
+        pairWiseArray(layer.pixels).some(
+          ([x, y]) => x === targetX && y === targetY
+        )
+      );
+    },
+    [layers, pixelSize]
+  );
+
   const handleMapInteraction = React.useCallback(
     (event: KonvaEventObject<TouchEvent | MouseEvent>) => {
-      const { currentTarget: stage, target } = event;
-      if (!(stage instanceof Konva.Stage) || !(target instanceof Konva.Shape)) {
+      const { currentTarget: stage } = event;
+      if (!(stage instanceof Konva.Stage)) {
         return;
       }
 
-      const { type, metaData } = target.attrs as {
-        type?: string;
-        metaData?: MapLayerMetaData;
+      const pointer = stage.getPointerPosition() ?? { x: 0, y: 0 };
+      const stagePosition = {
+        x: (pointer.x - stage.x()) / stage.scaleX() + stage.offsetX(),
+        y: (pointer.y - stage.y()) / stage.scaleY() + stage.offsetY(),
       };
 
-      if (type === 'wall') {
+      const layer = getLayerFromPosition(stagePosition);
+
+      if (layer === undefined || layer.type === 'wall') {
         return;
       }
-
       event.evt.preventDefault();
 
       let position: Vector2d;
@@ -101,12 +112,6 @@ const Map = (props: MapProps): JSX.Element => {
         position = { x, y };
       }
 
-      const pointer = stage.getPointerPosition() ?? { x: 0, y: 0 };
-      const stagePosition = {
-        x: (pointer.x - stage.x()) / stage.scaleX(),
-        y: (pointer.y - stage.y()) / stage.scaleY(),
-      };
-
       setMenu({
         open: true,
         anchorPosition: {
@@ -114,10 +119,11 @@ const Map = (props: MapProps): JSX.Element => {
           top: position.y,
         },
         position: stagePosition,
-        segment: type === MapLayerType.Segment ? metaData : undefined,
+        segment:
+          layer.type === MapLayerType.Segment ? layer.metaData : undefined,
       });
     },
-    []
+    [getLayerFromPosition]
   );
 
   return (
@@ -133,7 +139,7 @@ const Map = (props: MapProps): JSX.Element => {
         See: https://github.com/konvajs/react-konva#usage-with-react-context
       */}
         <ThemeProvider theme={theme}>
-          <Layer>
+          <Layer listening={false}>
             {layers.map((layer, index) => (
               <Pixels
                 key={`${layer.type}:${layer.metaData.segmentId ?? index}`}
@@ -141,8 +147,6 @@ const Map = (props: MapProps): JSX.Element => {
                 scaleX={pixelSize}
                 scaleY={pixelSize}
                 fill={getColor(layer)}
-                metaData={layer.metaData}
-                type={layer.type}
               />
             ))}
           </Layer>

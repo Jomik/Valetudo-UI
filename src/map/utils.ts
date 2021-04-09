@@ -1,3 +1,5 @@
+import { Vector2d } from 'konva/types/types';
+
 export const pairWise = function* <T>(arr: T[]): Generator<[T, T]> {
   for (let i = 0; i < arr.length; i = i + 2) {
     yield arr.slice(i, i + 2) as [T, T];
@@ -21,3 +23,18 @@ export const pointClosestTo = (
       manhatten(cur, target) < manhatten(prev, target) ? cur : prev,
     points[0]
   );
+
+export const ZeroVector: Vector2d = { x: 0, y: 0 };
+
+export const getDistance = (p1: Vector2d, p2: Vector2d): number =>
+  Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+
+export const getCenter = (p1: Vector2d, p2: Vector2d): Vector2d => ({
+  x: (p1.x + p2.x) / 2,
+  y: (p1.y + p2.y) / 2,
+});
+
+export const isTouchEnabled =
+  'ontouchstart' in window ||
+  navigator.maxTouchPoints > 0 ||
+  navigator.msMaxTouchPoints > 0;

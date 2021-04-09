@@ -1,4 +1,3 @@
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Konva from 'konva';
 import { KonvaEventObject, Node } from 'konva/types/Node';
 import { Vector2d } from 'konva/types/types';
@@ -6,32 +5,25 @@ import React from 'react';
 import { Stage, StageProps } from 'react-konva';
 import { useHTMLElement } from '../hooks';
 import { MapData } from '../api';
-import { bound } from './utils';
+import {
+  bound,
+  getCenter,
+  getDistance,
+  isTouchEnabled,
+  ZeroVector,
+} from './utils';
+import { createStyles, makeStyles } from '@material-ui/core';
 
-const ZeroVector: Vector2d = { x: 0, y: 0 };
-
-const getDistance = (p1: Vector2d, p2: Vector2d): number =>
-  Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-
-const getCenter = (p1: Vector2d, p2: Vector2d): Vector2d => ({
-  x: (p1.x + p2.x) / 2,
-  y: (p1.y + p2.y) / 2,
-});
-
-const isTouchEnabled =
-  'ontouchstart' in window ||
-  navigator.maxTouchPoints > 0 ||
-  navigator.msMaxTouchPoints > 0;
-
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     container: {
-      width: '100%',
       height: '100%',
+      width: '100%',
     },
+    // necessary for content to be below app bar
+    toolbar: theme.mixins.toolbar,
   })
 );
-
 export type MapStageProps = StageProps & {
   children: JSX.Element;
   mapData: MapData;
@@ -276,6 +268,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
         height={containerHeight}
         scaleX={stageScale}
         scaleY={stageScale}
+        // TODO: Avoid using offset
         offsetX={(minX - MapPadding) * pixelSize}
         offsetY={(minY - MapPadding) * pixelSize}
       >
