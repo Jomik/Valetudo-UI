@@ -32,6 +32,7 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
         y={entity.points[1]}
         offsetX={robotImage.width / 2}
         offsetY={robotImage.height / 2}
+        minimumScale={1}
       />
     );
   }
@@ -43,6 +44,7 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
         y={entity.points[1]}
         offsetX={chargerImage.width / 2}
         offsetY={chargerImage.height / 2}
+        minimumScale={1}
       />
     );
   }
@@ -54,6 +56,7 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
         y={entity.points[1]}
         offsetX={markerImage.width / 2}
         offsetY={markerImage.height / 2}
+        minimumScale={1}
       />
     );
   }

@@ -45,12 +45,19 @@ export type MapStageProps = StageProps & {
 
 const scalePersistentNodes = (stage: Konva.Stage) => {
   stage
-    .find((node: Node) => node.getAttr('persistentScale') !== undefined)
+    .find(
+      (node: Node) =>
+        node.getAttr('minimumScale') !== undefined ||
+        node.getAttr('maximumScale')
+    )
     .each((shape) => {
-      const persistentScale = shape.getAttr('persistentScale');
+      const stageScaleX = stage.scaleX();
+      const stageScaleY = stage.scaleY();
+      const minimumScale = shape.getAttr('minimumScale') ?? -Infinity;
+      const maximumScale = shape.getAttr('maximumScale') ?? Infinity;
       shape.scale({
-        x: persistentScale / stage.scaleX(),
-        y: persistentScale / stage.scaleY(),
+        x: bound(stageScaleX, minimumScale, maximumScale) / stageScaleX,
+        y: bound(stageScaleY, minimumScale, maximumScale) / stageScaleY,
       });
     });
 };

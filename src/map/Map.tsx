@@ -137,8 +137,9 @@ const Map = (props: MapProps): JSX.Element => {
             {layers.map((layer, index) => (
               <Pixels
                 key={`${layer.type}:${layer.metaData.segmentId ?? index}`}
-                points={layer.pixels.map((p) => p * pixelSize)}
-                blockSize={pixelSize}
+                pixels={layer.pixels}
+                scaleX={pixelSize}
+                scaleY={pixelSize}
                 fill={getColor(layer)}
                 metaData={layer.metaData}
                 type={layer.type}

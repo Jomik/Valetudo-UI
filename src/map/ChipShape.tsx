@@ -105,7 +105,8 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
       activeFill={theme.palette.success.main}
       fontSize={theme.typography.h6.fontSize}
       fontFamily={theme.typography.fontFamily}
-      persistentScale={1}
+      maximumScale={1}
+      minimumScale={1}
       checked={false}
       {...shapeConfig}
       sceneFunc={sceneFunc}
