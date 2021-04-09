@@ -26,7 +26,8 @@ const isTouchEnabled =
 const useStyles = makeStyles(() =>
   createStyles({
     container: {
-      flex: '1 1 auto',
+      width: '100%',
+      height: '100%',
     },
   })
 );
