@@ -40,7 +40,7 @@ const Pixels = (props: PixelsProps): JSX.Element => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
-      console.warn('No context for layer');
+      console.warn('No context for layer image');
       return;
     }
     canvas.width = width;

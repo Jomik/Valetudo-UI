@@ -12,18 +12,16 @@ import {
   isTouchEnabled,
   ZeroVector,
 } from './utils';
-import { createStyles, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    container: {
-      height: '100%',
-      width: '100%',
-    },
-    // necessary for content to be below app bar
-    toolbar: theme.mixins.toolbar,
-  })
-);
+const useStyles = makeStyles((theme) => ({
+  container: {
+    height: '100%',
+    width: '100%',
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+}));
 export type MapStageProps = StageProps & {
   children: JSX.Element;
   mapData: MapData;

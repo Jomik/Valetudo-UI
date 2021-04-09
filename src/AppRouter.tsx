@@ -19,7 +19,7 @@ import AboutIcon from '@material-ui/icons/Info';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, useTheme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import React from 'react';
 import {
   Dashboard as DashboardIcon,
@@ -30,53 +30,49 @@ import Map from './map';
 
 const drawerWidth = 240;
 
-const useAppStyles = makeStyles((theme) =>
-  createStyles({
-    content: {
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'auto',
-      [theme.breakpoints.up('sm')]: {
-        width: `calc(100vw - ${drawerWidth}px)`,
-        marginLeft: drawerWidth,
-      },
+const useAppStyles = makeStyles((theme) => ({
+  content: {
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(100vw - ${drawerWidth}px)`,
+      marginLeft: drawerWidth,
     },
-    // necessary for content to be below app bar
-    toolbar: theme.mixins.toolbar,
-  })
-);
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+}));
 
-const useNavStyles = makeStyles((theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-    },
-    drawer: {
-      [theme.breakpoints.up('sm')]: {
-        width: drawerWidth,
-        flexShrink: 0,
-      },
-    },
-    appBar: {
-      [theme.breakpoints.up('sm')]: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: drawerWidth,
-      },
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-      [theme.breakpoints.up('sm')]: {
-        display: 'none',
-      },
-    },
-    // necessary for content to be below app bar
-    toolbar: theme.mixins.toolbar,
-    drawerPaper: {
+const useNavStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+  },
+  drawer: {
+    [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
+      flexShrink: 0,
     },
-  })
-);
+  },
+  appBar: {
+    [theme.breakpoints.up('sm')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+      marginLeft: drawerWidth,
+    },
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+  // necessary for content to be below app bar
+  toolbar: theme.mixins.toolbar,
+  drawerPaper: {
+    width: drawerWidth,
+  },
+}));
 
 const Nav = (): JSX.Element => {
   const classes = useNavStyles();

@@ -2,7 +2,6 @@ import {
   Backdrop,
   Button,
   CircularProgress,
-  createStyles,
   makeStyles,
   Typography,
 } from '@material-ui/core';
@@ -11,16 +10,14 @@ import React from 'react';
 import { useCapabilitiesRequest } from './api/hooks';
 import { Capability } from './api';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: '#fff',
-      display: 'flex',
-      flexFlow: 'column',
-    },
-  })
-);
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+    display: 'flex',
+    flexFlow: 'column',
+  },
+}));
 
 const Context = React.createContext<Capability[]>([]);
 
@@ -57,7 +54,6 @@ const CapabilitiesProvider = (props: {
       action: SnackbarAction,
       persist: true,
     });
-    console.error(error);
   }, [closeSnackbar, enqueueSnackbar, error, refetch]);
 
   return (

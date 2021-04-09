@@ -1,43 +1,54 @@
-import { Button, CircularProgress, Typography } from '@material-ui/core';
-import { SnackbarKey, useSnackbar } from 'notistack';
-import React from 'react';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  makeStyles,
+  Typography,
+} from '@material-ui/core';
 import { useLatestMap } from '../api';
 import Map from './Map';
 
+const useStyles = makeStyles(() => ({
+  container: {
+    flex: '1 1 auto',
+    display: 'flex',
+    flexFlow: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+}));
+
 const Page = (): JSX.Element => {
   const [{ data, loading, error }, refetch] = useLatestMap();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const classes = useStyles();
 
-  React.useEffect(() => {
-    if (!error) {
-      return;
-    }
-
-    const SnackbarAction = (key: SnackbarKey) => (
-      <Button
-        onClick={() => {
-          refetch();
-          closeSnackbar(key);
-        }}
-      >
-        Retry
-      </Button>
+  if (error) {
+    return (
+      <Container className={classes.container}>
+        <Typography color="error">Error loading map data</Typography>
+        <Box m={1} />
+        <Button color="primary" variant="contained" onClick={() => refetch()}>
+          Retry
+        </Button>
+      </Container>
     );
-
-    enqueueSnackbar('Error while loading map', {
-      variant: 'error',
-      action: SnackbarAction,
-      persist: true,
-    });
-    console.error(error);
-  }, [closeSnackbar, enqueueSnackbar, error, refetch]);
+  }
 
   if (!data && loading) {
-    return <CircularProgress />;
+    return (
+      <Container className={classes.container}>
+        <CircularProgress />
+      </Container>
+    );
   }
 
   if (!data) {
-    return <Typography>No map data</Typography>;
+    return (
+      <Container className={classes.container}>
+        <Typography align="center">No map data</Typography>;
+      </Container>
+    );
   }
 
   return <Map mapData={data} />;
