@@ -90,7 +90,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   const mapHeight = (maxY - minY + MapPadding * 2) * pixelSize;
 
   const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
-    { containerWidth: mapWidth, containerHeight: mapHeight },
+    { containerWidth: 0, containerHeight: 0 },
     React.useCallback(
       (element: HTMLDivElement) => ({
         containerWidth: element.offsetWidth,

@@ -51,7 +51,11 @@ const Page = (): JSX.Element => {
     );
   }
 
-  return <Map mapData={data} />;
+  return (
+    <Box flex="1 1 auto">
+      <Map mapData={data} />
+    </Box>
+  );
 };
 
 export default Page;
