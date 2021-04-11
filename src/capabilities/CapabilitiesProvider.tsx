@@ -5,10 +5,14 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core';
+import { UseAxiosResult } from 'axios-hooks';
 import { SnackbarKey, useSnackbar } from 'notistack';
 import React from 'react';
-import { useCapabilitiesRequest } from './api/hooks';
-import { Capability } from './api';
+import { useValetudo, Capability } from '../api';
+
+const useCapabilitiesRequest = (): UseAxiosResult<Capability[], unknown> => {
+  return useValetudo('api/v2/robot/capabilities');
+};
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -69,6 +73,12 @@ const CapabilitiesProvider = (props: {
       {children}
     </Context.Provider>
   );
+};
+
+export const useCapabilitySupported = (capability: Capability): boolean => {
+  const supportedCapabilities = React.useContext(Context);
+
+  return supportedCapabilities.includes(capability);
 };
 
 export default CapabilitiesProvider;
