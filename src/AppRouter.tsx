@@ -5,7 +5,6 @@ import {
   Switch,
   useLocation,
 } from 'react-router-dom';
-import Dashboard from './Dashboard';
 import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
@@ -22,11 +21,20 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import React from 'react';
 import {
-  Dashboard as DashboardIcon,
   Settings as SettingsIcon,
   Map as MapIcon,
+  VideogameAsset as ManualControlIcon,
+  Beenhere as PresetsIcon,
 } from '@material-ui/icons';
 import MapPage from './map';
+import {
+  Box,
+  Chip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@material-ui/core';
 
 const drawerWidth = 240;
 
@@ -74,6 +82,40 @@ const useNavStyles = makeStyles((theme) => ({
   },
 }));
 
+const useIntensityStyles = makeStyles((theme) => ({
+  formControl: {
+    flex: 1,
+    margin: theme.spacing(1),
+  },
+}));
+
+const IntensitySelect = (props: { label: string }): JSX.Element => {
+  const { label } = props;
+  const classes = useIntensityStyles();
+  const [intensity, setIntensity] = React.useState('high');
+
+  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setIntensity(event.target.value as string);
+  };
+
+  return (
+    <FormControl className={classes.formControl}>
+      <InputLabel id={`intensity-select-label-${label}`}>{label}</InputLabel>
+      <Select
+        labelId={`intensity-select-label-${label}`}
+        id={`intensity-select-${label}`}
+        value={intensity}
+        onChange={handleChange}
+      >
+        <MenuItem value={'low'}>Low</MenuItem>
+        <MenuItem value={'medium'}>Medium</MenuItem>
+        <MenuItem value={'high'}>High</MenuItem>
+        <MenuItem value={'max'}>Max</MenuItem>
+      </Select>
+    </FormControl>
+  );
+};
+
 const Nav = (): JSX.Element => {
   const classes = useNavStyles();
   const theme = useTheme();
@@ -108,20 +150,50 @@ const Nav = (): JSX.Element => {
   const drawer = React.useMemo(
     () => (
       <div>
-        <div className={classes.toolbar} />
+        <Box
+          mx={2}
+          alignItems="center"
+          display="flex"
+          className={classes.toolbar}
+        >
+          <Typography>Currently: cleaning</Typography>
+        </Box>
+        <Divider />
+        <Box
+          mx={2}
+          mt={2}
+          mb={1}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+        >
+          <Chip color="primary" label="Dust" />
+          <Chip color="primary" label="Water" />
+          <Chip color="primary" label="Mop" disabled />
+        </Box>
+        <Box m={1} display="flex" flexDirection="row">
+          <IntensitySelect label="Fan Speed" />
+          <IntensitySelect label="Water Grade" />
+        </Box>
         <Divider />
         <List>
           <ListItem button component={Link} to="/">
             <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem button component={Link} to="/map">
-            <ListItemIcon>
               <MapIcon />
             </ListItemIcon>
             <ListItemText primary="Map" />
+          </ListItem>
+          <ListItem button component={Link} to="/manual">
+            <ListItemIcon>
+              <ManualControlIcon />
+            </ListItemIcon>
+            <ListItemText primary="Manual Control" />
+          </ListItem>
+          <ListItem button component={Link} to="/presets">
+            <ListItemIcon>
+              <PresetsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Presets" />
           </ListItem>
         </List>
         <Divider />
@@ -203,8 +275,11 @@ const AppRouter = (): JSX.Element => {
       <main className={classes.content}>
         <div className={classes.toolbar} />
         <Switch>
-          <Route path="/map">
-            <MapPage />
+          <Route path="/presets">
+            <span>Presets</span>
+          </Route>
+          <Route path="/manual">
+            <span>Manual Control</span>
           </Route>
           <Route path="/settings">
             <span>Settings</span>
@@ -213,7 +288,7 @@ const AppRouter = (): JSX.Element => {
             <span>About</span>
           </Route>
           <Route path="/">
-            <Dashboard />
+            <MapPage />
           </Route>
         </Switch>
       </main>

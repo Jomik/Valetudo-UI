@@ -72,11 +72,7 @@ const MapContainer = () => {
     );
   }
 
-  return (
-    <Box flex="1">
-      <Map mapData={data} />
-    </Box>
-  );
+  return <Map mapData={data} />;
 };
 
 const MapSpeedDial = (): JSX.Element => {
@@ -165,7 +161,9 @@ const MapSpeedDial = (): JSX.Element => {
 const Page = (): JSX.Element => {
   return (
     <>
-      <MapContainer />
+      <Box flex="1">
+        <MapContainer />
+      </Box>
       <MapSpeedDial />
     </>
   );
