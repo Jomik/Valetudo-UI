@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
   // necessary for content to be below app bar
   toolbar: theme.mixins.toolbar,
 }));
+
 export type MapStageProps = StageProps & {
   children: JSX.Element;
   mapData: MapData;
@@ -106,7 +107,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   const stageScale =
     stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const stage = stageRef.current;
     if (stage === null) {
       return;

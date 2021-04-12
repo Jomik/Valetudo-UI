@@ -26,7 +26,7 @@ import {
   Settings as SettingsIcon,
   Map as MapIcon,
 } from '@material-ui/icons';
-import Map from './map';
+import MapPage from './map';
 
 const drawerWidth = 240;
 
@@ -204,7 +204,7 @@ const AppRouter = (): JSX.Element => {
         <div className={classes.toolbar} />
         <Switch>
           <Route path="/map">
-            <Map />
+            <MapPage />
           </Route>
           <Route path="/settings">
             <span>Settings</span>

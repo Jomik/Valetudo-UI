@@ -8,7 +8,7 @@ import {
 import { UseAxiosResult } from 'axios-hooks';
 import { SnackbarKey, useSnackbar } from 'notistack';
 import React from 'react';
-import { useValetudo, Capability } from '../api';
+import { useValetudo, Capability } from './api';
 
 const useCapabilitiesRequest = (): UseAxiosResult<Capability[], unknown> => {
   return useValetudo('api/v2/robot/capabilities');
@@ -65,7 +65,10 @@ const CapabilitiesProvider = (props: {
       <Backdrop
         open={loading}
         className={classes.backdrop}
-        style={{ transitionDelay: loading ? '800ms' : '0ms' }}
+        style={{
+          transitionDelay: loading ? '800ms' : '0ms',
+        }}
+        unmountOnExit
       >
         <CircularProgress />
         <Typography variant="caption">Loading capabilities...</Typography>

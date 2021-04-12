@@ -2,7 +2,7 @@ import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import React from 'react';
 import { CssBaseline, useMediaQuery } from '@material-ui/core';
 import AppRouter from './AppRouter';
-import CapabilitiesProvider from './capabilities/CapabilitiesProvider';
+import CapabilitiesProvider from './CapabilitiesProvider';
 import { SnackbarProvider } from 'notistack';
 
 const App = (): JSX.Element => {
