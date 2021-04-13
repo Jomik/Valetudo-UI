@@ -5,38 +5,25 @@ import {
   Switch,
   useLocation,
 } from 'react-router-dom';
-import AppBar from '@material-ui/core/AppBar';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import AboutIcon from '@material-ui/icons/Info';
-import MenuIcon from '@material-ui/icons/Menu';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import React from 'react';
-import {
-  Settings as SettingsIcon,
-  Map as MapIcon,
-  VideogameAsset as ManualControlIcon,
-  Beenhere as PresetsIcon,
-} from '@material-ui/icons';
 import MapPage from './map';
 import {
-  Box,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
+  fade,
+  InputBase,
+  MenuItem as MenuItemFoo,
   Select,
+  Toolbar,
+  Typography,
+  AppBar,
+  makeStyles,
+  IconButton,
 } from '@material-ui/core';
+import {
+  Settings as SettingsIcon,
+  Info as AboutIcon,
+} from '@material-ui/icons';
 
-const drawerWidth = 240;
+// Stupid types workaround..
+const MenuItem = MenuItemFoo as any;
 
 const useAppStyles = makeStyles((theme) => ({
   content: {
@@ -44,225 +31,87 @@ const useAppStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    [theme.breakpoints.up('sm')]: {
-      width: `calc(100vw - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
-    },
   },
   // necessary for content to be below app bar
   toolbar: theme.mixins.toolbar,
 }));
 
 const useNavStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
+  grow: {
+    flexGrow: 1,
   },
-  drawer: {
+  title: {
+    display: 'none',
     [theme.breakpoints.up('sm')]: {
-      width: drawerWidth,
-      flexShrink: 0,
+      display: 'block',
     },
   },
-  appBar: {
-    [theme.breakpoints.up('sm')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
+  dropdown: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
     },
-  },
-  menuButton: {
     marginRight: theme.spacing(2),
+    marginLeft: 0,
     [theme.breakpoints.up('sm')]: {
-      display: 'none',
+      marginLeft: theme.spacing(3),
+      width: 'auto',
     },
   },
-  // necessary for content to be below app bar
+  inputRoot: {
+    color: 'inherit',
+  },
+  inputInput: {
+    padding: theme.spacing(1),
+  },
   toolbar: theme.mixins.toolbar,
-  drawerPaper: {
-    width: drawerWidth,
-  },
 }));
-
-const useIntensityStyles = makeStyles((theme) => ({
-  formControl: {
-    flex: 1,
-    margin: theme.spacing(1),
-  },
-}));
-
-const IntensitySelect = (props: { label: string }): JSX.Element => {
-  const { label } = props;
-  const classes = useIntensityStyles();
-  const [intensity, setIntensity] = React.useState('high');
-
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setIntensity(event.target.value as string);
-  };
-
-  return (
-    <FormControl className={classes.formControl}>
-      <InputLabel id={`intensity-select-label-${label}`}>{label}</InputLabel>
-      <Select
-        labelId={`intensity-select-label-${label}`}
-        id={`intensity-select-${label}`}
-        value={intensity}
-        onChange={handleChange}
-      >
-        <MenuItem value={'low'}>Low</MenuItem>
-        <MenuItem value={'medium'}>Medium</MenuItem>
-        <MenuItem value={'high'}>High</MenuItem>
-        <MenuItem value={'max'}>Max</MenuItem>
-      </Select>
-    </FormControl>
-  );
-};
 
 const Nav = (): JSX.Element => {
   const classes = useNavStyles();
-  const theme = useTheme();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-
-  // Close when location changes
   const location = useLocation();
-  React.useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
-
-  const pageTitle = React.useMemo(() => {
-    switch (location.pathname) {
-      case '/about':
-        return 'About';
-      case '/map':
-        return 'Map';
-      case '/settings':
-        return 'Settings';
-      default:
-        return 'Valetudo';
-    }
-  }, [location.pathname]);
-
-  const handleClose = React.useCallback(() => {
-    setMobileOpen(false);
-  }, []);
-  const handleOpen = React.useCallback(() => {
-    setMobileOpen(true);
-  }, []);
-
-  const drawer = React.useMemo(
-    () => (
-      <div>
-        <Box
-          mx={2}
-          alignItems="center"
-          display="flex"
-          className={classes.toolbar}
-        >
-          <Typography>Currently: cleaning</Typography>
-        </Box>
-        <Divider />
-        <Box
-          mx={2}
-          mt={2}
-          mb={1}
-          display="flex"
-          flexDirection="row"
-          justifyContent="space-between"
-        >
-          <Chip color="primary" label="Dust" />
-          <Chip color="primary" label="Water" />
-          <Chip color="primary" label="Mop" disabled />
-        </Box>
-        <Box m={1} display="flex" flexDirection="row">
-          <IntensitySelect label="Fan Speed" />
-          <IntensitySelect label="Water Grade" />
-        </Box>
-        <Divider />
-        <List>
-          <ListItem button component={Link} to="/">
-            <ListItemIcon>
-              <MapIcon />
-            </ListItemIcon>
-            <ListItemText primary="Map" />
-          </ListItem>
-          <ListItem button component={Link} to="/manual">
-            <ListItemIcon>
-              <ManualControlIcon />
-            </ListItemIcon>
-            <ListItemText primary="Manual Control" />
-          </ListItem>
-          <ListItem button component={Link} to="/presets">
-            <ListItemIcon>
-              <PresetsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Presets" />
-          </ListItem>
-        </List>
-        <Divider />
-        <List>
-          <ListItem button component={Link} to="/settings">
-            <ListItemIcon>
-              <SettingsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItem>
-          <ListItem button component={Link} to="/about">
-            <ListItemIcon>
-              <AboutIcon />
-            </ListItemIcon>
-            <ListItemText primary="About" />
-          </ListItem>
-        </List>
-      </div>
-    ),
-    [classes.toolbar]
-  );
 
   return (
-    <div className={classes.root}>
-      <AppBar position="fixed" className={classes.appBar}>
+    <div className={classes.grow}>
+      <AppBar position="sticky">
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleOpen}
-            className={classes.menuButton}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            {pageTitle}
+          <Typography variant="h6" noWrap className={classes.title}>
+            Valetudo
           </Typography>
+          <Select
+            value={location.pathname}
+            className={classes.dropdown}
+            input={
+              <InputBase
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ 'aria-label': 'search' }}
+              />
+            }
+          >
+            <MenuItem component={Link} to="/" value="/">
+              Map
+            </MenuItem>
+            <MenuItem component={Link} to="/presets" value="/presets">
+              Presets
+            </MenuItem>
+            <MenuItem component={Link} to="/control" value="/control">
+              Manual Control
+            </MenuItem>
+          </Select>
+          <div className={classes.grow} />
+          <IconButton color="inherit" component={Link} to={'/settings'}>
+            <SettingsIcon />
+          </IconButton>
+          <IconButton color="inherit" component={Link} to={'/about'}>
+            <AboutIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
-      <nav className={classes.drawer} aria-label="mailbox folders">
-        <Hidden smUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={mobileOpen}
-            onClose={handleClose}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-        <Hidden xsDown>
-          <Drawer
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            variant="permanent"
-            open
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-      </nav>
     </div>
   );
 };
@@ -273,12 +122,11 @@ const AppRouter = (): JSX.Element => {
     <BrowserRouter>
       <Nav />
       <main className={classes.content}>
-        <div className={classes.toolbar} />
         <Switch>
           <Route path="/presets">
             <span>Presets</span>
           </Route>
-          <Route path="/manual">
+          <Route path="/control">
             <span>Manual Control</span>
           </Route>
           <Route path="/settings">
