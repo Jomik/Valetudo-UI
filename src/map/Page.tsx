@@ -5,20 +5,12 @@ import {
   Container,
   makeStyles,
   Typography,
-  Backdrop,
 } from '@material-ui/core';
-import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
-import React from 'react';
-import { Capability, useBasicControl, useLatestMap } from '../api';
-import { useCapabilitySupported } from '../CapabilitiesProvider';
+import { useLatestMap } from '../api';
 import Map from './Map';
-import {
-  PlayArrow as StartIcon,
-  ExpandLess,
-  ExpandMore,
-} from '@material-ui/icons';
+import BottomSheet from '../BottomSheet';
 
-const useMapStyles = makeStyles(() => ({
+const useStyles = makeStyles(() => ({
   container: {
     flex: '1',
     display: 'flex',
@@ -28,21 +20,17 @@ const useMapStyles = makeStyles(() => ({
   },
 }));
 
-const useSpeedDialStyles = makeStyles((theme) => ({
-  speedDial: {
-    position: 'absolute',
-    bottom: theme.spacing(2),
-    right: theme.spacing(2),
-    zIndex: theme.zIndex.drawer + 2,
-  },
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-  },
-}));
+const MapControls = () => {
+  return (
+    <BottomSheet>
+      <></>
+    </BottomSheet>
+  );
+};
 
 const MapContainer = () => {
   const [{ data, loading, error }, refetch] = useLatestMap();
-  const classes = useMapStyles();
+  const classes = useStyles();
 
   if (error) {
     return (
@@ -75,96 +63,13 @@ const MapContainer = () => {
   return <Map mapData={data} />;
 };
 
-const MapSpeedDial = (): JSX.Element => {
-  const classes = useSpeedDialStyles();
-  const isBasicControlSupported = useCapabilitySupported(
-    Capability.BasicControl
-  );
-  const [{ loading, error }, basicControl] = useBasicControl();
-  const [open, setOpen] = React.useState(false);
-
-  const handleOpen = React.useCallback(() => {
-    setOpen(true);
-  }, []);
-
-  const handleClose = React.useCallback(() => {
-    setOpen(false);
-  }, []);
-
-  const actions = React.useMemo<
-    { name: string; icon: JSX.Element; onClick(): void }[]
-  >(() => {
-    const basicControls = isBasicControlSupported
-      ? [
-          {
-            name: 'Start',
-            icon: <StartIcon />,
-            onClick() {
-              basicControl('start');
-              handleClose();
-            },
-          },
-          {
-            name: 'Pause',
-            icon: <StartIcon />,
-            onClick() {
-              basicControl('pause');
-              handleClose();
-            },
-          },
-          {
-            name: 'Stop',
-            icon: <StartIcon />,
-            onClick() {
-              basicControl('stop');
-              handleClose();
-            },
-          },
-          {
-            name: 'Home',
-            icon: <StartIcon />,
-            onClick() {
-              basicControl('home');
-              handleClose();
-            },
-          },
-        ]
-      : [];
-    return [...basicControls];
-  }, [basicControl, handleClose, isBasicControlSupported]);
-
-  return (
-    <>
-      <Backdrop open={open} className={classes.backdrop} />
-      <SpeedDial
-        ariaLabel="SpeedDial map control"
-        className={classes.speedDial}
-        icon={<SpeedDialIcon icon={<ExpandMore />} openIcon={<ExpandLess />} />}
-        onClose={handleClose}
-        onOpen={handleOpen}
-        open={open}
-      >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            tooltipOpen
-            onClick={action.onClick}
-          />
-        ))}
-      </SpeedDial>
-    </>
-  );
-};
-
 const Page = (): JSX.Element => {
   return (
     <>
+      <MapControls />
       <Box flex="1">
         <MapContainer />
       </Box>
-      <MapSpeedDial />
     </>
   );
 };

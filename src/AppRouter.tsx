@@ -75,7 +75,7 @@ const Nav = (): JSX.Element => {
 
   return (
     <div className={classes.grow}>
-      <AppBar position="sticky">
+      <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" noWrap className={classes.title}>
             Valetudo
@@ -122,6 +122,7 @@ const AppRouter = (): JSX.Element => {
     <BrowserRouter>
       <Nav />
       <main className={classes.content}>
+        <div className={classes.toolbar} />
         <Switch>
           <Route path="/presets">
             <span>Presets</span>
