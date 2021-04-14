@@ -1,6 +1,6 @@
 import { Container, Typography } from '@material-ui/core';
 
-const Page = (): JSX.Element => {
+const ConfigurationPage = (): JSX.Element => {
   return (
     <Container>
       <Typography>Configuration</Typography>
@@ -8,4 +8,4 @@ const Page = (): JSX.Element => {
   );
 };
 
-export default Page;
+export default ConfigurationPage;

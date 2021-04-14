@@ -1,3 +1,3 @@
-import Page from './Page';
+import MapPage from './MapPage';
 
-export default Page;
+export default MapPage;

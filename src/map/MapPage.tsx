@@ -155,7 +155,7 @@ const MapSpeedDial = (): JSX.Element => {
   );
 };
 
-const Page = (): JSX.Element => {
+const MapPage = (): JSX.Element => {
   return (
     <>
       <MapContainer />
@@ -166,4 +166,4 @@ const Page = (): JSX.Element => {
   );
 };
 
-export default Page;
+export default MapPage;
