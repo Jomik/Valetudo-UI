@@ -14,13 +14,15 @@ import {
 } from './utils';
 import { makeStyles } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   container: {
+    position: 'relative',
     height: '100%',
     width: '100%',
   },
-  // necessary for content to be below app bar
-  toolbar: theme.mixins.toolbar,
+  stage: {
+    position: 'absolute',
+  },
 }));
 
 export type MapStageProps = StageProps & {
@@ -255,25 +257,28 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   );
 
   return (
-    <div ref={containerRef} className={classes.container}>
-      <Stage
-        ref={stageRef}
-        draggable={!isTouchEnabled}
-        {...stageConfig}
-        onWheel={handleScroll}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        width={containerWidth}
-        height={containerHeight}
-        scaleX={stageScale}
-        scaleY={stageScale}
-        // TODO: Avoid using offset
-        offsetX={(minX - MapPadding) * pixelSize}
-        offsetY={(minY - MapPadding) * pixelSize}
-      >
-        {children}
-      </Stage>
-    </div>
+    <>
+      <div ref={containerRef} className={classes.container}>
+        <Stage
+          className={classes.stage}
+          ref={stageRef}
+          draggable={!isTouchEnabled}
+          {...stageConfig}
+          onWheel={handleScroll}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          width={containerWidth}
+          height={containerHeight}
+          scaleX={stageScale}
+          scaleY={stageScale}
+          // TODO: Avoid using offset
+          offsetX={(minX - MapPadding) * pixelSize}
+          offsetY={(minY - MapPadding) * pixelSize}
+        >
+          {children}
+        </Stage>
+      </div>
+    </>
   );
 };
 

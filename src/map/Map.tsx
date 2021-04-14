@@ -1,4 +1,4 @@
-import { ThemeProvider, useTheme } from '@material-ui/core/styles';
+import { ThemeProvider, useTheme } from '@material-ui/core';
 import Konva from 'konva';
 import { KonvaEventObject } from 'konva/types/Node';
 import React from 'react';

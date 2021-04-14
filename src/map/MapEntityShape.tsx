@@ -1,4 +1,4 @@
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@material-ui/core';
 import { LineConfig } from 'konva/types/shapes/Line';
 import { Image, Line } from 'react-konva';
 import { MapEntity, MapEntityType } from '../api';

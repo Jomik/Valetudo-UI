@@ -1,6 +1,11 @@
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import React from 'react';
-import { CssBaseline, useMediaQuery } from '@material-ui/core';
+import {
+  CssBaseline,
+  StylesProvider,
+  useMediaQuery,
+  ThemeProvider,
+  createMuiTheme,
+} from '@material-ui/core';
 import AppRouter from './AppRouter';
 import CapabilitiesProvider from './CapabilitiesProvider';
 import { SnackbarProvider } from 'notistack';
@@ -32,15 +37,17 @@ const App = (): JSX.Element => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <StylesProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
 
-      <SnackbarProvider maxSnack={3} autoHideDuration={5000}>
-        <CapabilitiesProvider>
-          <AppRouter />
-        </CapabilitiesProvider>
-      </SnackbarProvider>
-    </ThemeProvider>
+        <SnackbarProvider maxSnack={3} autoHideDuration={5000}>
+          <CapabilitiesProvider>
+            <AppRouter />
+          </CapabilitiesProvider>
+        </SnackbarProvider>
+      </ThemeProvider>
+    </StylesProvider>
   );
 };
 

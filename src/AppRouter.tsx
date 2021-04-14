@@ -1,145 +1,160 @@
 import {
   BrowserRouter,
   Link,
+  Redirect,
   Route,
   Switch,
   useLocation,
 } from 'react-router-dom';
 import MapPage from './map';
+import ConfigurationPage from './configuration';
 import {
-  fade,
-  InputBase,
-  MenuItem as MenuItemFoo,
-  Select,
   Toolbar,
-  Typography,
+  Box,
   AppBar,
   makeStyles,
   IconButton,
+  useMediaQuery,
+  useTheme,
+  BottomNavigationAction,
+  BottomNavigation,
+  Typography,
 } from '@material-ui/core';
 import {
   Settings as SettingsIcon,
   Info as AboutIcon,
+  Map as MapIcon,
+  Tune as ConfigurationIcon,
 } from '@material-ui/icons';
+import Div100vh from 'react-div-100vh';
 
-// Stupid types workaround..
-const MenuItem = MenuItemFoo as any;
-
-const useAppStyles = makeStyles((theme) => ({
-  content: {
-    height: '100vh',
+const useAppStyles = makeStyles(() => ({
+  container: {
     display: 'flex',
     flexDirection: 'column',
+  },
+  content: {
+    flex: '1',
+    display: 'flex',
     overflow: 'auto',
   },
-  // necessary for content to be below app bar
-  toolbar: theme.mixins.toolbar,
 }));
 
-const useNavStyles = makeStyles((theme) => ({
+const useTopNavStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
   },
-  title: {
-    display: 'none',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block',
-    },
-  },
-  dropdown: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      width: 'auto',
-    },
-  },
-  inputRoot: {
-    color: 'inherit',
-  },
-  inputInput: {
-    padding: theme.spacing(1),
-  },
   toolbar: theme.mixins.toolbar,
 }));
 
-const Nav = (): JSX.Element => {
-  const classes = useNavStyles();
-  const location = useLocation();
+const TopNav = (): JSX.Element => {
+  const classes = useTopNavStyles();
 
   return (
-    <div className={classes.grow}>
-      <AppBar position="sticky">
+    <>
+      <AppBar position="fixed">
         <Toolbar>
-          <Typography variant="h6" noWrap className={classes.title}>
+          <Typography variant="h6" noWrap>
             Valetudo
           </Typography>
-          <Select
-            value={location.pathname}
-            className={classes.dropdown}
-            input={
-              <InputBase
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            }
-          >
-            <MenuItem component={Link} to="/" value="/">
-              Map
-            </MenuItem>
-            <MenuItem component={Link} to="/presets" value="/presets">
-              Presets
-            </MenuItem>
-            <MenuItem component={Link} to="/control" value="/control">
-              Manual Control
-            </MenuItem>
-          </Select>
           <div className={classes.grow} />
-          <IconButton color="inherit" component={Link} to={'/settings'}>
+          <IconButton color="inherit" component={Link} to="/settings">
             <SettingsIcon />
           </IconButton>
-          <IconButton color="inherit" component={Link} to={'/about'}>
+          <IconButton color="inherit" component={Link} to="/about">
             <AboutIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
-    </div>
+      <div className={classes.toolbar} />
+    </>
+  );
+};
+
+const useBottomNavStyles = makeStyles((theme) => ({
+  root: {
+    height: 56 + theme.spacing(2),
+  },
+  action: {
+    paddingBottom: theme.spacing(2),
+  },
+}));
+
+const BottomNav = (): JSX.Element => {
+  const classes = useBottomNavStyles();
+  const location = useLocation();
+
+  return (
+    <BottomNavigation
+      value={location.pathname}
+      showLabels
+      className={classes.root}
+    >
+      <BottomNavigationAction
+        label="Map"
+        icon={<MapIcon />}
+        className={classes.action}
+        component={Link}
+        to="/map"
+        value="/map"
+      />
+      <BottomNavigationAction
+        label="Configuration"
+        icon={<ConfigurationIcon />}
+        className={classes.action}
+        component={Link}
+        to="/configuration"
+        value="/configuration"
+      />
+    </BottomNavigation>
+  );
+};
+
+const CombinedView = (): JSX.Element => {
+  return (
+    <>
+      <Box flex={1}>
+        <ConfigurationPage />
+      </Box>
+      <Box flex={3} height="100%">
+        <MapPage />
+      </Box>
+    </>
   );
 };
 
 const AppRouter = (): JSX.Element => {
   const classes = useAppStyles();
+  const theme = useTheme();
+  const splitView = useMediaQuery(theme.breakpoints.up('sm'), {
+    defaultMatches: true,
+  });
+
   return (
     <BrowserRouter>
-      <Nav />
-      <main className={classes.content}>
-        <Switch>
-          <Route path="/presets">
-            <span>Presets</span>
-          </Route>
-          <Route path="/control">
-            <span>Manual Control</span>
-          </Route>
-          <Route path="/settings">
-            <span>Settings</span>
-          </Route>
-          <Route path="/about">
-            <span>About</span>
-          </Route>
-          <Route path="/">
-            <MapPage />
-          </Route>
-        </Switch>
-      </main>
+      <Div100vh className={classes.container}>
+        <TopNav />
+        <main className={classes.content}>
+          <Switch>
+            <Route exact path="/">
+              {splitView ? <CombinedView /> : <Redirect to="/map" />}
+            </Route>
+            <Route exact path="/map">
+              {splitView ? <Redirect to="/" /> : <MapPage />}
+            </Route>
+            <Route exact path="/configuration">
+              {splitView ? <Redirect to="/" /> : <ConfigurationPage />}
+            </Route>
+            <Route exact path="/settings">
+              <span>Settings</span>
+            </Route>
+            <Route exact path="/about">
+              <span>About</span>
+            </Route>
+          </Switch>
+        </main>
+        {!splitView && <BottomNav />}
+      </Div100vh>
     </BrowserRouter>
   );
 };

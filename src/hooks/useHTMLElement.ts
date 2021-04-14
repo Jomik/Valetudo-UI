@@ -7,7 +7,7 @@ export const useHTMLElement = <E extends HTMLElement, T>(
   const [value, setValue] = React.useState<T>(defaultValue);
   const nodeRef = React.useRef<E>(null);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (nodeRef.current) {
       let cancel = false;
       const update = () => {

@@ -12,15 +12,12 @@ import React from 'react';
 import { Capability, useBasicControl, useLatestMap } from '../api';
 import { useCapabilitySupported } from '../CapabilitiesProvider';
 import Map from './Map';
-import {
-  PlayArrow as StartIcon,
-  ExpandLess,
-  ExpandMore,
-} from '@material-ui/icons';
+import { PlayArrow as StartIcon } from '@material-ui/icons';
 
 const useMapStyles = makeStyles(() => ({
   container: {
     flex: '1',
+    height: '100%',
     display: 'flex',
     flexFlow: 'column',
     justifyContent: 'center',
@@ -139,7 +136,7 @@ const MapSpeedDial = (): JSX.Element => {
       <SpeedDial
         ariaLabel="SpeedDial map control"
         className={classes.speedDial}
-        icon={<SpeedDialIcon icon={<ExpandMore />} openIcon={<ExpandLess />} />}
+        icon={<SpeedDialIcon />}
         onClose={handleClose}
         onOpen={handleOpen}
         open={open}
@@ -161,10 +158,10 @@ const MapSpeedDial = (): JSX.Element => {
 const Page = (): JSX.Element => {
   return (
     <>
-      <Box flex="1">
-        <MapContainer />
+      <MapContainer />
+      <Box position="relative">
+        <MapSpeedDial />
       </Box>
-      <MapSpeedDial />
     </>
   );
 };
