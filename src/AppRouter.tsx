@@ -10,7 +10,6 @@ import MapPage from './map';
 import ConfigurationPage from './configuration';
 import {
   Toolbar,
-  Box,
   AppBar,
   makeStyles,
   IconButton,
@@ -19,6 +18,7 @@ import {
   BottomNavigationAction,
   BottomNavigation,
   Typography,
+  Grid,
 } from '@material-ui/core';
 import {
   Settings as SettingsIcon,
@@ -110,16 +110,31 @@ const BottomNav = (): JSX.Element => {
   );
 };
 
+const useCombinedStyles = makeStyles((theme) => ({
+  container: {
+    margin: theme.spacing(1),
+  },
+}));
+
 const CombinedView = (): JSX.Element => {
+  const classes = useCombinedStyles();
+
   return (
-    <>
-      <Box flex={1}>
+    <Grid
+      item
+      container
+      direction="row"
+      spacing={2}
+      justify="space-evenly"
+      className={classes.container}
+    >
+      <Grid item xs={4}>
         <ConfigurationPage />
-      </Box>
-      <Box flex={3} height="100%">
+      </Grid>
+      <Grid item xs>
         <MapPage />
-      </Box>
-    </>
+      </Grid>
+    </Grid>
   );
 };
 

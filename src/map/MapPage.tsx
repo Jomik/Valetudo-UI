@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Container,
   makeStyles,
+  Paper,
   Typography,
 } from '@material-ui/core';
 import { useLatestMap } from '../api';
@@ -56,14 +57,23 @@ const MapContainer = () => {
   return <Map mapData={data} />;
 };
 
+const usePageStyles = makeStyles(() => ({
+  paper: {
+    width: '100%',
+    height: '100%',
+  },
+}));
+
 const MapPage = (): JSX.Element => {
+  const classes = usePageStyles();
+
   return (
-    <>
+    <Paper className={classes.paper} variant="outlined">
       <MapContainer />
       <Box position="relative">
         <MapSpeedDial />
       </Box>
-    </>
+    </Paper>
   );
 };
 
