@@ -7,7 +7,6 @@ export enum Capability {
   DoNotDisturb = 'DoNotDisturbCapability',
   FanSpeedControl = 'FanSpeedControlCapability',
   GoToLocation = 'GoToLocationCapability',
-  IntensityPreset = 'IntensityPresetCapability',
   LEDControl = 'LEDControlCapability',
   Locate = 'LocateCapability',
   ManualControl = 'ManualControlCapability',

@@ -7,10 +7,11 @@ import {
   useLocation,
 } from 'react-router-dom';
 import MapPage from './map';
-import ConfigurationPage from './configuration';
+import ControlsPage from './controls';
 import {
   Toolbar,
   AppBar,
+  Box,
   makeStyles,
   IconButton,
   useMediaQuery,
@@ -24,9 +25,10 @@ import {
   Settings as SettingsIcon,
   Info as AboutIcon,
   Map as MapIcon,
-  Tune as ConfigurationIcon,
+  ControlCamera as ControlsIcon,
 } from '@material-ui/icons';
 import Div100vh from 'react-div-100vh';
+import ControlsSpeedDial from './controls/ControlsSpeedDial';
 
 const useAppStyles = makeStyles(() => ({
   container: {
@@ -99,12 +101,12 @@ const BottomNav = (): JSX.Element => {
         value="/map"
       />
       <BottomNavigationAction
-        label="Configuration"
-        icon={<ConfigurationIcon />}
+        label="Controls"
+        icon={<ControlsIcon />}
         className={classes.action}
         component={Link}
-        to="/configuration"
-        value="/configuration"
+        to="/controls"
+        value="/controls"
       />
     </BottomNavigation>
   );
@@ -129,7 +131,7 @@ const CombinedView = (): JSX.Element => {
       className={classes.container}
     >
       <Grid item xs={4}>
-        <ConfigurationPage />
+        <ControlsPage />
       </Grid>
       <Grid item xs>
         <MapPage />
@@ -141,9 +143,7 @@ const CombinedView = (): JSX.Element => {
 const AppRouter = (): JSX.Element => {
   const classes = useAppStyles();
   const theme = useTheme();
-  const splitView = useMediaQuery(theme.breakpoints.up('sm'), {
-    defaultMatches: true,
-  });
+  const largeView = useMediaQuery(theme.breakpoints.up('sm'));
 
   return (
     <BrowserRouter>
@@ -152,13 +152,13 @@ const AppRouter = (): JSX.Element => {
         <main className={classes.content}>
           <Switch>
             <Route exact path="/">
-              {splitView ? <CombinedView /> : <Redirect to="/map" />}
+              {largeView ? <CombinedView /> : <Redirect to="/map" />}
             </Route>
             <Route exact path="/map">
-              {splitView ? <Redirect to="/" /> : <MapPage />}
+              {largeView ? <Redirect to="/" /> : <MapPage />}
             </Route>
-            <Route exact path="/configuration">
-              {splitView ? <Redirect to="/" /> : <ConfigurationPage />}
+            <Route exact path="/controls">
+              {largeView ? <Redirect to="/" /> : <ControlsPage />}
             </Route>
             <Route exact path="/settings">
               <span>Settings</span>
@@ -168,7 +168,14 @@ const AppRouter = (): JSX.Element => {
             </Route>
           </Switch>
         </main>
-        {!splitView && <BottomNav />}
+        <Box
+          position="relative"
+          bottom={theme.spacing(2)}
+          right={theme.spacing(2)}
+        >
+          <ControlsSpeedDial />
+        </Box>
+        {!largeView && <BottomNav />}
       </Div100vh>
     </BrowserRouter>
   );

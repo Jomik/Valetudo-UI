@@ -9,7 +9,6 @@ import {
 } from '@material-ui/core';
 import { useRobotMap } from '../api';
 import Map from './Map';
-import MapSpeedDial from './MapSpeedDial';
 
 const useMapStyles = makeStyles(() => ({
   container: {
@@ -70,9 +69,6 @@ const MapPage = (): JSX.Element => {
   return (
     <Paper className={classes.paper} variant="outlined">
       <MapContainer />
-      <Box position="relative">
-        <MapSpeedDial />
-      </Box>
     </Paper>
   );
 };
