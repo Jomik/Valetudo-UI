@@ -3,6 +3,7 @@ import { makeUseAxios, ResponseValues, UseAxiosResult } from 'axios-hooks';
 import React from 'react';
 import { Capability } from './Capability';
 import { MapData } from './MapData';
+import { RobotState } from './RobotState';
 
 export const useValetudo = makeUseAxios({
   axios: axios.create(),
@@ -10,6 +11,10 @@ export const useValetudo = makeUseAxios({
 
 export const useLatestMap = (): UseAxiosResult<MapData, unknown> => {
   return useValetudo('api/v2/robot/state/map', { useCache: false });
+};
+
+export const useRobotState = (): UseAxiosResult<RobotState, unknown> => {
+  return useValetudo('api/v2/robot/state');
 };
 
 export type BasicControlActions = 'start' | 'pause' | 'stop' | 'home';
