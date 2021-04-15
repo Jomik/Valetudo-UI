@@ -9,6 +9,9 @@ import {
 import AppRouter from './AppRouter';
 import CapabilitiesProvider from './CapabilitiesProvider';
 import { SnackbarProvider } from 'notistack';
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+const queryClient = new QueryClient();
 
 const App = (): JSX.Element => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -37,17 +40,19 @@ const App = (): JSX.Element => {
   );
 
   return (
-    <StylesProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+    <QueryClientProvider client={queryClient}>
+      <StylesProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
 
-        <SnackbarProvider maxSnack={3} autoHideDuration={5000}>
-          <CapabilitiesProvider>
-            <AppRouter />
-          </CapabilitiesProvider>
-        </SnackbarProvider>
-      </ThemeProvider>
-    </StylesProvider>
+          <SnackbarProvider maxSnack={3} autoHideDuration={5000}>
+            <CapabilitiesProvider>
+              <AppRouter />
+            </CapabilitiesProvider>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </StylesProvider>
+    </QueryClientProvider>
   );
 };
 

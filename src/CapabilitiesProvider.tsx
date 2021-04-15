@@ -5,14 +5,9 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core';
-import { UseAxiosResult } from 'axios-hooks';
 import { SnackbarKey, useSnackbar } from 'notistack';
 import React from 'react';
-import { useValetudo, Capability } from './api';
-
-const useCapabilitiesRequest = (): UseAxiosResult<Capability[], unknown> => {
-  return useValetudo('api/v2/robot/capabilities');
-};
+import { Capability, useCapabilities } from './api';
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -30,43 +25,55 @@ const CapabilitiesProvider = (props: {
 }): JSX.Element => {
   const { children } = props;
   const classes = useStyles();
-  const [{ data, loading, error }, refetch] = useCapabilitiesRequest();
+  const { isError, isLoading, data, refetch } = useCapabilities();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const snackbarKey = React.useRef<SnackbarKey>();
 
   React.useEffect(() => {
-    if (!error) {
+    if (isError || snackbarKey.current === undefined) {
       return;
     }
 
-    const SnackbarAction = (key: SnackbarKey) => (
+    closeSnackbar(snackbarKey.current);
+  }, [closeSnackbar, isError]);
+
+  React.useEffect(() => {
+    if (!isError) {
+      return;
+    }
+
+    const SnackbarAction = () => (
       <Button
         onClick={() => {
-          refetch().then(() =>
+          refetch({ throwOnError: true }).then(() =>
             enqueueSnackbar('Succesfully loaded capabilities!', {
               variant: 'success',
             })
           );
-          closeSnackbar(key);
         }}
       >
         Retry
       </Button>
     );
 
-    enqueueSnackbar('Error while loading capabilities', {
+    if (snackbarKey.current) {
+      closeSnackbar(snackbarKey.current);
+    }
+
+    snackbarKey.current = enqueueSnackbar('Error while loading capabilities', {
       variant: 'error',
       action: SnackbarAction,
       persist: true,
     });
-  }, [closeSnackbar, enqueueSnackbar, error, refetch]);
+  }, [closeSnackbar, enqueueSnackbar, isError, refetch]);
 
   return (
     <Context.Provider value={data ?? []}>
       <Backdrop
-        open={loading}
+        open={isLoading}
         className={classes.backdrop}
         style={{
-          transitionDelay: loading ? '800ms' : '0ms',
+          transitionDelay: isLoading ? '800ms' : '0ms',
         }}
         unmountOnExit
       >

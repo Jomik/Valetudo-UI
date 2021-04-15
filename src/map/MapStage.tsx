@@ -4,7 +4,7 @@ import { Vector2d } from 'konva/types/types';
 import React from 'react';
 import { Stage, StageProps } from 'react-konva';
 import { useHTMLElement } from '../hooks';
-import { MapData } from '../api';
+import { RawMapData } from '../api';
 import {
   bound,
   getCenter,
@@ -27,7 +27,7 @@ const useStyles = makeStyles(() => ({
 
 export type MapStageProps = StageProps & {
   children: JSX.Element;
-  mapData: MapData;
+  mapData: RawMapData;
   width?: never;
   height?: never;
   scaleX?: never;

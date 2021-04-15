@@ -1,4 +1,5 @@
 export * from './hooks';
+export * from './RawMapData';
+export * from './RawRobotState';
 export * from './Capability';
-export * from './MapData';
 export * from './RobotState';

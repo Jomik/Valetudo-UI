@@ -7,7 +7,7 @@ import {
   Paper,
   Typography,
 } from '@material-ui/core';
-import { useLatestMap } from '../api';
+import { useRobotMap } from '../api';
 import Map from './Map';
 import MapSpeedDial from './MapSpeedDial';
 
@@ -23,10 +23,10 @@ const useMapStyles = makeStyles(() => ({
 }));
 
 const MapContainer = () => {
-  const [{ data, loading, error }, refetch] = useLatestMap();
+  const { data, isLoading, isError, refetch } = useRobotMap();
   const classes = useMapStyles();
 
-  if (error) {
+  if (isError) {
     return (
       <Container className={classes.container}>
         <Typography color="error">Error loading map data</Typography>
@@ -38,7 +38,7 @@ const MapContainer = () => {
     );
   }
 
-  if (!data && loading) {
+  if (!data && isLoading) {
     return (
       <Container className={classes.container}>
         <CircularProgress />

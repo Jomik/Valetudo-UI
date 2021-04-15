@@ -1,54 +1,54 @@
-export interface MapData {
-  metaData: MapDataMetaData;
+export interface RawMapData {
+  metaData: RawMapDataMetaData;
   size: {
     x: number;
     y: number;
   };
   pixelSize: number;
-  layers: MapLayer[];
-  entities: MapEntity[];
+  layers: RawMapLayer[];
+  entities: RawMapEntity[];
 }
 
-export interface MapEntity {
-  metaData: MapEntityMetaData;
+export interface RawMapEntity {
+  metaData: RawMapEntityMetaData;
   points: number[];
-  type: MapEntityType;
+  type: RawMapEntityType;
 }
 
-export interface MapEntityMetaData {
+export interface RawMapEntityMetaData {
   angle?: number;
 }
 
-export interface MapLayer {
-  metaData: MapLayerMetaData;
-  type: MapLayerType;
+export interface RawMapLayer {
+  metaData: RawMapLayerMetaData;
+  type: RawMapLayerType;
   pixels: number[];
   dimensions: {
-    x: MapLayerDimension;
-    y: MapLayerDimension;
+    x: RawMapLayerDimension;
+    y: RawMapLayerDimension;
   };
 }
 
-export interface MapLayerDimension {
+export interface RawMapLayerDimension {
   min: number;
   max: number;
   mid: number;
 }
 
-export interface MapLayerMetaData {
+export interface RawMapLayerMetaData {
   area: number;
   segmentId?: string;
   name?: string;
   active?: boolean;
 }
 
-export enum MapLayerType {
+export enum RawMapLayerType {
   Floor = 'floor',
   Segment = 'segment',
   Wall = 'wall',
 }
 
-export enum MapEntityType {
+export enum RawMapEntityType {
   ChargerLocation = 'charger_location',
   RobotPosition = 'robot_position',
   GoToTarget = 'go_to_target',
@@ -60,6 +60,6 @@ export enum MapEntityType {
   ActiveZone = 'active_zone',
 }
 
-export interface MapDataMetaData {
+export interface RawMapDataMetaData {
   version: number;
 }

@@ -12,7 +12,6 @@ export const makeServer = (environment: 'test' | 'development'): void => {
     routes() {
       this.get('/robot/state/map', () => map);
       this.get('/robot/state', () => state);
-
       this.get('/robot/capabilities', () => [Capability.BasicControl]);
       this.put(
         `/robot/capabilities/${Capability.BasicControl}`,

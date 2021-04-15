@@ -4,7 +4,7 @@ import { KonvaEventObject } from 'konva/types/Node';
 import React from 'react';
 import { Layer } from 'react-konva';
 import { FourColorTheoremSolver } from './map-color-finder';
-import { MapLayer, MapLayerType, MapData } from '../api';
+import { RawMapLayer, RawMapLayerType, RawMapData } from '../api';
 import MapEntityShape from './MapEntityShape';
 import MapStage from './MapStage';
 import Pixels from './Pixels';
@@ -18,7 +18,7 @@ import MapMenu, { MapMenuProps } from './MapMenu';
 const robotImage = new window.Image();
 robotImage.src = robotSrc;
 export interface MapProps {
-  mapData: MapData;
+  mapData: RawMapData;
 }
 
 const Map = (props: MapProps): JSX.Element => {
@@ -37,7 +37,7 @@ const Map = (props: MapProps): JSX.Element => {
 
   const getColor = React.useMemo(() => {
     const colorFinder = new FourColorTheoremSolver(layers, 6);
-    return (layer: MapLayer): NonNullable<React.CSSProperties['color']> => {
+    return (layer: RawMapLayer): NonNullable<React.CSSProperties['color']> => {
       const {
         free,
         occupied,
@@ -48,11 +48,11 @@ const Map = (props: MapProps): JSX.Element => {
         segmentFallback,
       } = theme.map;
       switch (layer.type) {
-        case MapLayerType.Floor:
+        case RawMapLayerType.Floor:
           return free;
-        case MapLayerType.Wall:
+        case RawMapLayerType.Wall:
           return occupied;
-        case MapLayerType.Segment:
+        case RawMapLayerType.Segment:
           if (layer.metaData.segmentId === undefined) {
             return segmentFallback;
           }
@@ -67,7 +67,7 @@ const Map = (props: MapProps): JSX.Element => {
   }, [layers, theme.map]);
 
   const getLayerFromPosition = React.useCallback(
-    (position: Vector2d): MapLayer | undefined => {
+    (position: Vector2d): RawMapLayer | undefined => {
       const targetX = Math.floor(position.x / pixelSize);
       const targetY = Math.floor(position.y / pixelSize);
 
@@ -120,7 +120,7 @@ const Map = (props: MapProps): JSX.Element => {
         },
         position: stagePosition,
         segment:
-          layer.type === MapLayerType.Segment ? layer.metaData : undefined,
+          layer.type === RawMapLayerType.Segment ? layer.metaData : undefined,
       });
     },
     [getLayerFromPosition]
@@ -159,7 +159,7 @@ const Map = (props: MapProps): JSX.Element => {
               />
             ))}
             {layers
-              .filter((layer) => layer.type === MapLayerType.Segment)
+              .filter((layer) => layer.type === RawMapLayerType.Segment)
               .map((layer) => {
                 const point = pointClosestTo(pairWiseArray(layer.pixels), [
                   layer.dimensions.x.mid,

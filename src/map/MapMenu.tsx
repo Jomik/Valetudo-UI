@@ -5,11 +5,11 @@ import {
   PopoverPosition,
 } from '@material-ui/core';
 import { Vector2d } from 'konva/types/types';
-import { MapLayerMetaData } from '../api';
+import { RawMapLayerMetaData } from '../api';
 
 export interface MapMenuProps {
   anchorPosition?: PopoverPosition;
-  segment?: MapLayerMetaData;
+  segment?: RawMapLayerMetaData;
   position?: Vector2d;
   open: boolean;
   onClose(): void;

@@ -1,13 +1,7 @@
 import { Backdrop, makeStyles } from '@material-ui/core';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
 import React from 'react';
-import {
-  Capability,
-  useBasicControl,
-  useRobotState,
-  RobotAttributeClass,
-  StatusState,
-} from '../api';
+import { Capability, useRobotState } from '../api';
 import { useCapabilitySupported } from '../CapabilitiesProvider';
 import {
   Home as HomeIcon,
@@ -33,16 +27,7 @@ const MapSpeedDial = (): JSX.Element | null => {
   const isBasicControlSupported = useCapabilitySupported(
     Capability.BasicControl
   );
-  const [basicControlResponse, basicControl] = useBasicControl();
-  const [{ data: state, loading, error }, refresh] = useRobotState();
-
-  const status = React.useMemo(
-    () =>
-      state?.attributes.find(
-        (x): x is StatusState => x.__class === RobotAttributeClass.StatusState
-      ),
-    [state?.attributes]
-  );
+  const { data: state } = useRobotState();
 
   const [open, setOpen] = React.useState(false);
 
@@ -57,40 +42,33 @@ const MapSpeedDial = (): JSX.Element | null => {
   const actions = React.useMemo<
     { name: string; icon: JSX.Element; onClick(): void }[]
   >(() => {
+    if (state === undefined) {
+      return [];
+    }
+    const { status } = state;
     const actions: { name: string; icon: JSX.Element; onClick(): void }[] = [];
 
-    if (isBasicControlSupported && status !== undefined) {
-      if (status.flag === 'resumable') {
-        actions.push({
-          name: 'Resume',
-          icon: <StartIcon />,
-          onClick() {
-            basicControl('start').finally(refresh);
-            handleClose();
-          },
-        });
-      } else if (status.value === 'idle' || status.value === 'docked') {
+    if (isBasicControlSupported) {
+      if (status === 'idle' || status === 'docked') {
         actions.push({
           name: 'Start',
           icon: <StartIcon />,
           onClick() {
-            basicControl('start').finally(refresh);
             handleClose();
           },
         });
       }
 
       if (
-        status.value === 'cleaning' ||
-        status.value === 'returning' ||
-        status.value === 'moving'
+        status === 'cleaning' ||
+        status === 'returning' ||
+        status === 'moving'
       ) {
         actions.push(
           {
             name: 'Pause',
             icon: <PauseIcon />,
             onClick() {
-              basicControl('pause').finally(refresh);
               handleClose();
             },
           },
@@ -98,19 +76,17 @@ const MapSpeedDial = (): JSX.Element | null => {
             name: 'Stop',
             icon: <StopIcon />,
             onClick() {
-              basicControl('stop').finally(refresh);
               handleClose();
             },
           }
         );
       }
 
-      if (status.value !== 'docked' && status.value !== 'returning') {
+      if (status !== 'docked' && status !== 'returning') {
         actions.push({
           name: 'Home',
           icon: <HomeIcon />,
           onClick() {
-            basicControl('home').finally(refresh);
             handleClose();
           },
         });
@@ -118,7 +94,7 @@ const MapSpeedDial = (): JSX.Element | null => {
     }
 
     return actions;
-  }, [basicControl, handleClose, isBasicControlSupported, refresh, status]);
+  }, [handleClose, isBasicControlSupported, state]);
 
   if (actions.length === 0) {
     return null;

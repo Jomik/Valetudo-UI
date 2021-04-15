@@ -1,7 +1,7 @@
 import { useTheme } from '@material-ui/core';
 import { LineConfig } from 'konva/types/shapes/Line';
 import { Image, Line } from 'react-konva';
-import { MapEntity, MapEntityType } from '../api';
+import { RawMapEntity, RawMapEntityType } from '../api';
 import robotSrc from '../assets/icons/robot.svg';
 import chargerSrc from '../assets/icons/charger.svg';
 import markerSrc from '../assets/icons/marker_active.svg';
@@ -16,7 +16,7 @@ const markerImage = new window.Image();
 markerImage.src = markerSrc;
 
 export interface MapEntityShapeProps {
-  entity: MapEntity;
+  entity: RawMapEntity;
   pixelSize: number;
 }
 
@@ -24,7 +24,7 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
   const { entity, pixelSize } = props;
   const theme = useTheme();
 
-  if (entity.type === MapEntityType.RobotPosition) {
+  if (entity.type === RawMapEntityType.RobotPosition) {
     return (
       <Image
         image={robotImage}
@@ -36,7 +36,7 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
       />
     );
   }
-  if (entity.type === MapEntityType.ChargerLocation) {
+  if (entity.type === RawMapEntityType.ChargerLocation) {
     return (
       <Image
         image={chargerImage}
@@ -48,7 +48,7 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
       />
     );
   }
-  if (entity.type === MapEntityType.GoToTarget) {
+  if (entity.type === RawMapEntityType.GoToTarget) {
     return (
       <Image
         image={markerImage}
@@ -69,9 +69,9 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
   };
 
   switch (entity.type) {
-    case MapEntityType.Path:
+    case RawMapEntityType.Path:
       return <Line {...commonProps} stroke={theme.map.path} />;
-    case MapEntityType.PredictedPath:
+    case RawMapEntityType.PredictedPath:
       return (
         <Line
           {...commonProps}
@@ -79,13 +79,13 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
           dash={[pixelSize * 5, pixelSize * 2]}
         />
       );
-    case MapEntityType.VirtualWall:
+    case RawMapEntityType.VirtualWall:
       return <Line {...commonProps} {...theme.map.noGo} />;
-    case MapEntityType.NoGoArea:
+    case RawMapEntityType.NoGoArea:
       return <Line {...commonProps} {...theme.map.noGo} closed />;
-    case MapEntityType.NoMopArea:
+    case RawMapEntityType.NoMopArea:
       return <Line {...commonProps} {...theme.map.noMop} closed />;
-    case MapEntityType.ActiveZone:
+    case RawMapEntityType.ActiveZone:
       return <Line {...commonProps} {...theme.map.active} closed />;
     default:
       return null;
