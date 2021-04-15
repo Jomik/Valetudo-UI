@@ -2,10 +2,10 @@ import ReactDOM from 'react-dom';
 import 'fontsource-roboto';
 import reportWebVitals from './reportWebVitals';
 import App from './App';
-import { makeServer } from './server';
+import { initDevelopment } from './development';
 
 if (process.env.NODE_ENV === 'development') {
-  makeServer('development');
+  initDevelopment();
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));

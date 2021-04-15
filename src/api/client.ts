@@ -5,18 +5,18 @@ import { RawRobotState, RobotAttributeClass } from './RawRobotState';
 import { RobotState } from './RobotState';
 import { getAttributes } from './utils';
 
-const valetudo = axios.create({
-  baseURL: '/api/v2',
+export const valetudoAPI = axios.create({
+  baseURL: `/api/v2`,
 });
 
 export const fetchCapabilities = (): Promise<Capability[]> =>
-  valetudo.get<Capability[]>('/robot/capabilities').then(({ data }) => data);
+  valetudoAPI.get<Capability[]>('/robot/capabilities').then(({ data }) => data);
 
 export const fetchMap = (): Promise<RawMapData> =>
-  valetudo.get<RawMapData>('/robot/state/map').then(({ data }) => data);
+  valetudoAPI.get<RawMapData>('/robot/state/map').then(({ data }) => data);
 
 export const fetchState = async (): Promise<RobotState> => {
-  const { data } = await valetudo.get<RawRobotState>('/robot/state');
+  const { data } = await valetudoAPI.get<RawRobotState>('/robot/state');
   const { attributes } = data;
 
   const statusAttribute = getAttributes(
