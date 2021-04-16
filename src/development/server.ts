@@ -23,7 +23,7 @@ export const makeServer = (environment: 'test' | 'development'): void => {
       );
       this.get(
         `/robot/capabilities/${Capability.FanSpeedControl}/presets`,
-        () => ['off', 'low', 'medium', 'high', 'turbo']
+        () => ['low', 'medium', 'high', 'turbo', 'off']
       );
       this.put(
         `/robot/capabilities/${Capability.FanSpeedControl}/preset`,
@@ -31,7 +31,7 @@ export const makeServer = (environment: 'test' | 'development'): void => {
       );
       this.get(
         `/robot/capabilities/${Capability.WaterUsageControl}/presets`,
-        () => ['off', 'low', 'medium', 'high']
+        () => ['low', 'medium', 'high', 'off']
       );
       this.put(
         `/robot/capabilities/${Capability.WaterUsageControl}/preset`,

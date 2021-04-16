@@ -4,7 +4,6 @@ import {
   Grid,
   Mark,
   Slider,
-  Switch,
   Typography,
   withStyles,
 } from '@material-ui/core';
@@ -38,6 +37,10 @@ const DiscreteSlider = withStyles((theme) => ({
   },
 }))(Slider);
 
+const order = ['off', 'min', 'low', 'medium', 'high', 'max', 'turbo'];
+const sortPresets = (intensities: IntensityState['value'][]) =>
+  [...intensities].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+
 export interface IntensityControlProps {
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl;
   label: string;
@@ -49,12 +52,12 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   const { isLoading, isError, data: presets } = useIntensityPresets(capability);
   const { mutate } = useIntensityMutation(capability);
   const intensity = state?.intensity?.[capability];
-  const hasOff = presets?.includes('off') ?? false;
   const filteredPresets = React.useMemo(
     () =>
-      presets?.filter(
-        (x): x is Exclude<IntensityState['value'], 'off' | 'custom'> =>
-          x !== 'off' && x !== 'custom'
+      sortPresets(
+        presets?.filter(
+          (x): x is Exclude<IntensityState['value'], 'custom'> => x !== 'custom'
+        ) ?? []
       ),
     [presets]
   );
@@ -65,13 +68,7 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
       return;
     }
 
-    if (intensity.level === 'off') {
-      setSliderValue(0);
-      return;
-    }
-
-    const index =
-      filteredPresets?.findIndex((x) => x === intensity.level) ?? -1;
+    const index = filteredPresets?.indexOf(intensity.level) ?? -1;
 
     setSliderValue(index !== -1 ? index : 0);
   }, [intensity, filteredPresets]);
@@ -86,16 +83,6 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
       label: preset,
     }));
   }, [filteredPresets]);
-
-  const handleToggle = React.useCallback(
-    (_event: React.ChangeEvent, checked: boolean) => {
-      if (presets === undefined) {
-        return;
-      }
-      mutate(checked ? presets[0] : 'off');
-    },
-    [mutate, presets]
-  );
 
   const handleSliderChange = React.useCallback(
     (_event: React.ChangeEvent<unknown>, value: number | number[]) => {
@@ -150,24 +137,9 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
       <Box px={3}>
         <Grid container direction="column">
           <Grid item>
-            <Grid container justify="space-between" alignItems="center">
-              <Grid item>
-                <Typography
-                  variant="subtitle1"
-                  id={`${capability}-slider-label`}
-                >
-                  {label}
-                </Typography>
-              </Grid>
-              {hasOff && (
-                <Grid item>
-                  <Switch
-                    checked={intensity.level !== 'off'}
-                    onChange={handleToggle}
-                  />
-                </Grid>
-              )}
-            </Grid>
+            <Typography variant="subtitle1" id={`${capability}-slider-label`}>
+              {label}
+            </Typography>
           </Grid>
           <Grid item>
             <DiscreteSlider
@@ -180,7 +152,6 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
               min={0}
               max={marks.length - 1}
               marks={marks}
-              disabled={intensity.level === 'off'}
               color="secondary"
             />
           </Grid>
