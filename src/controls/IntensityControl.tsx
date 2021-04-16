@@ -1,6 +1,7 @@
 import {
   Box,
   CircularProgress,
+  Fade,
   Grid,
   Mark,
   Slider,
@@ -51,7 +52,7 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   const { capability, label, icon } = props;
   const { data: state } = useRobotStateQuery();
   const { isLoading, isError, data: presets } = useIntensityPresets(capability);
-  const { mutate } = useIntensityMutation(capability);
+  const { mutate, isLoading: isUpdating } = useIntensityMutation(capability);
   const intensity = state?.intensity?.[capability];
   const filteredPresets = React.useMemo(
     () =>
@@ -143,6 +144,19 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
               {label}
             </Typography>
           </Grid>
+          {isUpdating && (
+            <Grid item>
+              <Fade
+                in={isUpdating}
+                style={{
+                  transitionDelay: isUpdating ? '500ms' : '0ms',
+                }}
+                unmountOnExit
+              >
+                <CircularProgress size={20} color="secondary" />
+              </Fade>
+            </Grid>
+          )}
         </Grid>
         <Grid item>
           <DiscreteSlider
