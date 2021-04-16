@@ -15,6 +15,7 @@ export const makeServer = (environment: 'test' | 'development'): void => {
       this.get('/robot/capabilities', () => [
         Capability.BasicControl,
         Capability.FanSpeedControl,
+        Capability.WaterUsageControl,
       ]);
       this.put(
         `/robot/capabilities/${Capability.BasicControl}`,
@@ -26,6 +27,14 @@ export const makeServer = (environment: 'test' | 'development'): void => {
       );
       this.put(
         `/robot/capabilities/${Capability.FanSpeedControl}/preset`,
+        () => new Response(200)
+      );
+      this.get(
+        `/robot/capabilities/${Capability.WaterUsageControl}/presets`,
+        () => ['off', 'low', 'medium', 'high']
+      );
+      this.put(
+        `/robot/capabilities/${Capability.WaterUsageControl}/preset`,
         () => new Response(200)
       );
     },

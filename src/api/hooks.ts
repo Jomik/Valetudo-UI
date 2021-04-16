@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { Capability } from './Capability';
 import {
   fetchCapabilities,
-  fetchFanSpeedPresets,
+  fetchIntensityPresets,
   fetchMap,
   fetchState,
-  updateFanSpeed,
+  updateIntensity,
 } from './client';
 import { IntensityState } from './RawRobotState';
 import { RobotState } from './RobotState';
@@ -14,7 +15,7 @@ enum CacheKey {
   Capabilities = 'capabilities',
   RobotMap = 'map',
   RobotState = 'state',
-  FanSpeedPresets = 'fan_speed_presets',
+  IntensityPresets = 'intensity_presets',
 }
 
 export const useCapabilities = () =>
@@ -30,19 +31,27 @@ export const useRobotStateQuery = () =>
     staleTime: 1000,
   });
 
-export const useFanSpeedPresets = () =>
-  useQuery(CacheKey.FanSpeedPresets, fetchFanSpeedPresets, {
-    staleTime: Infinity,
-  });
+export const useIntensityPresets = (
+  capability: Capability.FanSpeedControl | Capability.WaterUsageControl
+) =>
+  useQuery(
+    [CacheKey.IntensityPresets, capability],
+    () => fetchIntensityPresets(capability),
+    {
+      staleTime: Infinity,
+    }
+  );
 
-export const useFanSpeedMutation = () => {
+export const useIntensityMutation = (
+  capability: Capability.FanSpeedControl | Capability.WaterUsageControl
+) => {
   const queryClient = useQueryClient();
   return useMutation<
     void,
     unknown,
     IntensityState['value'],
     { previousState: RobotState } | undefined
-  >(updateFanSpeed, {
+  >((level) => updateIntensity(capability, level), {
     async onMutate(level) {
       await queryClient.cancelQueries(CacheKey.RobotState);
 
@@ -55,7 +64,7 @@ export const useFanSpeedMutation = () => {
         ...state,
         intensity: {
           ...state.intensity,
-          fan_speed: {
+          [capability]: {
             level,
             customValue: undefined,
           },

@@ -38,6 +38,12 @@
       "value": "high"
     },
     {
+      "__class": "IntensityStateAttribute",
+      "metaData": {},
+      "type": "water_grade",
+      "value": "low"
+    },
+    {
       "__class": "ConsumableStateAttribute",
       "metaData": { "roborockConsumableType": "main_brush_work_time" },
       "type": "brush",

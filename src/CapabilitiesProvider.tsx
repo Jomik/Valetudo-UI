@@ -85,10 +85,14 @@ const CapabilitiesProvider = (props: {
   );
 };
 
-export const useCapabilitySupported = (capability: Capability): boolean => {
+export const useCapabilitiesSupported = (
+  ...capabilities: Capability[]
+): boolean[] => {
   const supportedCapabilities = React.useContext(Context);
 
-  return supportedCapabilities.includes(capability);
+  return capabilities.map((capability) =>
+    supportedCapabilities.includes(capability)
+  );
 };
 
 export default CapabilitiesProvider;

@@ -46,7 +46,7 @@ export interface BatteryState {
 export interface IntensityState {
   __class: RobotAttributeClass.IntensityState;
   metaData: Record<string, never>;
-  type: 'fan_speed' | 'water_grade' | 'carpet_turbo';
+  type: 'fan_speed' | 'water_grade';
   value: 'off' | 'min' | 'low' | 'medium' | 'high' | 'max' | 'turbo' | 'custom';
   customValue?: number;
 }

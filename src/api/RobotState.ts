@@ -1,3 +1,4 @@
+import { Capability } from './Capability';
 import { BatteryState, IntensityState, StatusState } from './RawRobotState';
 
 export interface RobotState {
@@ -6,13 +7,14 @@ export interface RobotState {
     status: BatteryState['value'];
     level: BatteryState['level'];
   };
-  intensity: Partial<
-    Record<
-      IntensityState['type'],
-      {
-        level: IntensityState['value'];
-        customValue: IntensityState['customValue'];
-      }
-    >
-  >;
+  intensity: {
+    [Capability.FanSpeedControl]?: {
+      level: IntensityState['value'];
+      customValue?: IntensityState['customValue'];
+    };
+    [Capability.WaterUsageControl]?: {
+      level: IntensityState['value'];
+      customValue?: IntensityState['customValue'];
+    };
+  };
 }

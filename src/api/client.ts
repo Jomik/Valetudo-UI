@@ -39,10 +39,21 @@ export const fetchState = async (): Promise<RobotState> => {
   );
 
   const intensity = intensityAttributes.reduce<RobotState['intensity']>(
-    (prev, { type, value, customValue }) => ({
-      ...prev,
-      [type]: { level: value, customValue },
-    }),
+    (prev, { type, value, customValue }) => {
+      if (type === 'fan_speed') {
+        return {
+          ...prev,
+          [Capability.FanSpeedControl]: { level: value, customValue },
+        };
+      }
+      if (type === 'water_grade') {
+        return {
+          ...prev,
+          [Capability.WaterUsageControl]: { level: value, customValue },
+        };
+      }
+      return prev;
+    },
     {}
   );
 
@@ -56,20 +67,18 @@ export const fetchState = async (): Promise<RobotState> => {
   };
 };
 
-export const fetchFanSpeedPresets = async (): Promise<
-  IntensityState['value'][]
-> =>
+export const fetchIntensityPresets = async (
+  capability: Capability.FanSpeedControl | Capability.WaterUsageControl
+): Promise<IntensityState['value'][]> =>
   valetudoAPI
-    .get<IntensityState['value'][]>(
-      `/robot/capabilities/${Capability.FanSpeedControl}/presets`
-    )
+    .get<IntensityState['value'][]>(`/robot/capabilities/${capability}/presets`)
     .then(({ data }) => data);
 
-export const updateFanSpeed = async (
+export const updateIntensity = async (
+  capability: Capability.FanSpeedControl | Capability.WaterUsageControl,
   level: IntensityState['value']
 ): Promise<void> => {
-  await valetudoAPI.put<void>(
-    `/robot/capabilities/${Capability.FanSpeedControl}/preset`,
-    { name: level }
-  );
+  await valetudoAPI.put<void>(`/robot/capabilities/${capability}/preset`, {
+    name: level,
+  });
 };

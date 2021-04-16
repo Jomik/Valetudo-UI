@@ -2,7 +2,7 @@ import { Backdrop, makeStyles } from '@material-ui/core';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
 import React from 'react';
 import { Capability, useRobotStateQuery } from '../api';
-import { useCapabilitySupported } from '../CapabilitiesProvider';
+import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import {
   Home as HomeIcon,
   Pause as PauseIcon,
@@ -24,7 +24,7 @@ const useSpeedDialStyles = makeStyles((theme) => ({
 
 const ControlsSpeedDial = (): JSX.Element | null => {
   const classes = useSpeedDialStyles();
-  const isBasicControlSupported = useCapabilitySupported(
+  const [isBasicControlSupported] = useCapabilitiesSupported(
     Capability.BasicControl
   );
   const { data: state } = useRobotStateQuery();
