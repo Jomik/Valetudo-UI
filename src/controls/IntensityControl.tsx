@@ -50,9 +50,13 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   const { mutate } = useIntensityMutation(capability);
   const intensity = state?.intensity?.[capability];
   const hasOff = presets?.includes('off') ?? false;
-  const filteredPresets = presets?.filter(
-    (x): x is Exclude<IntensityState['value'], 'off' | 'custom'> =>
-      x !== 'off' && x !== 'custom'
+  const filteredPresets = React.useMemo(
+    () =>
+      presets?.filter(
+        (x): x is Exclude<IntensityState['value'], 'off' | 'custom'> =>
+          x !== 'off' && x !== 'custom'
+      ),
+    [presets]
   );
   const [sliderValue, setSliderValue] = React.useState(0);
 
@@ -108,7 +112,6 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
       if (typeof value !== 'number' || filteredPresets === undefined) {
         return;
       }
-
       setSliderValue(value);
       const level = filteredPresets[value];
       mutate(level);
