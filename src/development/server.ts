@@ -12,9 +12,20 @@ export const makeServer = (environment: 'test' | 'development'): void => {
     routes() {
       this.get('/robot/state/map', () => map);
       this.get('/robot/state', () => state);
-      this.get('/robot/capabilities', () => [Capability.BasicControl]);
+      this.get('/robot/capabilities', () => [
+        Capability.BasicControl,
+        Capability.FanSpeedControl,
+      ]);
       this.put(
         `/robot/capabilities/${Capability.BasicControl}`,
+        () => new Response(200)
+      );
+      this.get(
+        `/robot/capabilities/${Capability.FanSpeedControl}/presets`,
+        () => ['off', 'low', 'medium', 'high', 'turbo']
+      );
+      this.put(
+        `/robot/capabilities/${Capability.FanSpeedControl}/preset`,
         () => new Response(200)
       );
     },
