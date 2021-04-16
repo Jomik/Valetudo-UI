@@ -144,7 +144,9 @@ const CombinedView = (): JSX.Element => {
 const AppRouter = (): JSX.Element => {
   const classes = useAppStyles();
   const theme = useTheme();
-  const largeView = useMediaQuery(theme.breakpoints.up('sm'));
+  const largeView = useMediaQuery(theme.breakpoints.up('sm'), {
+    noSsr: true,
+  });
 
   return (
     <BrowserRouter>
