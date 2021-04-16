@@ -1,4 +1,8 @@
 import { Container, Grid, Paper } from '@material-ui/core';
+import {
+  Opacity as WaterUsageIcon,
+  Toys as FanSpeedIcon,
+} from '@material-ui/icons';
 import { Capability } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import IntensityControl from './IntensityControl';
@@ -18,6 +22,7 @@ const ControlsPage = (): JSX.Element => {
               <IntensityControl
                 capability={Capability.FanSpeedControl}
                 label="Fan speed"
+                icon={<FanSpeedIcon fontSize="small" />}
               />
             </Paper>
           </Grid>
@@ -28,6 +33,7 @@ const ControlsPage = (): JSX.Element => {
               <IntensityControl
                 capability={Capability.WaterUsageControl}
                 label="Water usage"
+                icon={<WaterUsageIcon fontSize="small" />}
               />
             </Paper>
           </Grid>

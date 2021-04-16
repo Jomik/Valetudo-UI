@@ -44,10 +44,11 @@ const sortPresets = (intensities: IntensityState['value'][]) =>
 export interface IntensityControlProps {
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl;
   label: string;
+  icon: JSX.Element;
 }
 
 const IntensityControl = (props: IntensityControlProps): JSX.Element => {
-  const { capability, label } = props;
+  const { capability, label, icon } = props;
   const { data: state } = useRobotStateQuery();
   const { isLoading, isError, data: presets } = useIntensityPresets(capability);
   const { mutate } = useIntensityMutation(capability);
@@ -134,12 +135,15 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
 
   return (
     <Box>
-      <Box px={3}>
+      <Box px={3} pt={1}>
         <Grid container direction="column">
-          <Grid item>
-            <Typography variant="subtitle1" id={`${capability}-slider-label`}>
-              {label}
-            </Typography>
+          <Grid container alignItems="center" spacing={1}>
+            <Grid item>{icon}</Grid>
+            <Grid item>
+              <Typography variant="subtitle1" id={`${capability}-slider-label`}>
+                {label}
+              </Typography>
+            </Grid>
           </Grid>
           <Grid item>
             <DiscreteSlider
