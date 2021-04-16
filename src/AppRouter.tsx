@@ -130,10 +130,10 @@ const CombinedView = (): JSX.Element => {
       justify="space-evenly"
       className={classes.container}
     >
-      <Grid item xs={4}>
+      <Grid item sm={6} md={5} lg={4} xl={3}>
         <ControlsPage />
       </Grid>
-      <Grid item xs>
+      <Grid item sm md lg xl>
         <MapPage />
       </Grid>
     </Grid>

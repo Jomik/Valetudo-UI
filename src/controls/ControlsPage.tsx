@@ -91,42 +91,62 @@ const FanSpeedControl = (): JSX.Element => {
   );
 
   if (isLoading) {
-    return <CircularProgress />;
+    return (
+      <Box py={2} px={3}>
+        <Grid container justify="center">
+          <Grid item>
+            <CircularProgress />
+          </Grid>
+        </Grid>
+      </Box>
+    );
   }
 
   if (isError || fanSpeed === undefined || filteredPresets === undefined) {
-    return <Typography color="error">Error loading fan speed</Typography>;
+    return (
+      <Box py={2} px={3}>
+        <Grid container>
+          <Grid item>
+            <Typography color="error">Error loading fan speed</Typography>
+          </Grid>
+        </Grid>
+      </Box>
+    );
   }
 
   return (
     <Box py={2} px={3}>
-      <Grid container justify="space-between">
+      <Grid container direction="column">
         <Grid item>
-          <Typography id="fanspeed-slider" gutterBottom>
-            Fan speed
-          </Typography>
-        </Grid>
-        {hasOff && (
-          <Grid item>
-            <Switch
-              checked={fanSpeed.level !== 'off'}
-              onChange={handleToggle}
-            />
+          <Grid container justify="space-between" alignItems="center">
+            <Grid item>
+              <Typography id="fanspeed-slider">Fan speed</Typography>
+            </Grid>
+            {hasOff && (
+              <Grid item>
+                <Switch
+                  checked={fanSpeed.level !== 'off'}
+                  onChange={handleToggle}
+                />
+              </Grid>
+            )}
           </Grid>
-        )}
+        </Grid>
+        <Grid item>
+          <Slider
+            aria-labelledby="fanspeed-slider"
+            step={null}
+            value={sliderValue}
+            valueLabelDisplay="off"
+            onChange={handleSliderChange}
+            onChangeCommitted={handleSliderCommitted}
+            min={0}
+            max={marks.length - 1}
+            marks={marks}
+            disabled={fanSpeed.level === 'off'}
+          />
+        </Grid>
       </Grid>
-      <Slider
-        aria-labelledby="fanspeed-slider"
-        step={null}
-        value={sliderValue}
-        valueLabelDisplay="off"
-        onChange={handleSliderChange}
-        onChangeCommitted={handleSliderCommitted}
-        min={0}
-        max={marks.length - 1}
-        marks={marks}
-        disabled={fanSpeed.level === 'off'}
-      />
     </Box>
   );
 };
@@ -138,10 +158,9 @@ const ControlsPage = (): JSX.Element => {
 
   return (
     <Container>
-      <Box m={2} />
-      <Grid container>
+      <Grid container spacing={2} direction="column">
         {isFanSpeedSupported && (
-          <Grid item xs>
+          <Grid item>
             <Paper>
               <FanSpeedControl />
             </Paper>
