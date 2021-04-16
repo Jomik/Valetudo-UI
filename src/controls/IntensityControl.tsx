@@ -6,6 +6,7 @@ import {
   Slider,
   Switch,
   Typography,
+  withStyles,
 } from '@material-ui/core';
 import React from 'react';
 import {
@@ -15,6 +16,27 @@ import {
   useIntensityPresets,
   useRobotStateQuery,
 } from '../api';
+
+const DiscreteSlider = withStyles((theme) => ({
+  track: {
+    height: 2,
+  },
+  rail: {
+    height: 2,
+    opacity: 0.5,
+    backgroundColor: theme.palette.grey[400],
+  },
+  mark: {
+    backgroundColor: theme.palette.grey[400],
+    height: 8,
+    width: 1,
+    marginTop: -3,
+  },
+  markActive: {
+    opacity: 1,
+    backgroundColor: 'currentColor',
+  },
+}))(Slider);
 
 export interface IntensityControlProps {
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl;
@@ -96,7 +118,7 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
 
   if (isLoading) {
     return (
-      <Box m={2}>
+      <Box p={2}>
         <Grid container justify="center">
           <Grid item>
             <CircularProgress />
@@ -108,7 +130,7 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
 
   if (isError || intensity === undefined || filteredPresets === undefined) {
     return (
-      <Box m={2}>
+      <Box p={2}>
         <Grid container>
           <Grid item>
             <Typography color="error">
@@ -121,40 +143,46 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   }
 
   return (
-    <Box mx={3}>
-      <Grid container direction="column">
-        <Grid item>
-          <Grid container justify="space-between" alignItems="center">
-            <Grid item>
-              <Typography variant="subtitle1" id={`${capability}-slider-label`}>
-                {label}
-              </Typography>
-            </Grid>
-            {hasOff && (
+    <Box>
+      <Box px={3}>
+        <Grid container direction="column">
+          <Grid item>
+            <Grid container justify="space-between" alignItems="center">
               <Grid item>
-                <Switch
-                  checked={intensity.level !== 'off'}
-                  onChange={handleToggle}
-                />
+                <Typography
+                  variant="subtitle1"
+                  id={`${capability}-slider-label`}
+                >
+                  {label}
+                </Typography>
               </Grid>
-            )}
+              {hasOff && (
+                <Grid item>
+                  <Switch
+                    checked={intensity.level !== 'off'}
+                    onChange={handleToggle}
+                  />
+                </Grid>
+              )}
+            </Grid>
+          </Grid>
+          <Grid item>
+            <DiscreteSlider
+              aria-labelledby={`${capability}-slider-label`}
+              step={null}
+              value={sliderValue}
+              valueLabelDisplay="off"
+              onChange={handleSliderChange}
+              onChangeCommitted={handleSliderCommitted}
+              min={0}
+              max={marks.length - 1}
+              marks={marks}
+              disabled={intensity.level === 'off'}
+              color="secondary"
+            />
           </Grid>
         </Grid>
-        <Grid item>
-          <Slider
-            aria-labelledby={`${capability}-slider-label`}
-            step={null}
-            value={sliderValue}
-            valueLabelDisplay="off"
-            onChange={handleSliderChange}
-            onChangeCommitted={handleSliderCommitted}
-            min={0}
-            max={marks.length - 1}
-            marks={marks}
-            disabled={intensity.level === 'off'}
-          />
-        </Grid>
-      </Grid>
+      </Box>
     </Box>
   );
 };
