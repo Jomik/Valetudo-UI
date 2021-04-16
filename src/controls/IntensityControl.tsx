@@ -109,59 +109,57 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
 
   if (isLoading) {
     return (
-      <Box p={2}>
-        <Grid container justify="center">
-          <Grid item>
+      <Grid container justify="center">
+        <Grid item>
+          <Box p={2}>
             <CircularProgress />
-          </Grid>
+          </Box>
         </Grid>
-      </Box>
+      </Grid>
     );
   }
 
   if (isError || intensity === undefined || filteredPresets === undefined) {
     return (
-      <Box p={2}>
-        <Grid container>
-          <Grid item>
+      <Grid container>
+        <Grid item>
+          <Box p={2}>
             <Typography color="error">
               Error loading {capability} data
             </Typography>
-          </Grid>
+          </Box>
         </Grid>
-      </Box>
+      </Grid>
     );
   }
 
   return (
-    <Box>
+    <Grid container direction="column">
       <Box px={3} pt={1}>
-        <Grid container direction="column">
-          <Grid container alignItems="center" spacing={1}>
-            <Grid item>{icon}</Grid>
-            <Grid item>
-              <Typography variant="subtitle1" id={`${capability}-slider-label`}>
-                {label}
-              </Typography>
-            </Grid>
-          </Grid>
+        <Grid item container alignItems="center" spacing={1}>
+          <Grid item>{icon}</Grid>
           <Grid item>
-            <DiscreteSlider
-              aria-labelledby={`${capability}-slider-label`}
-              step={null}
-              value={sliderValue}
-              valueLabelDisplay="off"
-              onChange={handleSliderChange}
-              onChangeCommitted={handleSliderCommitted}
-              min={0}
-              max={marks.length - 1}
-              marks={marks}
-              color="secondary"
-            />
+            <Typography variant="subtitle1" id={`${capability}-slider-label`}>
+              {label}
+            </Typography>
           </Grid>
         </Grid>
+        <Grid item>
+          <DiscreteSlider
+            aria-labelledby={`${capability}-slider-label`}
+            step={null}
+            value={sliderValue}
+            valueLabelDisplay="off"
+            onChange={handleSliderChange}
+            onChangeCommitted={handleSliderCommitted}
+            min={0}
+            max={marks.length - 1}
+            marks={marks}
+            color="secondary"
+          />
+        </Grid>
       </Box>
-    </Box>
+    </Grid>
   );
 };
 

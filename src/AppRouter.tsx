@@ -20,6 +20,7 @@ import {
   BottomNavigation,
   Typography,
   Grid,
+  Container,
 } from '@material-ui/core';
 import {
   Settings as SettingsIcon,
@@ -158,7 +159,14 @@ const AppRouter = (): JSX.Element => {
               {largeView ? <Redirect to="/" /> : <MapPage />}
             </Route>
             <Route exact path="/controls">
-              {largeView ? <Redirect to="/" /> : <ControlsPage />}
+              {largeView ? (
+                <Redirect to="/" />
+              ) : (
+                <Container>
+                  <Box m={1} />
+                  <ControlsPage />
+                </Container>
+              )}
             </Route>
             <Route exact path="/settings">
               <span>Settings</span>
