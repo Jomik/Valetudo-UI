@@ -50,10 +50,11 @@ export interface IntensityControlProps {
 
 const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   const { capability, label, icon } = props;
-  const { data: state } = useRobotStateQuery();
+  const { data: intensity } = useRobotStateQuery(
+    (data) => data.intensity[capability]
+  );
   const { isLoading, isError, data: presets } = useIntensityPresets(capability);
   const { mutate, isLoading: isUpdating } = useIntensityMutation(capability);
-  const intensity = state?.intensity?.[capability];
   const filteredPresets = React.useMemo(
     () =>
       sortPresets(

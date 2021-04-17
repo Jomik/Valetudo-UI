@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import React from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { Capability } from './Capability';
 import {
@@ -7,6 +8,7 @@ import {
   fetchMap,
   fetchState,
   updateIntensity,
+  valetudoAPI,
 } from './client';
 import { IntensityState } from './RawRobotState';
 import { RobotState } from './RobotState';
@@ -18,17 +20,65 @@ enum CacheKey {
   IntensityPresets = 'intensity_presets',
 }
 
+const SSETracker = new Map<CacheKey, () => () => void>();
+
+const useSSECacheUpdater = (
+  key: CacheKey,
+  endpoint: string,
+  event: string
+): void => {
+  const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    const tracker = SSETracker.get(key);
+    if (tracker !== undefined) {
+      return tracker();
+    }
+
+    const source = new EventSource(valetudoAPI.defaults.baseURL + endpoint, {
+      withCredentials: true,
+    });
+
+    source.addEventListener(event, (event: any) => {
+      const data = JSON.parse(event.data);
+      queryClient.setQueryData(key, data);
+    });
+    console.log(
+      `[SSE] Subscribed to ${CacheKey.RobotMap} ${endpoint} ${event}`
+    );
+
+    let subscribers = 0;
+    const subscriber = () => {
+      subscribers += 1;
+      return () => {
+        subscribers -= 1;
+        if (subscribers <= 0) {
+          source.close();
+        }
+      };
+    };
+
+    SSETracker.set(CacheKey.RobotMap, subscriber);
+
+    return subscriber();
+  }, [endpoint, event, key, queryClient]);
+};
+
 export const useCapabilities = () =>
   useQuery(CacheKey.Capabilities, fetchCapabilities, { staleTime: Infinity });
 
-// TODO: Add SSE
-export const useRobotMap = () =>
-  useQuery(CacheKey.RobotMap, fetchMap, { staleTime: 1000 });
+export const useRobotMap = () => {
+  useSSECacheUpdater(CacheKey.RobotMap, '/robot/state/map/sse', 'MapUpdated');
+  return useQuery(CacheKey.RobotMap, fetchMap, { staleTime: 1000 });
+};
 
 // TODO: Add refetchInterval or SSE
-export const useRobotStateQuery = () =>
+export const useRobotStateQuery = <T = RobotState>(
+  select?: (data: RobotState) => T
+) =>
   useQuery(CacheKey.RobotState, fetchState, {
     staleTime: 1000,
+    select,
   });
 
 export const useIntensityPresets = (
