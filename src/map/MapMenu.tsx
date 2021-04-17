@@ -22,6 +22,11 @@ const DefaultAnchorPosition: PopoverPosition = {
 
 const MapMenu = (props: MapMenuProps): JSX.Element => {
   const { anchorPosition, open, onClose, segment } = props;
+  const roundedArea =
+    segment?.area !== undefined
+      ? ((segment?.area ?? 1) * 0.0001).toFixed(1)
+      : '?';
+
   return (
     <Menu
       anchorReference="anchorPosition"
@@ -32,10 +37,7 @@ const MapMenu = (props: MapMenuProps): JSX.Element => {
     >
       {segment !== undefined && (
         <ListSubheader>
-          {(
-            (segment.name ?? '') +
-            ` # ${segment.segmentId}, Area: ${segment.area}`
-          ).trim()}
+          {`id: ${segment.segmentId}, area: ${roundedArea}m²`.trim()}
         </ListSubheader>
       )}
       <MenuItem onClick={onClose}>Go here</MenuItem>
