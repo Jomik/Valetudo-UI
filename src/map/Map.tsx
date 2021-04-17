@@ -4,7 +4,12 @@ import { KonvaEventObject } from 'konva/types/Node';
 import React from 'react';
 import { Layer } from 'react-konva';
 import { FourColorTheoremSolver } from './map-color-finder';
-import { RawMapLayer, RawMapLayerType, RawMapData } from '../api';
+import {
+  RawMapLayer,
+  RawMapLayerType,
+  RawMapData,
+  RawMapEntityType,
+} from '../api';
 import MapEntityShape from './MapEntityShape';
 import MapStage from './MapStage';
 import Pixels from './Pixels';
@@ -126,6 +131,11 @@ const Map = (props: MapProps): JSX.Element => {
     [getLayerFromPosition]
   );
 
+  const entitiesWithoutRobot = entities.filter(
+    (e) => e.type !== RawMapEntityType.RobotPosition
+  );
+  const robot = entities.find((x) => x.type === RawMapEntityType.RobotPosition);
+
   return (
     <>
       <MapMenu {...menu} onClose={handleCloseMenu} />
@@ -151,20 +161,22 @@ const Map = (props: MapProps): JSX.Element => {
             ))}
           </Layer>
           <Layer listening={false}>
-            {entities.map((entity, index) => (
+            {entitiesWithoutRobot.map((entity, index) => (
               <MapEntityShape
                 key={index.toString()}
                 entity={entity}
                 pixelSize={pixelSize}
               />
             ))}
+            {robot && <MapEntityShape entity={robot} pixelSize={pixelSize} />}
             {layers
               .filter((layer) => layer.type === RawMapLayerType.Segment)
               .map((layer) => {
-                const point = pointClosestTo(pairWiseArray(layer.pixels), [
+                const [x, y] = pointClosestTo(pairWiseArray(layer.pixels), [
                   layer.dimensions.x.mid,
                   layer.dimensions.y.mid,
                 ]);
+
                 return (
                   <ChipShape
                     key={`${layer.type}:${layer.metaData.segmentId}`}
@@ -172,8 +184,8 @@ const Map = (props: MapProps): JSX.Element => {
                       layer.metaData.name ?? `# ${layer.metaData.segmentId}`
                     }
                     checked={layer.metaData.active}
-                    x={point[0] * pixelSize}
-                    y={point[1] * pixelSize}
+                    x={x * pixelSize}
+                    y={y * pixelSize}
                   />
                 );
               })}

@@ -5,6 +5,7 @@ import { RawMapEntity, RawMapEntityType } from '../api';
 import robotSrc from '../assets/icons/robot.svg';
 import chargerSrc from '../assets/icons/charger.svg';
 import markerSrc from '../assets/icons/marker_active.svg';
+import { ImageConfig } from 'konva/types/shapes/Image';
 
 const robotImage = new window.Image();
 robotImage.src = robotSrc;
@@ -24,44 +25,17 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
   const { entity, pixelSize } = props;
   const theme = useTheme();
 
-  if (entity.type === RawMapEntityType.RobotPosition) {
-    return (
-      <Image
-        image={robotImage}
-        x={entity.points[0]}
-        y={entity.points[1]}
-        offsetX={robotImage.width / 2}
-        offsetY={robotImage.height / 2}
-        minimumScale={1}
-      />
-    );
-  }
-  if (entity.type === RawMapEntityType.ChargerLocation) {
-    return (
-      <Image
-        image={chargerImage}
-        x={entity.points[0]}
-        y={entity.points[1]}
-        offsetX={chargerImage.width / 2}
-        offsetY={chargerImage.height / 2}
-        minimumScale={1}
-      />
-    );
-  }
-  if (entity.type === RawMapEntityType.GoToTarget) {
-    return (
-      <Image
-        image={markerImage}
-        x={entity.points[0]}
-        y={entity.points[1]}
-        offsetX={markerImage.width / 2}
-        offsetY={markerImage.height / 2}
-        minimumScale={1}
-      />
-    );
-  }
+  const commonImageProps = (image: HTMLImageElement): ImageConfig => ({
+    image: image,
+    x: entity.points[0],
+    y: entity.points[1],
+    offsetX: image.width / 2,
+    offsetY: image.height / 2,
+    minimumScale: 1,
+    rotation: entity.metaData.angle,
+  });
 
-  const commonProps: LineConfig = {
+  const commonLineProps: LineConfig = {
     points: entity.points,
     strokeWidth: pixelSize,
     lineCap: 'round',
@@ -69,24 +43,30 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
   };
 
   switch (entity.type) {
+    case RawMapEntityType.RobotPosition:
+      return <Image {...commonImageProps(robotImage)} />;
+    case RawMapEntityType.ChargerLocation:
+      return <Image {...commonImageProps(chargerImage)} />;
+    case RawMapEntityType.GoToTarget:
+      return <Image {...commonImageProps(chargerImage)} />;
     case RawMapEntityType.Path:
-      return <Line {...commonProps} stroke={theme.map.path} />;
+      return <Line {...commonLineProps} stroke={theme.map.path} />;
     case RawMapEntityType.PredictedPath:
       return (
         <Line
-          {...commonProps}
+          {...commonLineProps}
           stroke={theme.map.path}
           dash={[pixelSize * 5, pixelSize * 2]}
         />
       );
     case RawMapEntityType.VirtualWall:
-      return <Line {...commonProps} {...theme.map.noGo} />;
+      return <Line {...commonLineProps} {...theme.map.noGo} />;
     case RawMapEntityType.NoGoArea:
-      return <Line {...commonProps} {...theme.map.noGo} closed />;
+      return <Line {...commonLineProps} {...theme.map.noGo} closed />;
     case RawMapEntityType.NoMopArea:
-      return <Line {...commonProps} {...theme.map.noMop} closed />;
+      return <Line {...commonLineProps} {...theme.map.noMop} closed />;
     case RawMapEntityType.ActiveZone:
-      return <Line {...commonProps} {...theme.map.active} closed />;
+      return <Line {...commonLineProps} {...theme.map.active} closed />;
     default:
       return null;
   }
