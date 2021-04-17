@@ -10,6 +10,7 @@ import AppRouter from './AppRouter';
 import CapabilitiesProvider from './CapabilitiesProvider';
 import { SnackbarProvider } from 'notistack';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,8 @@ const App = (): JSX.Element => {
           </SnackbarProvider>
         </ThemeProvider>
       </StylesProvider>
+
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };
