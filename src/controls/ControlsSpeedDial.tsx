@@ -1,7 +1,7 @@
-import { Backdrop, makeStyles } from '@material-ui/core';
+import { Backdrop, CircularProgress, makeStyles } from '@material-ui/core';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
 import React from 'react';
-import { Capability, useRobotState } from '../api';
+import { Capability, useBasicControlMutation, useRobotState } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import {
   Home as HomeIcon,
@@ -20,6 +20,9 @@ const useSpeedDialStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
   },
+  loadingBackdrop: {
+    zIndex: theme.zIndex.drawer + 3,
+  },
 }));
 
 const ControlsSpeedDial = (): JSX.Element | null => {
@@ -28,6 +31,7 @@ const ControlsSpeedDial = (): JSX.Element | null => {
     Capability.BasicControl
   );
   const { data: status } = useRobotState((state) => state.status);
+  const { mutate: sendCommand, isLoading } = useBasicControlMutation();
 
   const [open, setOpen] = React.useState(false);
 
@@ -46,28 +50,20 @@ const ControlsSpeedDial = (): JSX.Element | null => {
       return [];
     }
     const actions: { name: string; icon: JSX.Element; onClick(): void }[] = [];
+    const { state, flag } = status;
+
+    if (state === 'error') {
+      return [];
+    }
 
     if (isBasicControlSupported) {
-      if (status === 'idle' || status === 'docked') {
-        actions.push({
-          name: 'Start',
-          icon: <StartIcon />,
-          onClick() {
-            handleClose();
-          },
-        });
-      }
-
-      if (
-        status === 'cleaning' ||
-        status === 'returning' ||
-        status === 'moving'
-      ) {
+      if (flag === 'resumable') {
         actions.push(
           {
-            name: 'Pause',
-            icon: <PauseIcon />,
+            name: 'Resume',
+            icon: <StartIcon />,
             onClick() {
+              sendCommand('start');
               handleClose();
             },
           },
@@ -75,17 +71,48 @@ const ControlsSpeedDial = (): JSX.Element | null => {
             name: 'Stop',
             icon: <StopIcon />,
             onClick() {
+              sendCommand('stop');
               handleClose();
             },
           }
         );
+      } else if (state === 'idle' || state === 'docked') {
+        actions.push({
+          name: 'Start',
+          icon: <StartIcon />,
+          onClick() {
+            sendCommand('start');
+            handleClose();
+          },
+        });
+      } else {
+        actions.push({
+          name: 'Stop',
+          icon: <StopIcon />,
+          onClick() {
+            sendCommand('stop');
+            handleClose();
+          },
+        });
       }
 
-      if (status !== 'docked' && status !== 'returning') {
+      if (state === 'cleaning' || state === 'returning') {
+        actions.push({
+          name: 'Pause',
+          icon: <PauseIcon />,
+          onClick() {
+            sendCommand('pause');
+            handleClose();
+          },
+        });
+      }
+
+      if (state === 'idle') {
         actions.push({
           name: 'Home',
           icon: <HomeIcon />,
           onClick() {
+            sendCommand('home');
             handleClose();
           },
         });
@@ -93,7 +120,7 @@ const ControlsSpeedDial = (): JSX.Element | null => {
     }
 
     return actions;
-  }, [handleClose, isBasicControlSupported, status]);
+  }, [handleClose, isBasicControlSupported, sendCommand, status]);
 
   if (actions.length === 0) {
     return null;
@@ -101,22 +128,24 @@ const ControlsSpeedDial = (): JSX.Element | null => {
 
   return (
     <>
-      <Backdrop open={open} className={classes.backdrop} />
+      <Backdrop open={!isLoading && open} className={classes.backdrop} />
       <SpeedDial
-        ariaLabel="SpeedDial map control"
+        ariaLabel="SpeedDial for basic controls"
         className={classes.speedDial}
-        icon={<SpeedDialIcon />}
+        icon={
+          isLoading ? <CircularProgress color="inherit" /> : <SpeedDialIcon />
+        }
         onClose={handleClose}
         onOpen={handleOpen}
-        open={open}
+        open={!isLoading && open}
       >
-        {actions.map((action) => (
+        {actions.map(({ name, icon, onClick }) => (
           <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
+            key={name}
+            icon={icon}
+            tooltipTitle={name}
             tooltipOpen
-            onClick={action.onClick}
+            onClick={onClick}
           />
         ))}
       </SpeedDial>

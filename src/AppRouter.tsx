@@ -54,7 +54,7 @@ const useTopNavStyles = makeStyles((theme) => ({
 
 const TopNav = (): JSX.Element => {
   const classes = useTopNavStyles();
-  const { data: status } = useRobotState((state) => state.status);
+  const { data: status } = useRobotState((state) => state.status.state);
 
   return (
     <>

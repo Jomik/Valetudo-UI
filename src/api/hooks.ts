@@ -3,10 +3,12 @@ import React from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { Capability } from './Capability';
 import {
+  BasicControlCommands,
   fetchCapabilities,
   fetchIntensityPresets,
   fetchMap,
   fetchState,
+  sendBasicControlCommand,
   updateIntensity,
   valetudoAPI,
 } from './client';
@@ -138,4 +140,18 @@ export const useIntensityMutation = (
       );
     },
   });
+};
+
+export const useBasicControlMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (command: BasicControlCommands) =>
+      sendBasicControlCommand(command).then(fetchState),
+    {
+      onSuccess(data) {
+        queryClient.setQueryData(CacheKey.RobotState, data);
+      },
+    }
+  );
 };

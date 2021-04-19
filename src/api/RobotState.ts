@@ -2,7 +2,10 @@ import { Capability } from './Capability';
 import { BatteryState, IntensityState, StatusState } from './RawRobotState';
 
 export interface RobotState {
-  status: StatusState['value'];
+  status: {
+    state: StatusState['value'];
+    flag: StatusState['flag'];
+  };
   battery: {
     status: BatteryState['flag'];
     level: BatteryState['level'];

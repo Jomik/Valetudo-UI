@@ -58,7 +58,10 @@ export const fetchState = async (): Promise<RobotState> => {
   );
 
   return {
-    status: statusAttribute.value,
+    status: {
+      state: statusAttribute.value,
+      flag: statusAttribute.flag,
+    },
     battery: {
       status: batteryAttribute.flag,
       level: batteryAttribute.level,
@@ -81,4 +84,16 @@ export const updateIntensity = async (
   await valetudoAPI.put<void>(`/robot/capabilities/${capability}/preset`, {
     name: level,
   });
+};
+
+export type BasicControlCommands = 'start' | 'stop' | 'pause' | 'home';
+export const sendBasicControlCommand = async (
+  command: BasicControlCommands
+): Promise<void> => {
+  await valetudoAPI.put<void>(
+    `/robot/capabilities/${Capability.BasicControl}`,
+    {
+      action: command,
+    }
+  );
 };
