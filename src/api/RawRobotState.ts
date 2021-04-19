@@ -40,7 +40,7 @@ export interface BatteryState {
   __class: RobotAttributeClass.BatteryState;
   metaData: Record<string, never>;
   level: number;
-  value: 'none' | 'charged' | 'charging' | 'discharging';
+  flag: 'none' | 'charged' | 'charging' | 'discharging';
 }
 
 export interface IntensityState {

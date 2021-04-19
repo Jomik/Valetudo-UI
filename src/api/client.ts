@@ -60,7 +60,7 @@ export const fetchState = async (): Promise<RobotState> => {
   return {
     status: statusAttribute.value,
     battery: {
-      status: batteryAttribute.value,
+      status: batteryAttribute.flag,
       level: batteryAttribute.level,
     },
     intensity,

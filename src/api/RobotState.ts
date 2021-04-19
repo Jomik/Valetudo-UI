@@ -4,7 +4,7 @@ import { BatteryState, IntensityState, StatusState } from './RawRobotState';
 export interface RobotState {
   status: StatusState['value'];
   battery: {
-    status: BatteryState['value'];
+    status: BatteryState['flag'];
     level: BatteryState['level'];
   };
   intensity: {
