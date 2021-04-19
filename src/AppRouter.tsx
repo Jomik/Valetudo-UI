@@ -30,6 +30,7 @@ import {
 } from '@material-ui/icons';
 import Div100vh from 'react-div-100vh';
 import ControlsSpeedDial from './controls/ControlsSpeedDial';
+import { useRobotState } from './api';
 
 const useAppStyles = makeStyles(() => ({
   container: {
@@ -52,13 +53,14 @@ const useTopNavStyles = makeStyles((theme) => ({
 
 const TopNav = (): JSX.Element => {
   const classes = useTopNavStyles();
+  const { data: status } = useRobotState((state) => state.status);
 
   return (
     <>
       <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" noWrap>
-            Valetudo
+            Valetudo &ndash; {status !== undefined ? status : '?'}
           </Typography>
           <div className={classes.grow} />
           <IconButton color="inherit" component={Link} to="/settings">

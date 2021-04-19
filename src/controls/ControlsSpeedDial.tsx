@@ -1,7 +1,7 @@
 import { Backdrop, makeStyles } from '@material-ui/core';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
 import React from 'react';
-import { Capability, useRobotStateQuery } from '../api';
+import { Capability, useRobotState } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import {
   Home as HomeIcon,
@@ -27,7 +27,7 @@ const ControlsSpeedDial = (): JSX.Element | null => {
   const [isBasicControlSupported] = useCapabilitiesSupported(
     Capability.BasicControl
   );
-  const { data: state } = useRobotStateQuery();
+  const { data: status } = useRobotState((state) => state.status);
 
   const [open, setOpen] = React.useState(false);
 
@@ -42,10 +42,9 @@ const ControlsSpeedDial = (): JSX.Element | null => {
   const actions = React.useMemo<
     { name: string; icon: JSX.Element; onClick(): void }[]
   >(() => {
-    if (state === undefined) {
+    if (status === undefined) {
       return [];
     }
-    const { status } = state;
     const actions: { name: string; icon: JSX.Element; onClick(): void }[] = [];
 
     if (isBasicControlSupported) {
@@ -94,7 +93,7 @@ const ControlsSpeedDial = (): JSX.Element | null => {
     }
 
     return actions;
-  }, [handleClose, isBasicControlSupported, state]);
+  }, [handleClose, isBasicControlSupported, status]);
 
   if (actions.length === 0) {
     return null;

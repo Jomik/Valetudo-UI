@@ -14,7 +14,7 @@ import {
   IntensityState,
   useIntensityMutation,
   useIntensityPresets,
-  useRobotStateQuery,
+  useRobotState,
 } from '../api';
 
 const DiscreteSlider = withStyles((theme) => ({
@@ -50,7 +50,7 @@ export interface IntensityControlProps {
 
 const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   const { capability, label, icon } = props;
-  const { data: intensity } = useRobotStateQuery(
+  const { data: intensity } = useRobotState(
     (data) => data.intensity[capability]
   );
   const { isLoading, isError, data: presets } = useIntensityPresets(capability);

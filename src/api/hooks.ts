@@ -69,15 +69,17 @@ export const useCapabilities = () =>
 
 export const useRobotMap = () => {
   useSSECacheUpdater(CacheKey.RobotMap, '/robot/state/map/sse', 'MapUpdated');
-  return useQuery(CacheKey.RobotMap, fetchMap, { staleTime: 1000 });
+  return useQuery(CacheKey.RobotMap, fetchMap, {
+    staleTime: 1000,
+  });
 };
 
-// TODO: Add refetchInterval or SSE
-export const useRobotStateQuery = <T = RobotState>(
+export const useRobotState = <T = RobotState>(
   select?: (data: RobotState) => T
 ) =>
   useQuery(CacheKey.RobotState, fetchState, {
     staleTime: 1000,
+    refetchInterval: 1000,
     select,
   });
 
