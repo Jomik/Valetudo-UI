@@ -9,6 +9,7 @@ import {
   fetchMap,
   fetchStateAttributes,
   sendBasicControlCommand,
+  sendGoToCommand,
   subscribeToMap,
   subscribeToStateAttributes,
   updateIntensity,
@@ -116,6 +117,20 @@ export const useBasicControlMutation = () => {
   return useMutation(
     (command: BasicControlCommands) =>
       sendBasicControlCommand(command).then(fetchStateAttributes),
+    {
+      onSuccess(data) {
+        queryClient.setQueryData(CacheKey.RobotState, data);
+      },
+    }
+  );
+};
+
+export const useGoToMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (coordinates: { x: number; y: number }) =>
+      sendGoToCommand(coordinates).then(fetchStateAttributes),
     {
       onSuccess(data) {
         queryClient.setQueryData(CacheKey.RobotState, data);

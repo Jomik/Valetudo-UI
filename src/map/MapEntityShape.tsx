@@ -48,7 +48,12 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
     case RawMapEntityType.ChargerLocation:
       return <Image {...commonImageProps(chargerImage)} />;
     case RawMapEntityType.GoToTarget:
-      return <Image {...commonImageProps(chargerImage)} />;
+      return (
+        <Image
+          {...commonImageProps(markerImage)}
+          offsetY={markerImage.height}
+        />
+      );
     case RawMapEntityType.Path:
       return <Line {...commonLineProps} stroke={theme.map.path} />;
     case RawMapEntityType.PredictedPath:

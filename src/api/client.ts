@@ -9,6 +9,10 @@ import {
 import { RobotState } from './RobotState';
 import { getAttributes } from './utils';
 
+export type Coordinates = {
+  x: number;
+  y: number;
+};
 export const valetudoAPI = axios.create({
   baseURL: `/api/v2`,
 });
@@ -146,6 +150,19 @@ export const sendBasicControlCommand = async (
     `/robot/capabilities/${Capability.BasicControl}`,
     {
       action: command,
+    }
+  );
+};
+
+export const sendGoToCommand = async ({ x, y }: Coordinates): Promise<void> => {
+  await valetudoAPI.put<void>(
+    `/robot/capabilities/${Capability.GoToLocation}`,
+    {
+      action: 'goto',
+      coordinates: {
+        x: Math.round(x),
+        y: Math.round(y),
+      },
     }
   );
 };

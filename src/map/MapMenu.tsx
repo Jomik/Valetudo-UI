@@ -4,13 +4,21 @@ import {
   MenuItem,
   PopoverPosition,
 } from '@material-ui/core';
-import { Vector2d } from 'konva/types/types';
-import { RawMapLayerMetaData } from '../api';
+import React from 'react';
+import {
+  Capability,
+  RawMapLayerMetaData,
+  RobotState,
+  useGoToMutation,
+  useRobotState,
+} from '../api';
+import { Coordinates } from '../api/client';
+import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 
 export interface MapMenuProps {
   anchorPosition?: PopoverPosition;
   segment?: RawMapLayerMetaData;
-  position?: Vector2d;
+  position?: Coordinates;
   open: boolean;
   onClose(): void;
 }
@@ -20,12 +28,29 @@ const DefaultAnchorPosition: PopoverPosition = {
   left: 0,
 };
 
+const gotoEnabledStates = new Set<RobotState['status']['state']>([
+  'idle',
+  'docked',
+]);
 const MapMenu = (props: MapMenuProps): JSX.Element => {
-  const { anchorPosition, open, onClose, segment } = props;
+  const { anchorPosition, open, onClose, segment, position } = props;
+  const { data: status } = useRobotState((state) => state.status.state);
+  const [isGoToSupported] = useCapabilitiesSupported(Capability.GoToLocation);
+  const { mutate: sendGoTo } = useGoToMutation();
   const roundedArea =
     segment?.area !== undefined
       ? ((segment?.area ?? 1) * 0.0001).toFixed(1)
       : '?';
+
+  const handleGoTo = React.useCallback(() => {
+    onClose();
+    if (position === undefined) {
+      // _Should_ never end up here.
+      return;
+    }
+
+    sendGoTo(position);
+  }, [onClose, position, sendGoTo]);
 
   return (
     <Menu
@@ -40,7 +65,10 @@ const MapMenu = (props: MapMenuProps): JSX.Element => {
           {`id: ${segment.segmentId}, area: ${roundedArea}m²`.trim()}
         </ListSubheader>
       )}
-      <MenuItem onClick={onClose}>Go here</MenuItem>
+      {position !== undefined &&
+        status !== undefined &&
+        gotoEnabledStates.has(status) &&
+        isGoToSupported && <MenuItem onClick={handleGoTo}>Go here</MenuItem>}
       {segment !== undefined && (
         <MenuItem onClick={onClose}>Add segment</MenuItem>
       )}
