@@ -7,10 +7,11 @@ import {
   fetchCapabilities,
   fetchIntensityPresets,
   fetchMap,
-  fetchState,
+  fetchStateAttributes,
   sendBasicControlCommand,
+  subscribeToMap,
+  subscribeToStateAttributes,
   updateIntensity,
-  valetudoAPI,
 } from './client';
 import { IntensityState } from './RawRobotState';
 import { RobotState } from './RobotState';
@@ -21,56 +22,22 @@ enum CacheKey {
   RobotState = 'state',
   IntensityPresets = 'intensity_presets',
 }
-
-const SSETracker = new Map<CacheKey, () => () => void>();
-
-const useSSECacheUpdater = (
+const useSSECacheUpdater = <T>(
   key: CacheKey,
-  endpoint: string,
-  event: string
+  subscriber: (listener: (data: T) => void) => () => void
 ): void => {
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    const tracker = SSETracker.get(key);
-    if (tracker !== undefined) {
-      return tracker();
-    }
-
-    const source = new EventSource(valetudoAPI.defaults.baseURL + endpoint, {
-      withCredentials: true,
-    });
-
-    source.addEventListener(event, (event: any) => {
-      const data = JSON.parse(event.data);
-      queryClient.setQueryData(key, data);
-    });
-    console.log(
-      `[SSE] Subscribed to ${CacheKey.RobotMap} ${endpoint} ${event}`
-    );
-
-    let subscribers = 0;
-    const subscriber = () => {
-      subscribers += 1;
-      return () => {
-        subscribers -= 1;
-        if (subscribers <= 0) {
-          source.close();
-        }
-      };
-    };
-
-    SSETracker.set(CacheKey.RobotMap, subscriber);
-
-    return subscriber();
-  }, [endpoint, event, key, queryClient]);
+    return subscriber((data) => queryClient.setQueryData(key, data));
+  }, [key, queryClient, subscriber]);
 };
 
 export const useCapabilities = () =>
   useQuery(CacheKey.Capabilities, fetchCapabilities, { staleTime: Infinity });
 
 export const useRobotMap = () => {
-  useSSECacheUpdater(CacheKey.RobotMap, '/robot/state/map/sse', 'MapUpdated');
+  useSSECacheUpdater(CacheKey.RobotMap, subscribeToMap);
   return useQuery(CacheKey.RobotMap, fetchMap, {
     staleTime: 1000,
   });
@@ -78,12 +45,13 @@ export const useRobotMap = () => {
 
 export const useRobotState = <T = RobotState>(
   select?: (data: RobotState) => T
-) =>
-  useQuery(CacheKey.RobotState, fetchState, {
+) => {
+  useSSECacheUpdater(CacheKey.RobotState, subscribeToStateAttributes);
+  return useQuery(CacheKey.RobotState, fetchStateAttributes, {
     staleTime: 1000,
-    refetchInterval: 1000,
     select,
   });
+};
 
 export const useIntensityPresets = (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
@@ -147,7 +115,7 @@ export const useBasicControlMutation = () => {
 
   return useMutation(
     (command: BasicControlCommands) =>
-      sendBasicControlCommand(command).then(fetchState),
+      sendBasicControlCommand(command).then(fetchStateAttributes),
     {
       onSuccess(data) {
         queryClient.setQueryData(CacheKey.RobotState, data);

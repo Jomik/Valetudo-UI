@@ -3,7 +3,7 @@ import { RawMapData } from './RawMapData';
 import { Capability } from './Capability';
 import {
   IntensityState,
-  RawRobotState,
+  RobotAttribute,
   RobotAttributeClass,
 } from './RawRobotState';
 import { RobotState } from './RobotState';
@@ -13,16 +13,55 @@ export const valetudoAPI = axios.create({
   baseURL: `/api/v2`,
 });
 
+const SSETracker = new Map<string, () => () => void>();
+const subscribeToSSE = <T>(
+  endpoint: string,
+  event: string,
+  listener: (data: T) => void
+): (() => void) => {
+  const key = `${endpoint}@${event}`;
+  const tracker = SSETracker.get(key);
+  if (tracker !== undefined) {
+    return tracker();
+  }
+
+  const source = new EventSource(valetudoAPI.defaults.baseURL + endpoint, {
+    withCredentials: true,
+  });
+
+  source.addEventListener(event, (event: any) => {
+    const data = JSON.parse(event.data);
+    listener(data);
+  });
+  console.log(`[SSE] Subscribed to ${endpoint} ${event}`);
+
+  let subscribers = 0;
+  const subscriber = () => {
+    subscribers += 1;
+    return () => {
+      subscribers -= 1;
+      if (subscribers <= 0) {
+        source.close();
+      }
+    };
+  };
+
+  SSETracker.set(key, subscriber);
+
+  return subscriber();
+};
+
 export const fetchCapabilities = (): Promise<Capability[]> =>
   valetudoAPI.get<Capability[]>('/robot/capabilities').then(({ data }) => data);
 
 export const fetchMap = (): Promise<RawMapData> =>
   valetudoAPI.get<RawMapData>('/robot/state/map').then(({ data }) => data);
+export const subscribeToMap = (
+  listener: (data: RawMapData) => void
+): (() => void) =>
+  subscribeToSSE('/robot/state/map/sse', 'MapUpdated', listener);
 
-export const fetchState = async (): Promise<RobotState> => {
-  const { data } = await valetudoAPI.get<RawRobotState>('/robot/state');
-  const { attributes } = data;
-
+const attributesToState = (attributes: RobotAttribute[]): RobotState => {
   const statusAttribute = getAttributes(
     RobotAttributeClass.StatusState,
     attributes
@@ -69,6 +108,19 @@ export const fetchState = async (): Promise<RobotState> => {
     intensity,
   };
 };
+
+export const fetchStateAttributes = async (): Promise<RobotState> =>
+  valetudoAPI
+    .get<RobotAttribute[]>('/robot/state/attributes')
+    .then(({ data }) => attributesToState(data));
+export const subscribeToStateAttributes = (
+  listener: (data: RobotState) => void
+): (() => void) =>
+  subscribeToSSE<RobotAttribute[]>(
+    '/robot/state/attributes/sse',
+    'StateAttributesUpdated',
+    (data) => listener(attributesToState(data))
+  );
 
 export const fetchIntensityPresets = async (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
