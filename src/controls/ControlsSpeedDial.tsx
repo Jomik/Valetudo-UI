@@ -1,4 +1,4 @@
-import { Backdrop, CircularProgress, makeStyles } from '@material-ui/core';
+import { Backdrop, CircularProgress, Fab, makeStyles } from '@material-ui/core';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
 import React from 'react';
 import { Capability, useBasicControlMutation, useRobotState } from '../api';
@@ -16,6 +16,9 @@ const useSpeedDialStyles = makeStyles((theme) => ({
     bottom: theme.spacing(2),
     right: theme.spacing(2),
     zIndex: theme.zIndex.drawer + 2,
+  },
+  extendedIcon: {
+    marginRight: theme.spacing(1),
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -124,6 +127,26 @@ const ControlsSpeedDial = (): JSX.Element | null => {
 
   if (actions.length === 0) {
     return null;
+  }
+
+  if (actions.length === 1) {
+    const [{ icon, name, onClick }] = actions;
+    return (
+      <Fab
+        disabled={isLoading}
+        variant="extended"
+        className={classes.speedDial}
+        onClick={onClick}
+        color="primary"
+      >
+        {isLoading ? (
+          <CircularProgress color="inherit" />
+        ) : (
+          React.cloneElement(icon, { className: classes.extendedIcon })
+        )}
+        {name}
+      </Fab>
+    );
   }
 
   return (
