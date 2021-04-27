@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom';
-import 'fontsource-roboto';
+import '@fontsource/roboto';
 import reportWebVitals from './reportWebVitals';
 import App from './App';
 import { initDevelopment } from './development';
