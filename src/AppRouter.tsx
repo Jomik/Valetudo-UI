@@ -32,6 +32,7 @@ import Div100vh from 'react-div-100vh';
 import ControlsSpeedDial from './controls/ControlsSpeedDial';
 import { useRobotState } from './api';
 import BatteryIndicator from './BatteryIndicator';
+import DevControls from './development';
 
 const useAppStyles = makeStyles(() => ({
   container: {
@@ -66,6 +67,7 @@ const TopNav = (): JSX.Element => {
           <Box m={1} />
           <BatteryIndicator />
           <div className={classes.grow} />
+          <DevControls />
           <IconButton color="inherit" component={Link} to="/settings">
             <SettingsIcon />
           </IconButton>
