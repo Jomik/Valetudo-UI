@@ -1,5 +1,5 @@
 import {
-  BrowserRouter,
+  HashRouter,
   Link,
   Redirect,
   Route,
@@ -156,7 +156,8 @@ const AppRouter = (): JSX.Element => {
   });
 
   return (
-    <BrowserRouter>
+    // HashRouter instead of BrowserRouter for GH Pages support
+    <HashRouter>
       <Div100vh className={classes.container}>
         <TopNav />
         <main className={classes.content}>
@@ -194,7 +195,7 @@ const AppRouter = (): JSX.Element => {
         </Box>
         {!largeView && <BottomNav />}
       </Div100vh>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
