@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { createServer, Response } from 'miragejs';
-import { Server } from 'miragejs/server';
 import { Capability } from '../api';
 
 import map from '../mocks/map/FW2020_with_segments_cleaning.json';
 import state from '../mocks/state.json';
 
-export const makeServer = (environment: 'test' | 'development'): Server =>
+export const makeServer = (environment: 'test' | 'development'): void => {
   createServer({
     environment,
     namespace: '/api/v2',
@@ -42,3 +41,4 @@ export const makeServer = (environment: 'test' | 'development'): Server =>
       );
     },
   });
+};

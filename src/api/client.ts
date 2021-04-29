@@ -13,17 +13,9 @@ export type Coordinates = {
   x: number;
   y: number;
 };
-
-const basePath = '/api/v2';
-
-const valetudoAPI = axios.create({
-  baseURL: basePath,
+export const valetudoAPI = axios.create({
+  baseURL: `/api/v2`,
 });
-
-export const setValetudoBaseURL = (baseURL = ''): void => {
-  valetudoAPI.defaults.baseURL = `${baseURL}${basePath}`;
-  console.log('Updated baseURL', valetudoAPI.defaults.baseURL);
-};
 
 const SSETracker = new Map<string, () => () => void>();
 const subscribeToSSE = <T>(
