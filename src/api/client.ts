@@ -8,6 +8,7 @@ import {
 } from './RawRobotState';
 import { RobotState } from './RobotState';
 import { getAttributes } from './utils';
+import { ZonePreset } from './Zone';
 
 export type Coordinates = {
   x: number;
@@ -163,6 +164,23 @@ export const sendGoToCommand = async ({ x, y }: Coordinates): Promise<void> => {
         x: Math.round(x),
         y: Math.round(y),
       },
+    }
+  );
+};
+
+export const fetchZonePresets = async (): Promise<ZonePreset[]> =>
+  valetudoAPI
+    .get<Record<string, ZonePreset>>(
+      `/robot/capabilities/${Capability.ZoneCleaning}/presets`
+    )
+    .then(({ data }) => Object.values(data));
+
+export const cleanZonePresets = async (ids: string[]): Promise<void> => {
+  await valetudoAPI.put<void>(
+    `/robot/capabilities/${Capability.ZoneCleaning}/presets`,
+    {
+      action: 'clean',
+      ids,
     }
   );
 };

@@ -6,11 +6,13 @@ import {
 import { Capability } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import IntensityControl from './IntensityControl';
+import ZonePresets from './ZonePresets';
 
 const ControlsPage = (): JSX.Element => {
-  const [fanSpeed, waterControl] = useCapabilitiesSupported(
+  const [fanSpeed, waterControl, zoneCleaning] = useCapabilitiesSupported(
     Capability.FanSpeedControl,
-    Capability.WaterUsageControl
+    Capability.WaterUsageControl,
+    Capability.ZoneCleaning
   );
 
   return (
@@ -35,6 +37,11 @@ const ControlsPage = (): JSX.Element => {
               icon={<WaterUsageIcon fontSize="small" />}
             />
           </Paper>
+        </Grid>
+      )}
+      {zoneCleaning && (
+        <Grid item>
+          <ZonePresets />
         </Grid>
       )}
     </Grid>
