@@ -5,6 +5,7 @@ import {
 } from '@material-ui/icons';
 import { Capability } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
+import GoToLocationPresets from './GoToPresets';
 import IntensityControl from './IntensityControl';
 import Segments from './Segments';
 import ZonePresets from './ZonePresets';
@@ -13,12 +14,14 @@ const ControlsPage = (): JSX.Element => {
   const [
     fanSpeed,
     waterControl,
+    goToLocation,
     zoneCleaning,
     segmentCleaning,
     segmentNaming,
   ] = useCapabilitiesSupported(
     Capability.FanSpeedControl,
     Capability.WaterUsageControl,
+    Capability.GoToLocation,
     Capability.ZoneCleaning,
     Capability.MapSegmentation,
     Capability.MapSegmentRename
@@ -45,6 +48,13 @@ const ControlsPage = (): JSX.Element => {
               label="Water usage"
               icon={<WaterUsageIcon fontSize="small" />}
             />
+          </Paper>
+        </Grid>
+      )}
+      {goToLocation && (
+        <Grid item>
+          <Paper>
+            <GoToLocationPresets />
           </Paper>
         </Grid>
       )}

@@ -7,11 +7,13 @@ import {
   cleanSegments,
   cleanZonePresets,
   fetchCapabilities,
+  fetchGoToLocationPresets,
   fetchIntensityPresets,
   fetchMap,
   fetchSegments,
   fetchStateAttributes,
   fetchZonePresets,
+  goToLocationPreset,
   sendBasicControlCommand,
   sendGoToCommand,
   subscribeToMap,
@@ -28,6 +30,7 @@ enum CacheKey {
   IntensityPresets = 'intensity_presets',
   ZonePresets = 'zone_presets',
   Segments = 'segments',
+  GoToLocationPresets = 'go_to_location_presets',
 }
 const useSSECacheUpdater = <T>(
   key: CacheKey,
@@ -154,3 +157,11 @@ export const useSegments = () =>
   useQuery(CacheKey.Segments, fetchSegments, { staleTime: Infinity });
 
 export const useCleanSegmentsMutation = () => useMutation(cleanSegments);
+
+export const useGoToLocationPresets = () =>
+  useQuery(CacheKey.GoToLocationPresets, fetchGoToLocationPresets, {
+    staleTime: Infinity,
+  });
+
+export const useGoToLocationPresetMutation = () =>
+  useMutation(goToLocationPreset);

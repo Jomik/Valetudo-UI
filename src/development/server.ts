@@ -20,6 +20,7 @@ export const makeServer = (environment: 'test' | 'development'): void => {
         Capability.ZoneCleaning,
         Capability.MapSegmentation,
         Capability.MapSegmentRename,
+        Capability.GoToLocation,
       ]);
       this.put(
         `/robot/capabilities/${Capability.BasicControl}`,
@@ -46,6 +47,9 @@ export const makeServer = (environment: 'test' | 'development'): void => {
       );
       this.get(`/robot/capabilities/${Capability.MapSegmentation}`, () =>
         require(`./${Capability.MapSegmentation}.json`)
+      );
+      this.get(`/robot/capabilities/${Capability.GoToLocation}/presets`, () =>
+        require(`./${Capability.GoToLocation}_presets.json`)
       );
     },
   });
