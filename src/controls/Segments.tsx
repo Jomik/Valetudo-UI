@@ -11,6 +11,7 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
   FormLabel,
   Grid,
   Typography,
@@ -65,6 +66,7 @@ const Segments = (): JSX.Element => {
       segment.name !== undefined
   );
   const noSegmentsSelected = Object.values(selected).every((val) => !val);
+  const statusAllowsCleaning = status === 'idle' || status === 'docked';
 
   return (
     <Accordion>
@@ -113,6 +115,7 @@ const Segments = (): JSX.Element => {
                 />
               ))}
             </FormGroup>
+            <FormHelperText>Can only start cleaning when idle</FormHelperText>
           </FormControl>
         )}
       </AccordionDetails>
@@ -125,9 +128,7 @@ const Segments = (): JSX.Element => {
         ) : (
           <Button
             size="small"
-            disabled={
-              noSegmentsSelected || (status !== 'idle' && status !== 'docked')
-            }
+            disabled={noSegmentsSelected || !statusAllowsCleaning}
             onClick={handleClean}
           >
             Clean segments

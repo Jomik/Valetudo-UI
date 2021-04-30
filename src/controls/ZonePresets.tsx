@@ -11,6 +11,7 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
   FormLabel,
   Grid,
   Typography,
@@ -108,6 +109,7 @@ const ZonePresets = (): JSX.Element => {
                 />
               ))}
             </FormGroup>
+            <FormHelperText>Can only start cleaning when idle</FormHelperText>
           </FormControl>
         )}
       </AccordionDetails>
