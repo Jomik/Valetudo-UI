@@ -9,6 +9,7 @@ import {
 import { RobotState } from './RobotState';
 import { getAttributes } from './utils';
 import { ZonePreset } from './Zone';
+import { Segment } from './Segment';
 
 export type Coordinates = {
   x: number;
@@ -181,6 +182,21 @@ export const cleanZonePresets = async (ids: string[]): Promise<void> => {
     {
       action: 'clean',
       ids,
+    }
+  );
+};
+
+export const fetchSegments = async (): Promise<Segment[]> =>
+  valetudoAPI
+    .get<Segment[]>(`/robot/capabilities/${Capability.MapSegmentation}`)
+    .then(({ data }) => data);
+
+export const cleanSegments = async (ids: string[]): Promise<void> => {
+  await valetudoAPI.put<void>(
+    `/robot/capabilities/${Capability.MapSegmentation}`,
+    {
+      action: 'start_segment_action',
+      segment_ids: ids,
     }
   );
 };

@@ -6,13 +6,22 @@ import {
 import { Capability } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import IntensityControl from './IntensityControl';
+import Segments from './Segments';
 import ZonePresets from './ZonePresets';
 
 const ControlsPage = (): JSX.Element => {
-  const [fanSpeed, waterControl, zoneCleaning] = useCapabilitiesSupported(
+  const [
+    fanSpeed,
+    waterControl,
+    zoneCleaning,
+    segmentCleaning,
+    segmentNaming,
+  ] = useCapabilitiesSupported(
     Capability.FanSpeedControl,
     Capability.WaterUsageControl,
-    Capability.ZoneCleaning
+    Capability.ZoneCleaning,
+    Capability.MapSegmentation,
+    Capability.MapSegmentRename
   );
 
   return (
@@ -42,6 +51,11 @@ const ControlsPage = (): JSX.Element => {
       {zoneCleaning && (
         <Grid item>
           <ZonePresets />
+        </Grid>
+      )}
+      {segmentCleaning && segmentNaming && (
+        <Grid item>
+          <Segments />
         </Grid>
       )}
     </Grid>

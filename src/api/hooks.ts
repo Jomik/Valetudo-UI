@@ -4,10 +4,12 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { Capability } from './Capability';
 import {
   BasicControlCommands,
+  cleanSegments,
   cleanZonePresets,
   fetchCapabilities,
   fetchIntensityPresets,
   fetchMap,
+  fetchSegments,
   fetchStateAttributes,
   fetchZonePresets,
   sendBasicControlCommand,
@@ -25,6 +27,7 @@ enum CacheKey {
   RobotState = 'state',
   IntensityPresets = 'intensity_presets',
   ZonePresets = 'zone_presets',
+  Segments = 'segments',
 }
 const useSSECacheUpdater = <T>(
   key: CacheKey,
@@ -145,5 +148,9 @@ export const useGoToMutation = () => {
 export const useZonePresets = () =>
   useQuery(CacheKey.ZonePresets, fetchZonePresets, { staleTime: Infinity });
 
-export const useCleanZonePresetsMutation = () =>
-  useMutation((ids: string[]) => cleanZonePresets(ids));
+export const useCleanZonePresetsMutation = () => useMutation(cleanZonePresets);
+
+export const useSegments = () =>
+  useQuery(CacheKey.Segments, fetchSegments, { staleTime: Infinity });
+
+export const useCleanSegmentsMutation = () => useMutation(cleanSegments);

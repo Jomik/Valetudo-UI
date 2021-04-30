@@ -1,13 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { createServer, Response } from 'miragejs';
-import { Capability, RawRobotState, ZonePreset } from '../api';
+import { Capability, RawRobotState } from '../api';
 
 export const makeServer = (environment: 'test' | 'development'): void => {
   const state: RawRobotState = require('./state.json');
-  const zonePresets: Record<
-    string,
-    ZonePreset
-  > = require('./zone_presets.json');
 
   createServer({
     environment,
@@ -22,6 +18,8 @@ export const makeServer = (environment: 'test' | 'development'): void => {
         Capability.FanSpeedControl,
         Capability.WaterUsageControl,
         Capability.ZoneCleaning,
+        Capability.MapSegmentation,
+        Capability.MapSegmentRename,
       ]);
       this.put(
         `/robot/capabilities/${Capability.BasicControl}`,
@@ -43,9 +41,11 @@ export const makeServer = (environment: 'test' | 'development'): void => {
         `/robot/capabilities/${Capability.WaterUsageControl}/preset`,
         () => new Response(200)
       );
-      this.get(
-        `/robot/capabilities/${Capability.ZoneCleaning}/presets`,
-        () => zonePresets
+      this.get(`/robot/capabilities/${Capability.ZoneCleaning}/presets`, () =>
+        require(`./${Capability.ZoneCleaning}_presets.json`)
+      );
+      this.get(`/robot/capabilities/${Capability.MapSegmentation}`, () =>
+        require(`./${Capability.MapSegmentation}.json`)
       );
     },
   });
