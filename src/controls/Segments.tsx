@@ -7,7 +7,6 @@ import {
   Checkbox,
   CircularProgress,
   Divider,
-  Fade,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -68,8 +67,46 @@ const Segments = (): JSX.Element => {
   const noSegmentsSelected = Object.values(selected).every((val) => !val);
   const statusAllowsCleaning = status === 'idle' || status === 'docked';
 
+  const details = React.useMemo(() => {
+    if (isError) {
+      return (
+        <Typography color="error">
+          An error occurred while loading segments
+        </Typography>
+      );
+    }
+
+    if (namedSegments === undefined || namedSegments.length === 0) {
+      return <Typography>No named segments found</Typography>;
+    }
+
+    return (
+      <FormControl component="fieldset">
+        <FormGroup>
+          <FormLabel color="secondary" component="legend">
+            Select segments to be cleaned
+          </FormLabel>
+          {namedSegments.map(({ name, id }) => (
+            <FormControlLabel
+              key={id}
+              control={
+                <Checkbox
+                  checked={selected[id] ?? false}
+                  onChange={handleCheckboxChange}
+                  id={id}
+                />
+              }
+              label={name}
+            />
+          ))}
+        </FormGroup>
+        <FormHelperText>Can only start cleaning when idle</FormHelperText>
+      </FormControl>
+    );
+  }, [handleCheckboxChange, isError, namedSegments, selected]);
+
   return (
-    <Accordion>
+    <Accordion disabled={namedSegments === undefined && isLoading}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Grid container justify="space-between" alignItems="center">
           <Grid item>
@@ -77,48 +114,12 @@ const Segments = (): JSX.Element => {
           </Grid>
           {isLoading && (
             <Grid item>
-              <Fade
-                in={isLoading}
-                style={{
-                  transitionDelay: isLoading ? '800ms' : '0ms',
-                }}
-                unmountOnExit
-              >
-                <CircularProgress color="inherit" size="1rem" />
-              </Fade>
+              <CircularProgress color="inherit" size="1rem" />
             </Grid>
           )}
         </Grid>
       </AccordionSummary>
-      <AccordionDetails>
-        {isError ? (
-          <Typography color="error">
-            An error occurred while loading segments
-          </Typography>
-        ) : (
-          <FormControl component="fieldset">
-            <FormGroup>
-              <FormLabel color="secondary" component="legend">
-                Select segments to be cleaned
-              </FormLabel>
-              {namedSegments?.map(({ name, id }) => (
-                <FormControlLabel
-                  key={id}
-                  control={
-                    <Checkbox
-                      checked={selected[id] ?? false}
-                      onChange={handleCheckboxChange}
-                      id={id}
-                    />
-                  }
-                  label={name}
-                />
-              ))}
-            </FormGroup>
-            <FormHelperText>Can only start cleaning when idle</FormHelperText>
-          </FormControl>
-        )}
-      </AccordionDetails>
+      <AccordionDetails>{details}</AccordionDetails>
       <Divider />
       <AccordionActions>
         {isError ? (

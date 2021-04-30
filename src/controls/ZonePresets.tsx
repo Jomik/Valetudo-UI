@@ -7,7 +7,6 @@ import {
   Checkbox,
   CircularProgress,
   Divider,
-  Fade,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -62,8 +61,46 @@ const ZonePresets = (): JSX.Element => {
 
   const noZonesSelected = Object.values(selected).every((val) => !val);
 
+  const details = React.useMemo(() => {
+    if (isError) {
+      return (
+        <Typography color="error">
+          An error occurred while loading zones
+        </Typography>
+      );
+    }
+
+    if (zones === undefined || zones.length === 0) {
+      return <Typography>No zone presets found</Typography>;
+    }
+
+    return (
+      <FormControl component="fieldset">
+        <FormGroup>
+          <FormLabel color="secondary" component="legend">
+            Select zones to be cleaned
+          </FormLabel>
+          {zones.map(({ name, id }) => (
+            <FormControlLabel
+              key={id}
+              control={
+                <Checkbox
+                  checked={selected[id] ?? false}
+                  onChange={handleCheckboxChange}
+                  id={id}
+                />
+              }
+              label={name}
+            />
+          ))}
+        </FormGroup>
+        <FormHelperText>Can only start cleaning when idle</FormHelperText>
+      </FormControl>
+    );
+  }, [handleCheckboxChange, isError, selected, zones]);
+
   return (
-    <Accordion>
+    <Accordion disabled={zones === undefined && isLoading}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Grid container justify="space-between" alignItems="center">
           <Grid item>
@@ -71,48 +108,12 @@ const ZonePresets = (): JSX.Element => {
           </Grid>
           {isLoading && (
             <Grid item>
-              <Fade
-                in={isLoading}
-                style={{
-                  transitionDelay: isLoading ? '800ms' : '0ms',
-                }}
-                unmountOnExit
-              >
-                <CircularProgress color="inherit" size="1rem" />
-              </Fade>
+              <CircularProgress color="inherit" size="1rem" />
             </Grid>
           )}
         </Grid>
       </AccordionSummary>
-      <AccordionDetails>
-        {isError ? (
-          <Typography color="error">
-            An error occurred while loading zone presets
-          </Typography>
-        ) : (
-          <FormControl component="fieldset">
-            <FormGroup>
-              <FormLabel color="secondary" component="legend">
-                Select zones to be cleaned
-              </FormLabel>
-              {zones?.map(({ name, id }) => (
-                <FormControlLabel
-                  key={id}
-                  control={
-                    <Checkbox
-                      checked={selected[id] ?? false}
-                      onChange={handleCheckboxChange}
-                      id={id}
-                    />
-                  }
-                  label={name}
-                />
-              ))}
-            </FormGroup>
-            <FormHelperText>Can only start cleaning when idle</FormHelperText>
-          </FormControl>
-        )}
-      </AccordionDetails>
+      <AccordionDetails>{details}</AccordionDetails>
       <Divider />
       <AccordionActions>
         {isError ? (
