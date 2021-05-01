@@ -109,35 +109,56 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
     [mutate, filteredPresets]
   );
 
-  if (isLoading) {
-    return (
-      <Grid container justify="center">
+  const body = React.useMemo(() => {
+    if (isLoading) {
+      return (
         <Grid item>
-          <Box p={2}>
-            <CircularProgress />
-          </Box>
+          <CircularProgress size={20} />
         </Grid>
-      </Grid>
-    );
-  }
+      );
+    }
 
-  if (isError || intensity === undefined || filteredPresets === undefined) {
-    return (
-      <Grid container>
+    if (isError || intensity === undefined || filteredPresets === undefined) {
+      return (
         <Grid item>
-          <Box p={2}>
-            <Typography color="error">
-              Error loading {capability} data
-            </Typography>
-          </Box>
+          <Typography color="error">Error loading {capability}</Typography>
         </Grid>
+      );
+    }
+
+    return (
+      <Grid item>
+        <Box px={1}>
+          <DiscreteSlider
+            aria-labelledby={`${capability}-slider-label`}
+            step={null}
+            value={sliderValue}
+            valueLabelDisplay="off"
+            onChange={handleSliderChange}
+            onChangeCommitted={handleSliderCommitted}
+            min={0}
+            max={marks.length - 1}
+            marks={marks}
+            color="secondary"
+          />
+        </Box>
       </Grid>
     );
-  }
+  }, [
+    capability,
+    filteredPresets,
+    handleSliderChange,
+    handleSliderCommitted,
+    intensity,
+    isError,
+    isLoading,
+    marks,
+    sliderValue,
+  ]);
 
   return (
     <Grid container direction="column">
-      <Box px={3} pt={1}>
+      <Box px={2} pt={1}>
         <Grid item container alignItems="center" spacing={1}>
           <Grid item>{icon}</Grid>
           <Grid item>
@@ -159,20 +180,7 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
             </Grid>
           )}
         </Grid>
-        <Grid item>
-          <DiscreteSlider
-            aria-labelledby={`${capability}-slider-label`}
-            step={null}
-            value={sliderValue}
-            valueLabelDisplay="off"
-            onChange={handleSliderChange}
-            onChangeCommitted={handleSliderCommitted}
-            min={0}
-            max={marks.length - 1}
-            marks={marks}
-            color="secondary"
-          />
-        </Grid>
+        {body}
       </Box>
     </Grid>
   );
