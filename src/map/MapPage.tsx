@@ -4,7 +4,6 @@ import {
   CircularProgress,
   Container,
   makeStyles,
-  Paper,
   Typography,
 } from '@material-ui/core';
 import { useRobotMap } from '../api';
@@ -21,7 +20,7 @@ const useMapStyles = makeStyles(() => ({
   },
 }));
 
-const MapContainer = () => {
+const MapPage = (): JSX.Element => {
   const { data, isLoading, isError, refetch } = useRobotMap();
   const classes = useMapStyles();
 
@@ -54,23 +53,6 @@ const MapContainer = () => {
   }
 
   return <Map mapData={data} />;
-};
-
-const usePageStyles = makeStyles(() => ({
-  paper: {
-    width: '100%',
-    height: '100%',
-  },
-}));
-
-const MapPage = (): JSX.Element => {
-  const classes = usePageStyles();
-
-  return (
-    <Paper className={classes.paper} variant="outlined">
-      <MapContainer />
-    </Paper>
-  );
 };
 
 export default MapPage;

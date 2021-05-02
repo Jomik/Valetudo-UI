@@ -1,11 +1,4 @@
-import {
-  BrowserRouter,
-  Link,
-  Redirect,
-  Route,
-  Switch,
-  useLocation,
-} from 'react-router-dom';
+import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
 import MapPage from './map';
 import ControlsPage from './controls';
 import {
@@ -16,34 +9,19 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  BottomNavigationAction,
-  BottomNavigation,
   Typography,
   Grid,
-  Container,
+  Divider,
 } from '@material-ui/core';
 import {
   Settings as SettingsIcon,
   Info as AboutIcon,
-  Map as MapIcon,
-  ControlCamera as ControlsIcon,
 } from '@material-ui/icons';
 import Div100vh from 'react-div-100vh';
-import ControlsSpeedDial from './controls/ControlsSpeedDial';
 import { useRobotState } from './api';
 import BatteryIndicator from './BatteryIndicator';
-
-const useAppStyles = makeStyles(() => ({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  content: {
-    flex: '1',
-    display: 'flex',
-    overflow: 'auto',
-  },
-}));
+import React from 'react';
+import ControlsBottomSheet from './controls/ControlsBottomSheet';
 
 const useTopNavStyles = makeStyles((theme) => ({
   grow: {
@@ -79,79 +57,62 @@ const TopNav = (): JSX.Element => {
   );
 };
 
-const useBottomNavStyles = makeStyles((theme) => ({
-  root: {
-    height: 56 + theme.spacing(2),
-  },
-  action: {
-    paddingBottom: theme.spacing(2),
-  },
-}));
-
-const BottomNav = (): JSX.Element => {
-  const classes = useBottomNavStyles();
-  const location = useLocation();
-
-  return (
-    <BottomNavigation
-      value={location.pathname}
-      showLabels
-      className={classes.root}
-    >
-      <BottomNavigationAction
-        label="Map"
-        icon={<MapIcon />}
-        className={classes.action}
-        component={Link}
-        to="/map"
-        value="/map"
-      />
-      <BottomNavigationAction
-        label="Controls"
-        icon={<ControlsIcon />}
-        className={classes.action}
-        component={Link}
-        to="/controls"
-        value="/controls"
-      />
-    </BottomNavigation>
-  );
-};
-
-const useCombinedStyles = makeStyles((theme) => ({
+const useHomeStyles = makeStyles((theme) => ({
   container: {
     margin: theme.spacing(1),
   },
 }));
 
-const CombinedView = (): JSX.Element => {
-  const classes = useCombinedStyles();
-
-  return (
-    <Grid
-      item
-      container
-      direction="row"
-      spacing={2}
-      justify="space-evenly"
-      className={classes.container}
-    >
-      <Grid item sm md lg xl>
-        <MapPage />
-      </Grid>
-      <Grid item sm={6} md={5} lg={4} xl={3}>
-        <ControlsPage />
-      </Grid>
-    </Grid>
-  );
-};
-
-const AppRouter = (): JSX.Element => {
-  const classes = useAppStyles();
+const HomePage = (): JSX.Element => {
+  const classes = useHomeStyles();
   const theme = useTheme();
   const largeView = useMediaQuery(theme.breakpoints.up('sm'), {
     noSsr: true,
   });
+
+  if (largeView) {
+    return (
+      <Grid
+        item
+        container
+        direction="row"
+        spacing={2}
+        justify="space-evenly"
+        className={classes.container}
+      >
+        <Grid item sm md lg xl>
+          <MapPage />
+        </Grid>
+        <Divider orientation="vertical" />
+        <Grid item sm={6} md={5} lg={4} xl={3}>
+          <ControlsPage />
+        </Grid>
+      </Grid>
+    );
+  }
+
+  return (
+    <>
+      <MapPage />
+      <ControlsBottomSheet />
+    </>
+  );
+};
+
+const useAppStyles = makeStyles(() => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  content: {
+    flex: '1',
+    display: 'flex',
+    overflow: 'auto',
+  },
+}));
+
+const AppRouter = (): JSX.Element => {
+  const classes = useAppStyles();
 
   return (
     <BrowserRouter>
@@ -160,20 +121,7 @@ const AppRouter = (): JSX.Element => {
         <main className={classes.content}>
           <Switch>
             <Route exact path="/">
-              {largeView ? <CombinedView /> : <Redirect to="/map" />}
-            </Route>
-            <Route exact path="/map">
-              {largeView ? <Redirect to="/" /> : <MapPage />}
-            </Route>
-            <Route exact path="/controls">
-              {largeView ? (
-                <Redirect to="/" />
-              ) : (
-                <Container>
-                  <Box m={1} />
-                  <ControlsPage />
-                </Container>
-              )}
+              <HomePage />
             </Route>
             <Route exact path="/settings">
               <span>Settings</span>
@@ -183,14 +131,6 @@ const AppRouter = (): JSX.Element => {
             </Route>
           </Switch>
         </main>
-        <Box
-          position="relative"
-          bottom={theme.spacing(2)}
-          right={theme.spacing(2)}
-        >
-          <ControlsSpeedDial />
-        </Box>
-        {!largeView && <BottomNav />}
       </Div100vh>
     </BrowserRouter>
   );
