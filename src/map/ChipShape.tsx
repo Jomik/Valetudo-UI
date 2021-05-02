@@ -102,10 +102,10 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
     <Shape
       fill={theme.palette.background.paper}
       shadowEnabled={true}
-      shadowColor={theme.palette.background.default}
-      shadowOffset={{ x: 4, y: 4 }}
+      shadowColor="#000000"
+      shadowOffset={{ x: 2, y: 4 }}
       shadowBlur={10}
-      shadowOpacity={1}
+      shadowOpacity={0.4}
       textFill={theme.palette.text.primary}
       activeFill={theme.palette.success.main}
       fontSize={theme.typography.h6.fontSize}
