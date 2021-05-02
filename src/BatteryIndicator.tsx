@@ -25,7 +25,7 @@ const BatteryIndicator = (props: BatteryIndicatorProps): JSX.Element => {
       <Typography
         variant="caption"
         component="div"
-        color="textSecondary"
+        color="inherit"
       >{`${Math.round(level)}%`}</Typography>
     );
   }, [battery]);

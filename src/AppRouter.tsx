@@ -20,7 +20,6 @@ import {
 import Div100vh from 'react-div-100vh';
 import { useRobotState } from './api';
 import BatteryIndicator from './BatteryIndicator';
-import React from 'react';
 import ControlsBottomSheet from './controls/ControlsBottomSheet';
 
 const useTopNavStyles = makeStyles((theme) => ({
