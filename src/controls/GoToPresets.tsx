@@ -6,6 +6,7 @@ import {
   Grid,
   makeStyles,
   MenuItem,
+  Paper,
   Select,
   Typography,
 } from '@material-ui/core';
@@ -114,14 +115,16 @@ const GoToLocationPresets = (): JSX.Element => {
   ]);
 
   return (
-    <Box px={2} py={1}>
-      <Grid container direction="row" alignContent="center" spacing={1}>
-        <Grid item>
-          <Typography variant="subtitle1">Go to</Typography>
+    <Paper>
+      <Box px={2} py={1}>
+        <Grid container direction="row" alignContent="center" spacing={1}>
+          <Grid item>
+            <Typography variant="subtitle1">Go to</Typography>
+          </Grid>
+          {body}
         </Grid>
-        {body}
-      </Grid>
-    </Box>
+      </Box>
+    </Paper>
   );
 };
 

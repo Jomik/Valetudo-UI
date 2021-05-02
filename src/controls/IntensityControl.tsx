@@ -4,6 +4,7 @@ import {
   Fade,
   Grid,
   Mark,
+  Paper,
   Slider,
   Typography,
   withStyles,
@@ -157,32 +158,34 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   ]);
 
   return (
-    <Grid container direction="column">
-      <Box px={2} pt={1}>
-        <Grid item container alignItems="center" spacing={1}>
-          <Grid item>{icon}</Grid>
-          <Grid item>
-            <Typography variant="subtitle1" id={`${capability}-slider-label`}>
-              {label}
-            </Typography>
-          </Grid>
-          {isUpdating && (
+    <Paper>
+      <Grid container direction="column">
+        <Box px={2} pt={1}>
+          <Grid item container alignItems="center" spacing={1}>
+            <Grid item>{icon}</Grid>
             <Grid item>
-              <Fade
-                in={isUpdating}
-                style={{
-                  transitionDelay: isUpdating ? '500ms' : '0ms',
-                }}
-                unmountOnExit
-              >
-                <CircularProgress size={20} color="secondary" />
-              </Fade>
+              <Typography variant="subtitle1" id={`${capability}-slider-label`}>
+                {label}
+              </Typography>
             </Grid>
-          )}
-        </Grid>
-        {body}
-      </Box>
-    </Grid>
+            {isUpdating && (
+              <Grid item>
+                <Fade
+                  in={isUpdating}
+                  style={{
+                    transitionDelay: isUpdating ? '500ms' : '0ms',
+                  }}
+                  unmountOnExit
+                >
+                  <CircularProgress size={20} color="secondary" />
+                </Fade>
+              </Grid>
+            )}
+          </Grid>
+          {body}
+        </Box>
+      </Grid>
+    </Paper>
   );
 };
 

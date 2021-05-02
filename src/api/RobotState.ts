@@ -1,5 +1,10 @@
 import { Capability } from './Capability';
-import { BatteryState, IntensityState, StatusState } from './RawRobotState';
+import {
+  AttachmentState,
+  BatteryState,
+  IntensityState,
+  StatusState,
+} from './RawRobotState';
 
 export interface RobotState {
   status: {
@@ -20,4 +25,5 @@ export interface RobotState {
       customValue?: IntensityState['customValue'];
     };
   };
+  attachments: Pick<AttachmentState, 'type' | 'attached'>[];
 }

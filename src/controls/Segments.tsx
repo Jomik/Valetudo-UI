@@ -119,6 +119,7 @@ const Segments = (): JSX.Element => {
           )}
         </Grid>
       </AccordionSummary>
+      <Divider />
       <AccordionDetails>{details}</AccordionDetails>
       <Divider />
       <AccordionActions>

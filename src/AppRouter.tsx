@@ -4,7 +4,6 @@ import ControlsPage from './controls';
 import {
   Toolbar,
   AppBar,
-  Box,
   makeStyles,
   IconButton,
   useMediaQuery,
@@ -18,8 +17,6 @@ import {
   Info as AboutIcon,
 } from '@material-ui/icons';
 import Div100vh from 'react-div-100vh';
-import { useRobotState } from './api';
-import BatteryIndicator from './BatteryIndicator';
 import ControlsBottomSheet from './controls/ControlsBottomSheet';
 import ControlsSpeedDial from './controls/ControlsSpeedDial';
 
@@ -32,17 +29,14 @@ const useTopNavStyles = makeStyles((theme) => ({
 
 const TopNav = (): JSX.Element => {
   const classes = useTopNavStyles();
-  const { data: status } = useRobotState((state) => state.status.state);
 
   return (
     <>
       <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" noWrap>
-            Valetudo &ndash; {status !== undefined ? status : '?'}
+            Valetudo
           </Typography>
-          <Box m={1} />
-          <BatteryIndicator />
           <div className={classes.grow} />
           <IconButton color="inherit" component={Link} to="/settings">
             <SettingsIcon />

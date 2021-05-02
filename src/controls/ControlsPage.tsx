@@ -1,4 +1,4 @@
-import { Grid, Paper } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import {
   Opacity as WaterUsageIcon,
   Toys as FanSpeedIcon,
@@ -7,6 +7,7 @@ import { Capability } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import GoToLocationPresets from './GoToPresets';
 import IntensityControl from './IntensityControl';
+import RobotStatus from './RobotStatus';
 import Segments from './Segments';
 import ZonePresets from './ZonePresets';
 
@@ -29,33 +30,30 @@ const ControlsPage = (): JSX.Element => {
 
   return (
     <Grid container spacing={2} direction="column">
+      <Grid item>
+        <RobotStatus />
+      </Grid>
       {fanSpeed && (
         <Grid item>
-          <Paper>
-            <IntensityControl
-              capability={Capability.FanSpeedControl}
-              label="Fan speed"
-              icon={<FanSpeedIcon fontSize="small" />}
-            />
-          </Paper>
+          <IntensityControl
+            capability={Capability.FanSpeedControl}
+            label="Fan speed"
+            icon={<FanSpeedIcon fontSize="small" />}
+          />
         </Grid>
       )}
       {waterControl && (
         <Grid item>
-          <Paper>
-            <IntensityControl
-              capability={Capability.WaterUsageControl}
-              label="Water usage"
-              icon={<WaterUsageIcon fontSize="small" />}
-            />
-          </Paper>
+          <IntensityControl
+            capability={Capability.WaterUsageControl}
+            label="Water usage"
+            icon={<WaterUsageIcon fontSize="small" />}
+          />
         </Grid>
       )}
       {goToLocation && (
         <Grid item>
-          <Paper>
-            <GoToLocationPresets />
-          </Paper>
+          <GoToLocationPresets />
         </Grid>
       )}
       {zoneCleaning && (

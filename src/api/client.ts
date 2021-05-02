@@ -84,6 +84,11 @@ const attributesToState = (attributes: RobotAttribute[]): RobotState => {
     attributes
   );
 
+  const attachments = getAttributes(
+    RobotAttributeClass.AttachmentState,
+    attributes
+  ).map(({ type, attached }) => ({ type, attached }));
+
   const intensity = intensityAttributes.reduce<RobotState['intensity']>(
     (prev, { type, value, customValue }) => {
       if (type === 'fan_speed') {
@@ -113,6 +118,7 @@ const attributesToState = (attributes: RobotAttribute[]): RobotState => {
       level: batteryAttribute.level,
     },
     intensity,
+    attachments,
   };
 };
 
