@@ -31,38 +31,42 @@ const DefaultAnchorPosition: PopoverPosition = {
 interface GoToItemProps extends MenuItemProps {
   position?: Coordinates;
 }
-const GoToItem = (props: GoToItemProps): JSX.Element | null => {
-  const { onClick, position, ...rest } = props;
-  const { data: status } = useRobotState((state) => state.status.state);
-  const { mutate: sendGoTo } = useGoToMutation();
+const GoToMenuItem = React.forwardRef<HTMLLIElement, GoToItemProps>(
+  function GoToMenuItem(props, ref): JSX.Element | null {
+    const { onClick, position, ...rest } = props;
+    const { data: status } = useRobotState((state) => state.status.state);
+    const { mutate: sendGoTo } = useGoToMutation();
 
-  const handleGoTo = React.useCallback<React.MouseEventHandler<HTMLLIElement>>(
-    (event) => {
-      onClick?.(event);
-      if (position === undefined) {
-        // _Should_ never end up here.
-        return;
-      }
+    const handleGoTo = React.useCallback<
+      React.MouseEventHandler<HTMLLIElement>
+    >(
+      (event) => {
+        onClick?.(event);
+        if (position === undefined) {
+          // _Should_ never end up here.
+          return;
+        }
 
-      sendGoTo(position);
-    },
-    [onClick, position, sendGoTo]
-  );
+        sendGoTo(position);
+      },
+      [onClick, position, sendGoTo]
+    );
 
-  if (position === undefined || status === undefined) {
-    return null;
+    if (position === undefined || status === undefined) {
+      return null;
+    }
+
+    if (status !== 'idle' && status !== 'docked') {
+      return null;
+    }
+
+    return (
+      <MenuItem ref={ref} {...rest} button onClick={handleGoTo}>
+        Go here
+      </MenuItem>
+    );
   }
-
-  if (status !== 'idle' && status !== 'docked') {
-    return null;
-  }
-
-  return (
-    <MenuItem {...rest} button onClick={handleGoTo}>
-      Go here
-    </MenuItem>
-  );
-};
+);
 
 const MapMenu = (props: MapMenuProps): JSX.Element => {
   const { anchorPosition, open, onClose, segment, position } = props;
@@ -85,7 +89,7 @@ const MapMenu = (props: MapMenuProps): JSX.Element => {
           {`id: ${segment.segmentId}, area: ${roundedArea}m²`.trim()}
         </ListSubheader>
       )}
-      {goto && <GoToItem onClick={onClose} position={position} />}
+      {goto && <GoToMenuItem onClick={onClose} position={position} />}
       {segment !== undefined && (
         <MenuItem button onClick={onClose}>
           Add segment

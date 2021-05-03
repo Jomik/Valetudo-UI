@@ -38,5 +38,8 @@ module.exports = {
     // Not necessary with React 17
     'react/jsx-uses-react': 'off',
     'react/react-in-jsx-scope': 'off',
+
+    // Not necessary with TypeScript
+    'react/prop-types': 'off',
   },
 };
