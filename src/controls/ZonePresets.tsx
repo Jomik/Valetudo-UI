@@ -19,12 +19,12 @@ import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import React from 'react';
 import {
   useCleanZonePresetsMutation,
-  useRobotState,
+  useRobotStatus,
   useZonePresets,
 } from '../api';
 
 const ZonePresets = (): JSX.Element => {
-  const { data: status } = useRobotState((state) => state.status.state);
+  const { data: state } = useRobotStatus((status) => status.value);
   const {
     data: zones,
     isLoading: isZonesLoading,
@@ -125,7 +125,7 @@ const ZonePresets = (): JSX.Element => {
           <Button
             size="small"
             disabled={
-              noZonesSelected || (status !== 'idle' && status !== 'docked')
+              noZonesSelected || (state !== 'idle' && state !== 'docked')
             }
             onClick={handleClean}
           >

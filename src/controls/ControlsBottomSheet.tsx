@@ -16,7 +16,7 @@ import {
 import { BottomSheet } from 'react-spring-bottom-sheet';
 import ControlsPage from './ControlsPage';
 import 'react-spring-bottom-sheet/dist/style.css';
-import { Capability, useBasicControlMutation, useRobotState } from '../api';
+import { Capability, useBasicControlMutation, useRobotStatus } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 
 const StyledBottomSheet = styled(BottomSheet)(({ theme }) => ({
@@ -51,7 +51,7 @@ const fabProps: Partial<FabProps> = {
 };
 const ActionButton = (): JSX.Element | null => {
   const classes = useStyles();
-  const { data: state } = useRobotState((state) => state.status.state);
+  const { data: state } = useRobotStatus((status) => status.value);
   const { mutate: sendCommand, isLoading } = useBasicControlMutation();
 
   if (state === undefined) {

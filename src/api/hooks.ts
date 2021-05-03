@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import React from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from 'react-query';
 import { Capability } from './Capability';
 import {
   BasicControlCommands,
@@ -20,13 +25,18 @@ import {
   subscribeToStateAttributes,
   updatePresetSelection,
 } from './client';
-import { PresetSelectionState } from './RawRobotState';
-import { RobotState } from './RobotState';
+import {
+  PresetSelectionState,
+  RobotAttribute,
+  RobotAttributeClass,
+  StatusState,
+} from './RawRobotState';
+import { isAttribute, replaceAttribute } from './utils';
 
 enum CacheKey {
   Capabilities = 'capabilities',
-  RobotMap = 'map',
-  RobotState = 'state',
+  Map = 'map',
+  Attributes = 'attributes',
   PresetSelections = 'preset_selections',
   ZonePresets = 'zone_presets',
   Segments = 'segments',
@@ -47,23 +57,58 @@ export const useCapabilities = () =>
   useQuery(CacheKey.Capabilities, fetchCapabilities, { staleTime: Infinity });
 
 export const useRobotMap = () => {
-  useSSECacheUpdater(CacheKey.RobotMap, subscribeToMap);
-  return useQuery(CacheKey.RobotMap, fetchMap, {
+  useSSECacheUpdater(CacheKey.Map, subscribeToMap);
+  return useQuery(CacheKey.Map, fetchMap, {
     staleTime: 1000,
   });
 };
 
-export const useRobotState = <T = RobotState>(
-  select?: (data: RobotState) => T
-) => {
-  useSSECacheUpdater(CacheKey.RobotState, subscribeToStateAttributes);
-  return useQuery(CacheKey.RobotState, fetchStateAttributes, {
+export function useRobotAttribute<C extends RobotAttributeClass>(
+  clazz: C
+): UseQueryResult<Extract<RobotAttribute, { __class: C }>[]>;
+export function useRobotAttribute<C extends RobotAttributeClass, T>(
+  clazz: C,
+  select: (attributes: Extract<RobotAttribute, { __class: C }>[]) => T
+): UseQueryResult<T>;
+export function useRobotAttribute<C extends RobotAttributeClass>(
+  clazz: C,
+  select?: (attributes: Extract<RobotAttribute, { __class: C }>[]) => any
+): UseQueryResult<any> {
+  useSSECacheUpdater(CacheKey.Attributes, subscribeToStateAttributes);
+  return useQuery(CacheKey.Attributes, fetchStateAttributes, {
     staleTime: 1000,
-    select,
-  });
-};
+    select: (attributes) => {
+      const filteredAttributes = attributes.filter(isAttribute(clazz));
 
-export const usePreseSelections = (
+      return select ? select(filteredAttributes) : filteredAttributes;
+    },
+  });
+}
+
+export function useRobotStatus(): UseQueryResult<StatusState>;
+export function useRobotStatus<T>(
+  select: (status: StatusState) => T
+): UseQueryResult<T>;
+export function useRobotStatus(select?: (status: StatusState) => any) {
+  useSSECacheUpdater(CacheKey.Attributes, subscribeToStateAttributes);
+  return useQuery(CacheKey.Attributes, fetchStateAttributes, {
+    staleTime: 1000,
+    select: (attributes) => {
+      const status =
+        attributes.filter(isAttribute(RobotAttributeClass.StatusState))[0] ??
+        ({
+          __class: RobotAttributeClass.StatusState,
+          metaData: {},
+          value: 'error',
+          flag: 'none',
+        } as StatusState);
+
+      return select ? select(status) : status;
+    },
+  });
+}
+
+export const usePresetSelections = (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
 ) =>
   useQuery(
@@ -74,6 +119,13 @@ export const usePreseSelections = (
     }
   );
 
+export const capabilityToPresetType: Record<
+  Parameters<typeof usePresetSelectionMutation>[0],
+  PresetSelectionState['type']
+> = {
+  [Capability.FanSpeedControl]: 'fan_speed',
+  [Capability.WaterUsageControl]: 'water_grade',
+};
 export const usePresetSelectionMutation = (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
 ) => {
@@ -82,39 +134,42 @@ export const usePresetSelectionMutation = (
     void,
     unknown,
     PresetSelectionState['value'],
-    { previousState: RobotState } | undefined
+    { previousAttributes: RobotAttribute[] } | undefined
   >((level) => updatePresetSelection(capability, level), {
     async onMutate(level) {
-      await queryClient.cancelQueries(CacheKey.RobotState);
+      await queryClient.cancelQueries(CacheKey.Attributes);
 
-      const state = queryClient.getQueryData<RobotState>(CacheKey.RobotState);
-      if (state === undefined) {
+      const attributes = queryClient.getQueryData<RobotAttribute[]>(
+        CacheKey.Attributes
+      );
+      if (attributes === undefined) {
         return;
       }
 
-      queryClient.setQueryData<RobotState>(CacheKey.RobotState, {
-        ...state,
-        presets: {
-          ...state.presets,
-          [capability]: {
-            level,
-            customValue: undefined,
-          },
-        },
-      });
-      return { previousState: state };
+      const type = capabilityToPresetType[capability];
+
+      queryClient.setQueryData<RobotAttribute[]>(
+        CacheKey.Attributes,
+        replaceAttribute(
+          RobotAttributeClass.PresetSelectionState,
+          (attribute) => attribute.type === type,
+          (attribute) => ({ ...attribute, level })
+        )(attributes)
+      );
+
+      return { previousAttributes: attributes };
     },
     onSettled() {
-      queryClient.invalidateQueries(CacheKey.RobotState);
+      queryClient.invalidateQueries(CacheKey.Attributes);
     },
     onError(_err, _variables, context) {
-      if (context?.previousState === undefined) {
+      if (context?.previousAttributes === undefined) {
         return;
       }
 
-      queryClient.setQueryData<RobotState>(
-        CacheKey.RobotState,
-        context.previousState
+      queryClient.setQueryData<RobotAttribute[]>(
+        CacheKey.Attributes,
+        context.previousAttributes
       );
     },
   });
@@ -128,7 +183,7 @@ export const useBasicControlMutation = () => {
       sendBasicControlCommand(command).then(fetchStateAttributes),
     {
       onSuccess(data) {
-        queryClient.setQueryData(CacheKey.RobotState, data);
+        queryClient.setQueryData(CacheKey.Attributes, data);
       },
     }
   );
@@ -142,7 +197,7 @@ export const useGoToMutation = () => {
       sendGoToCommand(coordinates).then(fetchStateAttributes),
     {
       onSuccess(data) {
-        queryClient.setQueryData(CacheKey.RobotState, data);
+        queryClient.setQueryData(CacheKey.Attributes, data);
       },
     }
   );

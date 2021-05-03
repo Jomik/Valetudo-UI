@@ -14,7 +14,7 @@ import { green, red, yellow } from '@material-ui/core/colors';
 import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import React from 'react';
-import { useRobotState } from '../api';
+import { RobotAttributeClass, useRobotAttribute, useRobotStatus } from '../api';
 
 const BatteryProgress = withStyles((theme) => ({
   root: {
@@ -30,108 +30,125 @@ const BatteryProgress = withStyles((theme) => ({
 }))(LinearProgress);
 
 const RobotStatus = (): JSX.Element => {
-  const { data: state, isLoading, isError } = useRobotState();
+  const {
+    data: status,
+    isLoading: isStatusLoading,
+    isError: isStatusError,
+  } = useRobotStatus();
+  const {
+    data: attachments,
+    isLoading: isAttachmentLoading,
+    isError: isAttachmentError,
+  } = useRobotAttribute(RobotAttributeClass.AttachmentState);
+  const {
+    data: batteries,
+    isLoading: isBatteryLoading,
+    isError: isBatteryError,
+  } = useRobotAttribute(RobotAttributeClass.BatteryState);
+  const isLoading = isStatusLoading || isAttachmentLoading || isBatteryLoading;
 
-  const details = React.useMemo(() => {
-    if (isError) {
-      return (
-        <Typography color="error">
-          An error occurred while loading state
-        </Typography>
-      );
+  const stateDetails = React.useMemo(() => {
+    if (isStatusError) {
+      return <Typography color="error">Error loading robot state</Typography>;
     }
 
-    if (state === undefined) {
+    if (status === undefined) {
       return null;
     }
 
-    const { battery, status, attachments } = state;
-
     return (
-      <Grid container spacing={2} direction="column">
-        <Grid item container direction="column">
-          <Grid item xs container>
-            <Grid item xs container direction="column">
-              <Grid item>
-                <Typography variant="subtitle2">State</Typography>
-              </Grid>
-              <Grid item>
-                <Typography color="textSecondary">
-                  {status.state}
-                  {status.flag !== 'none' ? <> &ndash; {status.flag}</> : ''}
-                </Typography>
-              </Grid>
+      <Typography color="textSecondary">
+        {status.value}
+        {status.flag !== 'none' ? <> &ndash; {status.flag}</> : ''}
+      </Typography>
+    );
+  }, [isStatusError, status]);
+
+  const batteriesDetails = React.useMemo(() => {
+    if (isBatteryError) {
+      return <Typography color="error">Error loading battery state</Typography>;
+    }
+
+    if (batteries === undefined) {
+      return null;
+    }
+
+    if (batteries.length === 0) {
+      return <Typography color="textSecondary">No batteries found</Typography>;
+    }
+
+    return batteries.map((battery, index) => (
+      <Grid container key={index.toString()} direction="column" spacing={1}>
+        <Grid item container>
+          {battery.flag !== 'none' && (
+            <Grid item xs>
+              <Typography color="textSecondary">{battery.flag}</Typography>
             </Grid>
-            <Grid item xs container direction="column">
-              <Grid item>
-                <Typography variant="subtitle2">Battery</Typography>
-              </Grid>
-              <Grid item>
-                <Grid container>
-                  {battery.status !== 'none' && (
-                    <Grid item xs>
-                      <Typography color="textSecondary">
-                        {battery.status}
-                      </Typography>
-                    </Grid>
-                  )}
-                  <Grid item xs>
-                    <Typography
-                      style={{
-                        color:
-                          battery.level > 80
-                            ? green[500]
-                            : battery.level > 20
-                            ? yellow[500]
-                            : red[500],
-                      }}
-                    >
-                      {Math.round(battery.level)}%
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <BatteryProgress
-                  value={battery.level}
-                  color="secondary"
-                  variant={
-                    battery.status === 'charging'
-                      ? 'indeterminate'
-                      : 'determinate'
-                  }
-                />
-              </Grid>
-            </Grid>
+          )}
+          <Grid item xs>
+            <Typography
+              style={{
+                color:
+                  battery.level > 80
+                    ? green[500]
+                    : battery.level > 20
+                    ? yellow[500]
+                    : red[500],
+              }}
+            >
+              {Math.round(battery.level)}%
+            </Typography>
           </Grid>
         </Grid>
-        <Grid item container direction="column">
-          <Grid item>
-            <Typography variant="subtitle2">Attachments</Typography>
-          </Grid>
-          <Grid item>
-            <ToggleButtonGroup size="small">
-              {attachments.map(({ type, attached }) => (
-                <ToggleButton selected={attached} key={type} value={type}>
-                  {type}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          </Grid>
+        <Grid item>
+          <BatteryProgress
+            value={battery.level}
+            color="secondary"
+            variant={
+              battery.flag === 'charging' ? 'indeterminate' : 'determinate'
+            }
+          />
         </Grid>
       </Grid>
+    ));
+  }, [batteries, isBatteryError]);
+
+  const attachmentDetails = React.useMemo(() => {
+    if (isAttachmentError) {
+      return (
+        <Typography color="error">Error loading attachment state</Typography>
+      );
+    }
+
+    if (attachments === undefined) {
+      return null;
+    }
+
+    if (attachments.length === 0) {
+      return (
+        <Typography color="textSecondary">No attachments found</Typography>
+      );
+    }
+
+    return (
+      <ToggleButtonGroup size="small">
+        {attachments.map(({ type, attached }) => (
+          <ToggleButton selected={attached} key={type} value={type}>
+            {type}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
     );
-  }, [isError, state]);
+  }, [attachments, isAttachmentError]);
 
   return (
-    <Accordion
-      disabled={state === undefined && isLoading}
-      defaultExpanded={true}
-    >
+    <Accordion defaultExpanded={true}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Grid container spacing={3} alignItems="center" justify="space-between">
           <Grid item>
             <Typography>Status</Typography>
           </Grid>
-          {state === undefined && isLoading && (
+          {isLoading && (
             <Grid item>
               <CircularProgress color="inherit" size="1rem" />
             </Grid>
@@ -140,7 +157,34 @@ const RobotStatus = (): JSX.Element => {
       </AccordionSummary>
       <Divider />
       <Box p={1} />
-      <AccordionDetails>{details}</AccordionDetails>
+      <AccordionDetails>
+        <Grid container spacing={2} direction="column">
+          <Grid item container direction="column">
+            <Grid item xs container>
+              <Grid item xs container direction="column">
+                <Grid item>
+                  <Typography variant="subtitle2">State</Typography>
+                </Grid>
+                <Grid item>{stateDetails}</Grid>
+              </Grid>
+              {batteries !== undefined && batteries.length > 0 && (
+                <Grid item xs container direction="column">
+                  <Grid item>
+                    <Typography variant="subtitle2">Battery</Typography>
+                  </Grid>
+                  <Grid item>{batteriesDetails}</Grid>
+                </Grid>
+              )}
+            </Grid>
+          </Grid>
+          <Grid item container direction="column">
+            <Grid item>
+              <Typography variant="subtitle2">Attachments</Typography>
+            </Grid>
+            <Grid item>{attachmentDetails}</Grid>
+          </Grid>
+        </Grid>
+      </AccordionDetails>
     </Accordion>
   );
 };

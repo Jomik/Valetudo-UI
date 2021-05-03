@@ -1,16 +1,26 @@
 import { RobotAttribute, RobotAttributeClass } from './RawRobotState';
 
-export const getAttributes = <C extends RobotAttributeClass>(
+export const isAttribute = <C extends RobotAttributeClass>(
+  clazz: C
+): ((
+  attribute: RobotAttribute
+) => attribute is Extract<RobotAttribute, { __class: C }>) => (
+  attribute
+): attribute is Extract<RobotAttribute, { __class: C }> =>
+  attribute.__class === clazz;
+
+export const replaceAttribute = <C extends RobotAttributeClass>(
   clazz: C,
-  attributes: RobotAttribute[]
-): Extract<RobotAttribute, { __class: C }>[] => {
-  const res = attributes.filter(
-    (x): x is Extract<RobotAttribute, { __class: C }> => x.__class === clazz
-  );
+  filter: (attribute: Extract<RobotAttribute, { __class: C }>) => boolean,
+  replacer: (
+    attribute: Extract<RobotAttribute, { __class: C }>
+  ) => Extract<RobotAttribute, { __class: C }>
+): ((attributes: RobotAttribute[]) => RobotAttribute[]) => (attributes) => {
+  return attributes.map((attribute) => {
+    if (!isAttribute(clazz)(attribute) || !filter(attribute)) {
+      return attribute;
+    }
 
-  if (res.length === 0) {
-    throw new Error(`Could not find attribute of type ${clazz}`);
-  }
-
-  return res;
+    return replacer(attribute);
+  });
 };

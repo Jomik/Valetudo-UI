@@ -15,7 +15,7 @@ import {
   Capability,
   useGoToLocationPresetMutation,
   useGoToLocationPresets,
-  useRobotState,
+  useRobotStatus,
 } from '../api';
 
 const useStyles = makeStyles(() => ({
@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
 
 const GoToLocationPresets = (): JSX.Element => {
   const classes = useStyles();
-  const { data: status } = useRobotState((state) => state.status.state);
+  const { data: state } = useRobotStatus((status) => status.value);
   const {
     data: locations,
     isLoading: isLocationsLoading,
@@ -50,11 +50,11 @@ const GoToLocationPresets = (): JSX.Element => {
       return;
     }
 
-    if (status !== 'docked' && status !== 'idle') {
+    if (state !== 'docked' && state !== 'idle') {
       return;
     }
     goToLocation(selected);
-  }, [goToLocation, selected, status]);
+  }, [goToLocation, selected, state]);
 
   const body = React.useMemo(() => {
     if (isLocationsLoading) {

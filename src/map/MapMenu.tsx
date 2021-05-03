@@ -10,7 +10,7 @@ import {
   Capability,
   RawMapLayerMetaData,
   useGoToMutation,
-  useRobotState,
+  useRobotStatus,
 } from '../api';
 import { Coordinates } from '../api/client';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
@@ -34,7 +34,7 @@ interface GoToItemProps extends MenuItemProps {
 const GoToMenuItem = React.forwardRef<HTMLLIElement, GoToItemProps>(
   function GoToMenuItem(props, ref): JSX.Element | null {
     const { onClick, position, ...rest } = props;
-    const { data: status } = useRobotState((state) => state.status.state);
+    const { data: state } = useRobotStatus((status) => status.value);
     const { mutate: sendGoTo } = useGoToMutation();
 
     const handleGoTo = React.useCallback<
@@ -52,11 +52,11 @@ const GoToMenuItem = React.forwardRef<HTMLLIElement, GoToItemProps>(
       [onClick, position, sendGoTo]
     );
 
-    if (position === undefined || status === undefined) {
+    if (position === undefined || state === undefined) {
       return null;
     }
 
-    if (status !== 'idle' && status !== 'docked') {
+    if (state !== 'idle' && state !== 'docked') {
       return null;
     }
 

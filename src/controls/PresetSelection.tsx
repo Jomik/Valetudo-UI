@@ -12,10 +12,12 @@ import {
 import React from 'react';
 import {
   Capability,
+  capabilityToPresetType,
   PresetSelectionState,
+  RobotAttributeClass,
   usePresetSelectionMutation,
-  usePreseSelections,
-  useRobotState,
+  usePresetSelections,
+  useRobotAttribute,
 } from '../api';
 
 const DiscreteSlider = withStyles((theme) => ({
@@ -51,8 +53,14 @@ export interface PresetSelectionProps {
 
 const PresetSelectionControl = (props: PresetSelectionProps): JSX.Element => {
   const { capability, label, icon } = props;
-  const { data: preset } = useRobotState((data) => data.presets[capability]);
-  const { isLoading, isError, data: presets } = usePreseSelections(capability);
+  const { data: preset } = useRobotAttribute(
+    RobotAttributeClass.PresetSelectionState,
+    (attributes) =>
+      attributes.filter(
+        (attribute) => attribute.type === capabilityToPresetType[capability]
+      )[0]
+  );
+  const { isLoading, isError, data: presets } = usePresetSelections(capability);
   const { mutate, isLoading: isUpdating } = usePresetSelectionMutation(
     capability
   );
@@ -73,7 +81,7 @@ const PresetSelectionControl = (props: PresetSelectionProps): JSX.Element => {
       return;
     }
 
-    const index = filteredPresets?.indexOf(preset.level) ?? -1;
+    const index = filteredPresets?.indexOf(preset.value) ?? -1;
 
     setSliderValue(index !== -1 ? index : 0);
   }, [preset, filteredPresets]);

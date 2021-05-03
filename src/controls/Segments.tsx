@@ -20,12 +20,12 @@ import React from 'react';
 import {
   Segment,
   useCleanSegmentsMutation,
-  useRobotState,
+  useRobotStatus,
   useSegments,
 } from '../api';
 
 const Segments = (): JSX.Element => {
-  const { data: status } = useRobotState((state) => state.status.state);
+  const { data: state } = useRobotStatus((status) => status.value);
   const {
     data: segments,
     isLoading: isSegmentsLoading,
@@ -65,7 +65,7 @@ const Segments = (): JSX.Element => {
       segment.name !== undefined
   );
   const noSegmentsSelected = Object.values(selected).every((val) => !val);
-  const statusAllowsCleaning = status === 'idle' || status === 'docked';
+  const statusAllowsCleaning = state === 'idle' || state === 'docked';
 
   const details = React.useMemo(() => {
     if (isError) {

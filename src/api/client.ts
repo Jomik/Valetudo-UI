@@ -1,13 +1,7 @@
 import axios from 'axios';
 import { RawMapData } from './RawMapData';
 import { Capability } from './Capability';
-import {
-  PresetSelectionState,
-  RobotAttribute,
-  RobotAttributeClass,
-} from './RawRobotState';
-import { RobotState } from './RobotState';
-import { getAttributes } from './utils';
+import { PresetSelectionState, RobotAttribute } from './RawRobotState';
 import { ZonePreset } from './Zone';
 import { Segment } from './Segment';
 import { GoToLocation } from './GoToLocation';
@@ -68,71 +62,17 @@ export const subscribeToMap = (
 ): (() => void) =>
   subscribeToSSE('/robot/state/map/sse', 'MapUpdated', listener);
 
-const attributesToState = (attributes: RobotAttribute[]): RobotState => {
-  const statusAttribute = getAttributes(
-    RobotAttributeClass.StatusState,
-    attributes
-  )[0];
-
-  const batteryAttribute = getAttributes(
-    RobotAttributeClass.BatteryState,
-    attributes
-  )[0];
-
-  const presetAttributes = getAttributes(
-    RobotAttributeClass.PresetSelectionState,
-    attributes
-  );
-
-  const attachments = getAttributes(
-    RobotAttributeClass.AttachmentState,
-    attributes
-  ).map(({ type, attached }) => ({ type, attached }));
-
-  const presets = presetAttributes.reduce<RobotState['presets']>(
-    (prev, { type, value, customValue }) => {
-      if (type === 'fan_speed') {
-        return {
-          ...prev,
-          [Capability.FanSpeedControl]: { level: value, customValue },
-        };
-      }
-      if (type === 'water_grade') {
-        return {
-          ...prev,
-          [Capability.WaterUsageControl]: { level: value, customValue },
-        };
-      }
-      return prev;
-    },
-    {}
-  );
-
-  return {
-    status: {
-      state: statusAttribute.value,
-      flag: statusAttribute.flag,
-    },
-    battery: {
-      status: batteryAttribute.flag,
-      level: batteryAttribute.level,
-    },
-    presets,
-    attachments,
-  };
-};
-
-export const fetchStateAttributes = async (): Promise<RobotState> =>
+export const fetchStateAttributes = async (): Promise<RobotAttribute[]> =>
   valetudoAPI
     .get<RobotAttribute[]>('/robot/state/attributes')
-    .then(({ data }) => attributesToState(data));
+    .then(({ data }) => data);
 export const subscribeToStateAttributes = (
-  listener: (data: RobotState) => void
+  listener: (data: RobotAttribute[]) => void
 ): (() => void) =>
   subscribeToSSE<RobotAttribute[]>(
     '/robot/state/attributes/sse',
     'StateAttributesUpdated',
-    (data) => listener(attributesToState(data))
+    (data) => listener(data)
   );
 
 export const fetchPresetSelections = async (
