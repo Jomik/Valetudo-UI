@@ -8,7 +8,7 @@ import {
   cleanZonePresets,
   fetchCapabilities,
   fetchGoToLocationPresets,
-  fetchIntensityPresets,
+  fetchPresetSelections,
   fetchMap,
   fetchSegments,
   fetchStateAttributes,
@@ -18,16 +18,16 @@ import {
   sendGoToCommand,
   subscribeToMap,
   subscribeToStateAttributes,
-  updateIntensity,
+  updatePresetSelection,
 } from './client';
-import { IntensityState } from './RawRobotState';
+import { PresetSelectionState } from './RawRobotState';
 import { RobotState } from './RobotState';
 
 enum CacheKey {
   Capabilities = 'capabilities',
   RobotMap = 'map',
   RobotState = 'state',
-  IntensityPresets = 'intensity_presets',
+  PresetSelections = 'preset_selections',
   ZonePresets = 'zone_presets',
   Segments = 'segments',
   GoToLocationPresets = 'go_to_location_presets',
@@ -63,27 +63,27 @@ export const useRobotState = <T = RobotState>(
   });
 };
 
-export const useIntensityPresets = (
+export const usePreseSelections = (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
 ) =>
   useQuery(
-    [CacheKey.IntensityPresets, capability],
-    () => fetchIntensityPresets(capability),
+    [CacheKey.PresetSelections, capability],
+    () => fetchPresetSelections(capability),
     {
       staleTime: Infinity,
     }
   );
 
-export const useIntensityMutation = (
+export const usePresetSelectionMutation = (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
 ) => {
   const queryClient = useQueryClient();
   return useMutation<
     void,
     unknown,
-    IntensityState['value'],
+    PresetSelectionState['value'],
     { previousState: RobotState } | undefined
-  >((level) => updateIntensity(capability, level), {
+  >((level) => updatePresetSelection(capability, level), {
     async onMutate(level) {
       await queryClient.cancelQueries(CacheKey.RobotState);
 
@@ -94,8 +94,8 @@ export const useIntensityMutation = (
 
       queryClient.setQueryData<RobotState>(CacheKey.RobotState, {
         ...state,
-        intensity: {
-          ...state.intensity,
+        presets: {
+          ...state.presets,
           [capability]: {
             level,
             customValue: undefined,

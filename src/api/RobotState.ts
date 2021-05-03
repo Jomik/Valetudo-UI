@@ -2,7 +2,7 @@ import { Capability } from './Capability';
 import {
   AttachmentState,
   BatteryState,
-  IntensityState,
+  PresetSelectionState,
   StatusState,
 } from './RawRobotState';
 
@@ -15,14 +15,14 @@ export interface RobotState {
     status: BatteryState['flag'];
     level: BatteryState['level'];
   };
-  intensity: {
+  presets: {
     [Capability.FanSpeedControl]?: {
-      level: IntensityState['value'];
-      customValue?: IntensityState['customValue'];
+      level: PresetSelectionState['value'];
+      customValue?: PresetSelectionState['customValue'];
     };
     [Capability.WaterUsageControl]?: {
-      level: IntensityState['value'];
-      customValue?: IntensityState['customValue'];
+      level: PresetSelectionState['value'];
+      customValue?: PresetSelectionState['customValue'];
     };
   };
   attachments: Pick<AttachmentState, 'type' | 'attached'>[];

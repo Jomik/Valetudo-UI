@@ -12,9 +12,9 @@ import {
 import React from 'react';
 import {
   Capability,
-  IntensityState,
-  useIntensityMutation,
-  useIntensityPresets,
+  PresetSelectionState,
+  usePresetSelectionMutation,
+  usePreseSelections,
   useRobotState,
 } from '../api';
 
@@ -40,27 +40,28 @@ const DiscreteSlider = withStyles((theme) => ({
 }))(Slider);
 
 const order = ['off', 'min', 'low', 'medium', 'high', 'max', 'turbo'];
-const sortPresets = (intensities: IntensityState['value'][]) =>
-  [...intensities].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+const sortPresets = (presets: PresetSelectionState['value'][]) =>
+  [...presets].sort((a, b) => order.indexOf(a) - order.indexOf(b));
 
-export interface IntensityControlProps {
+export interface PresetSelectionProps {
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl;
   label: string;
   icon: JSX.Element;
 }
 
-const IntensityControl = (props: IntensityControlProps): JSX.Element => {
+const PresetSelectionControl = (props: PresetSelectionProps): JSX.Element => {
   const { capability, label, icon } = props;
-  const { data: intensity } = useRobotState(
-    (data) => data.intensity[capability]
+  const { data: preset } = useRobotState((data) => data.presets[capability]);
+  const { isLoading, isError, data: presets } = usePreseSelections(capability);
+  const { mutate, isLoading: isUpdating } = usePresetSelectionMutation(
+    capability
   );
-  const { isLoading, isError, data: presets } = useIntensityPresets(capability);
-  const { mutate, isLoading: isUpdating } = useIntensityMutation(capability);
   const filteredPresets = React.useMemo(
     () =>
       sortPresets(
         presets?.filter(
-          (x): x is Exclude<IntensityState['value'], 'custom'> => x !== 'custom'
+          (x): x is Exclude<PresetSelectionState['value'], 'custom'> =>
+            x !== 'custom'
         ) ?? []
       ),
     [presets]
@@ -68,14 +69,14 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   const [sliderValue, setSliderValue] = React.useState(0);
 
   React.useEffect(() => {
-    if (intensity === undefined) {
+    if (preset === undefined) {
       return;
     }
 
-    const index = filteredPresets?.indexOf(intensity.level) ?? -1;
+    const index = filteredPresets?.indexOf(preset.level) ?? -1;
 
     setSliderValue(index !== -1 ? index : 0);
-  }, [intensity, filteredPresets]);
+  }, [preset, filteredPresets]);
 
   const marks = React.useMemo<Mark[]>(() => {
     if (filteredPresets === undefined) {
@@ -119,7 +120,7 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
       );
     }
 
-    if (isError || intensity === undefined || filteredPresets === undefined) {
+    if (isError || preset === undefined || filteredPresets === undefined) {
       return (
         <Grid item>
           <Typography color="error">Error loading {capability}</Typography>
@@ -150,7 +151,7 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
     filteredPresets,
     handleSliderChange,
     handleSliderCommitted,
-    intensity,
+    preset,
     isError,
     isLoading,
     marks,
@@ -189,4 +190,4 @@ const IntensityControl = (props: IntensityControlProps): JSX.Element => {
   );
 };
 
-export default IntensityControl;
+export default PresetSelectionControl;

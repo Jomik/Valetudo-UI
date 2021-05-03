@@ -14,7 +14,7 @@ export enum RobotAttributeClass {
   PersistentMapSettingState = 'PersistentMapSettingStateAttribute',
   StatusState = 'StatusStateAttribute',
   BatteryState = 'BatteryStateAttribute',
-  IntensityState = 'IntensityStateAttribute',
+  PresetSelectionState = 'PresetSelectionStateAttribute',
   AttachmentState = 'AttachmentStateAttribute',
   MovementModeState = 'MovementModeStateAttribute',
   OperationModeState = 'OperationModeStateAttribute',
@@ -43,8 +43,8 @@ export interface BatteryState {
   flag: 'none' | 'charged' | 'charging' | 'discharging';
 }
 
-export interface IntensityState {
-  __class: RobotAttributeClass.IntensityState;
+export interface PresetSelectionState {
+  __class: RobotAttributeClass.PresetSelectionState;
   metaData: Record<string, never>;
   type: 'fan_speed' | 'water_grade';
   value: 'off' | 'min' | 'low' | 'medium' | 'high' | 'max' | 'turbo' | 'custom';
@@ -79,7 +79,7 @@ export interface OperationModeState {
 export type RobotAttribute =
   | StatusState
   | BatteryState
-  | IntensityState
+  | PresetSelectionState
   | AttachmentState
   | MovementModeState
   | OperationModeState;

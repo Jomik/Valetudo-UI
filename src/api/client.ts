@@ -2,7 +2,7 @@ import axios from 'axios';
 import { RawMapData } from './RawMapData';
 import { Capability } from './Capability';
 import {
-  IntensityState,
+  PresetSelectionState,
   RobotAttribute,
   RobotAttributeClass,
 } from './RawRobotState';
@@ -79,8 +79,8 @@ const attributesToState = (attributes: RobotAttribute[]): RobotState => {
     attributes
   )[0];
 
-  const intensityAttributes = getAttributes(
-    RobotAttributeClass.IntensityState,
+  const presetAttributes = getAttributes(
+    RobotAttributeClass.PresetSelectionState,
     attributes
   );
 
@@ -89,7 +89,7 @@ const attributesToState = (attributes: RobotAttribute[]): RobotState => {
     attributes
   ).map(({ type, attached }) => ({ type, attached }));
 
-  const intensity = intensityAttributes.reduce<RobotState['intensity']>(
+  const presets = presetAttributes.reduce<RobotState['presets']>(
     (prev, { type, value, customValue }) => {
       if (type === 'fan_speed') {
         return {
@@ -117,7 +117,7 @@ const attributesToState = (attributes: RobotAttribute[]): RobotState => {
       status: batteryAttribute.flag,
       level: batteryAttribute.level,
     },
-    intensity,
+    presets,
     attachments,
   };
 };
@@ -135,16 +135,18 @@ export const subscribeToStateAttributes = (
     (data) => listener(attributesToState(data))
   );
 
-export const fetchIntensityPresets = async (
+export const fetchPresetSelections = async (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
-): Promise<IntensityState['value'][]> =>
+): Promise<PresetSelectionState['value'][]> =>
   valetudoAPI
-    .get<IntensityState['value'][]>(`/robot/capabilities/${capability}/presets`)
+    .get<PresetSelectionState['value'][]>(
+      `/robot/capabilities/${capability}/presets`
+    )
     .then(({ data }) => data);
 
-export const updateIntensity = async (
+export const updatePresetSelection = async (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl,
-  level: IntensityState['value']
+  level: PresetSelectionState['value']
 ): Promise<void> => {
   await valetudoAPI.put<void>(`/robot/capabilities/${capability}/preset`, {
     name: level,

@@ -6,7 +6,7 @@ import {
 import { Capability } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 import GoToLocationPresets from './GoToPresets';
-import IntensityControl from './IntensityControl';
+import PresetSelectionControl from './PresetSelection';
 import RobotStatus from './RobotStatus';
 import Segments from './Segments';
 import ZonePresets from './ZonePresets';
@@ -35,7 +35,7 @@ const ControlsPage = (): JSX.Element => {
       </Grid>
       {fanSpeed && (
         <Grid item>
-          <IntensityControl
+          <PresetSelectionControl
             capability={Capability.FanSpeedControl}
             label="Fan speed"
             icon={<FanSpeedIcon fontSize="small" />}
@@ -44,7 +44,7 @@ const ControlsPage = (): JSX.Element => {
       )}
       {waterControl && (
         <Grid item>
-          <IntensityControl
+          <PresetSelectionControl
             capability={Capability.WaterUsageControl}
             label="Water usage"
             icon={<WaterUsageIcon fontSize="small" />}
