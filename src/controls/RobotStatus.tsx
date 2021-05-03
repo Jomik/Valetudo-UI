@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { green, red, yellow } from '@material-ui/core/colors';
 import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
+import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import React from 'react';
 import { useRobotState } from '../api';
 
@@ -106,26 +107,14 @@ const RobotStatus = (): JSX.Element => {
           <Grid item>
             <Typography variant="subtitle2">Attachments</Typography>
           </Grid>
-          <Grid item container spacing={1} alignItems="center">
-            {attachments.map(({ type, attached }) => {
-              const color = attached ? green[500] : red[500];
-
-              return (
-                <Grid key={type} item>
-                  <Box
-                    border={1}
-                    p={1}
-                    borderColor={color}
-                    borderRadius={'borderRadius'}
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Typography style={{ color }}>{type}</Typography>
-                  </Box>
-                </Grid>
-              );
-            })}
+          <Grid item>
+            <ToggleButtonGroup size="small">
+              {attachments.map(({ type, attached }) => (
+                <ToggleButton selected={attached} key={type} value={type}>
+                  {type}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
           </Grid>
         </Grid>
       </Grid>
