@@ -5,6 +5,7 @@ import {
 } from '@material-ui/icons';
 import { Capability } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
+import BasicControls from './BasicControls';
 import GoToLocationPresets from './GoToPresets';
 import PresetSelectionControl from './PresetSelection';
 import RobotStatus from './RobotStatus';
@@ -13,6 +14,7 @@ import ZonePresets from './ZonePresets';
 
 const ControlsPage = (): JSX.Element => {
   const [
+    basicControls,
     fanSpeed,
     waterControl,
     goToLocation,
@@ -20,6 +22,7 @@ const ControlsPage = (): JSX.Element => {
     segmentCleaning,
     segmentNaming,
   ] = useCapabilitiesSupported(
+    Capability.BasicControl,
     Capability.FanSpeedControl,
     Capability.WaterUsageControl,
     Capability.GoToLocation,
@@ -30,6 +33,11 @@ const ControlsPage = (): JSX.Element => {
 
   return (
     <Grid container spacing={2} direction="column">
+      {basicControls && (
+        <Grid item>
+          <BasicControls />
+        </Grid>
+      )}
       <Grid item>
         <RobotStatus />
       </Grid>

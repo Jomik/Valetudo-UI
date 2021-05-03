@@ -18,7 +18,6 @@ import {
 } from '@material-ui/icons';
 import Div100vh from 'react-div-100vh';
 import ControlsBottomSheet from './controls/ControlsBottomSheet';
-import ControlsSpeedDial from './controls/ControlsSpeedDial';
 
 const useTopNavStyles = makeStyles((theme) => ({
   grow: {
@@ -66,25 +65,22 @@ const HomePage = (): JSX.Element => {
 
   if (largeView) {
     return (
-      <>
-        <Grid
-          item
-          container
-          direction="row"
-          spacing={2}
-          justify="space-evenly"
-          className={classes.container}
-        >
-          <Grid item sm md lg xl>
-            <MapPage />
-          </Grid>
-          <Divider orientation="vertical" />
-          <Grid item sm={6} md={5} lg={4} xl={3}>
-            <ControlsPage />
-          </Grid>
+      <Grid
+        item
+        container
+        direction="row"
+        spacing={2}
+        justify="space-evenly"
+        className={classes.container}
+      >
+        <Grid item sm md lg xl>
+          <MapPage />
         </Grid>
-        <ControlsSpeedDial />
-      </>
+        <Divider orientation="vertical" />
+        <Grid item sm={6} md={5} lg={4} xl={3}>
+          <ControlsPage />
+        </Grid>
+      </Grid>
     );
   }
 
