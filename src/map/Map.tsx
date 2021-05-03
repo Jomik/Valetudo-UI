@@ -13,15 +13,19 @@ import {
 import MapEntityShape from './MapEntityShape';
 import MapStage from './MapStage';
 import Pixels from './Pixels';
-
-import robotSrc from '../assets/icons/robot.svg';
 import ChipShape from './ChipShape';
 import { pairWiseArray, pointClosestTo } from './utils';
 import { Vector2d } from 'konva/types/types';
 import MapMenu, { MapMenuProps } from './MapMenu';
+import robotSrc from '../assets/icons/robot.svg';
+import cleaningServicesSrc from '../assets/icons/cleaning_services.svg';
 
 const robotImage = new window.Image();
 robotImage.src = robotSrc;
+
+const cleaningServices = new window.Image();
+cleaningServices.src = cleaningServicesSrc;
+
 export interface MapProps {
   mapData: RawMapData;
 }
@@ -171,19 +175,20 @@ const Map = (props: MapProps): JSX.Element => {
             {robot && <MapEntityShape entity={robot} pixelSize={pixelSize} />}
             {layers
               .filter((layer) => layer.type === RawMapLayerType.Segment)
-              .map((layer) => {
-                const [x, y] = pointClosestTo(pairWiseArray(layer.pixels), [
-                  layer.dimensions.x.mid,
-                  layer.dimensions.y.mid,
+              .map(({ metaData, type, dimensions, pixels }) => {
+                const [x, y] = pointClosestTo(pairWiseArray(pixels), [
+                  dimensions.x.mid,
+                  dimensions.y.mid,
                 ]);
 
                 return (
                   <ChipShape
-                    key={`${layer.type}:${layer.metaData.segmentId}`}
-                    text={
-                      layer.metaData.name ?? `# ${layer.metaData.segmentId}`
+                    key={`${type}:${metaData.segmentId}`}
+                    text={metaData.name ?? `# ${metaData.segmentId}`}
+                    icon={metaData.active ? cleaningServices : undefined}
+                    iconFill={
+                      metaData.active ? theme.palette.success.main : undefined
                     }
-                    checked={layer.metaData.active}
                     x={x * pixelSize}
                     y={y * pixelSize}
                   />

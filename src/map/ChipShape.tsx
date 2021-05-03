@@ -13,27 +13,33 @@ export type ChipShapeProps = KonvaNodeEvents &
     sceneFunc?: never;
     width?: never;
     height?: never;
-    checked?: boolean;
+    icon?: HTMLImageElement;
+    iconFill?: string;
   };
 
-const drawCheckMark = (
+const drawIcon = (
+  icon: HTMLImageElement,
   context: Konva.Context,
   shape: Konva.Shape,
   scale: number
 ) => {
   context.scale(scale, scale);
-  context.setAttr('fillStyle', shape.getAttr('activeFill'));
-  context.beginPath();
-  context.moveTo(9, 16.2);
-  context.lineTo(4.8, 12);
-  context.lineTo(4.8 - 1.4, 12 + 1.4);
-  context.lineTo(9, 19);
-  context.lineTo(21, 7);
-  context.lineTo(21 - 1.4, 7 - 1.4);
-  context.lineTo(9, 16.2);
-  context.closePath();
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (ctx === null) {
+    console.warn('No context for layer image');
+    return;
+  }
+  canvas.width = 24;
+  canvas.height = 24;
 
-  context.fill();
+  ctx.drawImage(icon, 0, 0);
+
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = shape.getAttr('iconFill');
+  ctx.fillRect(0, 0, 24, 24);
+
+  context.drawImage(canvas, 4, 2, 20, 20);
 };
 
 const ChipShape = (props: ChipShapeProps): JSX.Element => {
@@ -49,13 +55,13 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
       context.setAttr('textBaseline', 'bottom');
 
       const text = shape.getAttr('text');
-      const checked = shape.getAttr('checked');
+      const icon: HTMLImageElement | undefined = shape.getAttr('icon');
       const {
         width: textWidth,
         fontBoundingBoxAscent: height,
       } = context.measureText(text);
-      const checkScale = height / 24;
-      const width = textWidth + (checked ? checkScale * 20 : 0);
+      const iconScale = height / 24;
+      const width = textWidth + (icon ? iconScale * 20 : 0);
       const radius = Math.min(width / 2, height / 2);
 
       context.translate(-width / 2, -height / 2);
@@ -90,9 +96,9 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
       context.setAttr('fillStyle', shape.getAttr('textFill'));
       context.fillText(text, 0, 0);
 
-      if (checked) {
-        context.translate(width - 20 * checkScale, -height);
-        drawCheckMark(context, shape, checkScale);
+      if (icon) {
+        context.translate(width - 20 * iconScale, -height);
+        drawIcon(icon, context, shape, iconScale);
       }
     },
     []
@@ -107,12 +113,11 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
       shadowBlur={10}
       shadowOpacity={0.4}
       textFill={theme.palette.text.primary}
-      activeFill={theme.palette.success.main}
+      iconFill={theme.palette.text.primary}
       fontSize={theme.typography.h6.fontSize}
       fontFamily={theme.typography.fontFamily}
       maximumScale={1}
       minimumScale={1}
-      checked={false}
       {...shapeConfig}
       sceneFunc={sceneFunc}
     />
