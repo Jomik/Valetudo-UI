@@ -183,7 +183,9 @@ export const useBasicControlMutation = () => {
       sendBasicControlCommand(command).then(fetchStateAttributes),
     {
       onSuccess(data) {
-        queryClient.setQueryData(CacheKey.Attributes, data);
+        queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
+          updatedAt: Date.now(),
+        });
       },
     }
   );
@@ -197,7 +199,9 @@ export const useGoToMutation = () => {
       sendGoToCommand(coordinates).then(fetchStateAttributes),
     {
       onSuccess(data) {
-        queryClient.setQueryData(CacheKey.Attributes, data);
+        queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
+          updatedAt: Date.now(),
+        });
       },
     }
   );
@@ -206,17 +210,55 @@ export const useGoToMutation = () => {
 export const useZonePresets = () =>
   useQuery(CacheKey.ZonePresets, fetchZonePresets, { staleTime: Infinity });
 
-export const useCleanZonePresetsMutation = () => useMutation(cleanZonePresets);
+export const useCleanZonePresetsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (ids: string[]) => cleanZonePresets(ids).then(fetchStateAttributes),
+    {
+      onSuccess(data) {
+        queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
+          updatedAt: Date.now(),
+        });
+      },
+    }
+  );
+};
 
 export const useSegments = () =>
   useQuery(CacheKey.Segments, fetchSegments, { staleTime: Infinity });
 
-export const useCleanSegmentsMutation = () => useMutation(cleanSegments);
+export const useCleanSegmentsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (ids: string[]) => cleanSegments(ids).then(fetchStateAttributes),
+    {
+      onSuccess(data) {
+        queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
+          updatedAt: Date.now(),
+        });
+      },
+    }
+  );
+};
 
 export const useGoToLocationPresets = () =>
   useQuery(CacheKey.GoToLocationPresets, fetchGoToLocationPresets, {
     staleTime: Infinity,
   });
 
-export const useGoToLocationPresetMutation = () =>
-  useMutation(goToLocationPreset);
+export const useGoToLocationPresetMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (id: string) => goToLocationPreset(id).then(fetchStateAttributes),
+    {
+      onSuccess(data) {
+        queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
+          updatedAt: Date.now(),
+        });
+      },
+    }
+  );
+};
