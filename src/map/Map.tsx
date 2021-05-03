@@ -186,9 +186,6 @@ const Map = (props: MapProps): JSX.Element => {
                     key={`${type}:${metaData.segmentId}`}
                     text={metaData.name ?? `# ${metaData.segmentId}`}
                     icon={metaData.active ? cleaningServices : undefined}
-                    iconFill={
-                      metaData.active ? theme.palette.success.main : undefined
-                    }
                     x={x * pixelSize}
                     y={y * pixelSize}
                   />
