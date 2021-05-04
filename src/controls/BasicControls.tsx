@@ -1,19 +1,20 @@
 import {
   Box,
   Button,
-  ButtonGroup,
   makeStyles,
   Paper,
   Typography,
+  Grid,
 } from '@material-ui/core';
-import React from 'react';
 import { useRobotStatus, useBasicControlMutation, StatusState } from '../api';
 import {
   Home as HomeIcon,
   Pause as PauseIcon,
   PlayArrow as StartIcon,
   Stop as StopIcon,
+  SvgIconComponent,
 } from '@material-ui/icons';
+import { BasicControlCommands } from '../api';
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -43,37 +44,55 @@ const BasicControls = (): JSX.Element => {
   }
 
   const { flag, value: state } = status;
+  const buttons: Array<{
+    command: BasicControlCommands;
+    enabled: boolean;
+    label: string;
+    Icon: SvgIconComponent;
+  }> = [
+    {
+      command: 'start',
+      enabled: StartStates.includes(state),
+      label: flag === 'resumable' ? 'Resume' : 'Start',
+      Icon: StartIcon,
+    },
+    {
+      command: 'pause',
+      enabled: PauseStates.includes(state),
+      Icon: PauseIcon,
+      label: 'Pause',
+    },
+    {
+      command: 'stop',
+      enabled: flag === 'resumable' || (state !== 'idle' && state !== 'docked'),
+      Icon: StopIcon,
+      label: 'Stop',
+    },
+    {
+      command: 'home',
+      enabled: state === 'idle',
+      Icon: HomeIcon,
+      label: 'Dock',
+    },
+  ];
 
   return (
     <Paper>
       <Box p={1}>
-        <ButtonGroup size="medium" disabled={isLoading}>
-          <Button
-            disabled={!StartStates.includes(state)}
-            onClick={sendCommand('start')}
-          >
-            <StartIcon className={classes.icon} />{' '}
-            {flag === 'resumable' ? 'Resume' : 'Start'}
-          </Button>
-          <Button
-            disabled={!PauseStates.includes(state)}
-            onClick={sendCommand('pause')}
-          >
-            <PauseIcon className={classes.icon} /> Pause
-          </Button>
-          <Button
-            disabled={
-              !(flag === 'resumable') &&
-              (state === 'idle' || state === 'docked')
-            }
-            onClick={sendCommand('stop')}
-          >
-            <StopIcon className={classes.icon} /> Stop
-          </Button>
-          <Button disabled={state !== 'idle'} onClick={sendCommand('home')}>
-            <HomeIcon className={classes.icon} /> Home
-          </Button>
-        </ButtonGroup>
+        <Grid container spacing={1} justify="space-evenly">
+          {buttons.map(({ label, command, enabled, Icon }) => (
+            <Grid item key={command}>
+              <Button
+                variant="outlined"
+                size="medium"
+                disabled={!enabled || isLoading}
+                onClick={sendCommand(command)}
+              >
+                <Icon className={classes.icon} /> {label}
+              </Button>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Paper>
   );

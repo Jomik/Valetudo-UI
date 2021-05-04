@@ -28,7 +28,7 @@ const StyledBottomSheet = styled(BottomSheet)(({ theme }) => ({
   '--rsbs-overlay-rounded': '8px',
 }));
 
-const SheetBackground = styled(Box)(({ theme }) => ({
+const Sheet = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
@@ -38,7 +38,7 @@ const StyledFab = styled(Fab)(({ theme }) => ({
   right: theme.spacing(5),
 }));
 
-const useStyles = makeStyles((theme) => ({
+const useActionButtonStyles = makeStyles((theme) => ({
   extendedIcon: {
     marginRight: theme.spacing(1),
   },
@@ -50,7 +50,7 @@ const fabProps: Partial<FabProps> = {
   variant: 'extended',
 };
 const ActionButton = (): JSX.Element | null => {
-  const classes = useStyles();
+  const classes = useActionButtonStyles();
   const { data: state } = useRobotStatus((status) => status.value);
   const { mutate: sendCommand, isLoading } = useBasicControlMutation();
 
@@ -116,7 +116,7 @@ const ControlsBottomSheet = (): JSX.Element => {
       blocking={false}
       snapPoints={({ maxHeight, headerHeight }) => [
         headerHeight,
-        maxHeight * 0.3,
+        maxHeight * 0.2,
         maxHeight * 0.5,
         maxHeight * 0.8,
       ]}
@@ -131,9 +131,9 @@ const ControlsBottomSheet = (): JSX.Element => {
         </>
       }
     >
-      <SheetBackground px={1} py={1}>
+      <Sheet p={1}>
         <ControlsPage />
-      </SheetBackground>
+      </Sheet>
     </StyledBottomSheet>
   );
 };
