@@ -7,8 +7,9 @@ import {
   Divider,
   Grid,
   LinearProgress,
+  LinearProgressProps,
+  makeStyles,
   Typography,
-  withStyles,
 } from '@material-ui/core';
 import { green, red, yellow } from '@material-ui/core/colors';
 import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
@@ -16,7 +17,25 @@ import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import React from 'react';
 import { RobotAttributeClass, useRobotAttribute, useRobotStatus } from '../api';
 
-const BatteryProgress = withStyles((theme) => ({
+const batteryLevelColors = {
+  red: red[500],
+  yellow: yellow[700],
+  green: green[500],
+};
+
+const getBatteryColor = (level: number): 'red' | 'yellow' | 'green' => {
+  if (level > 75) {
+    return 'green';
+  }
+
+  if (level > 20) {
+    return 'yellow';
+  }
+
+  return 'red';
+};
+
+const useBatteryProgressStyles = makeStyles((theme) => ({
   root: {
     marginTop: -theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
@@ -25,10 +44,34 @@ const BatteryProgress = withStyles((theme) => ({
     backgroundColor:
       theme.palette.grey[theme.palette.type === 'light' ? 200 : 700],
   },
-  bar: {
-    backgroundColor: green[700],
+  red: {
+    backgroundColor: batteryLevelColors['red'],
   },
-}))(LinearProgress);
+  yellow: {
+    backgroundColor: batteryLevelColors['yellow'],
+  },
+  green: {
+    backgroundColor: batteryLevelColors['green'],
+  },
+}));
+
+const BatteryProgress = (
+  props: LinearProgressProps & { value: number }
+): JSX.Element => {
+  const { value } = props;
+  const { red, yellow, green, ...classes } = useBatteryProgressStyles();
+  const colors = { red, yellow, green };
+
+  return (
+    <LinearProgress
+      classes={{
+        ...classes,
+        bar: colors[getBatteryColor(value)],
+      }}
+      {...props}
+    />
+  );
+};
 
 const RobotStatus = (): JSX.Element => {
   const {
@@ -78,43 +121,34 @@ const RobotStatus = (): JSX.Element => {
       return <Typography color="textSecondary">No batteries found</Typography>;
     }
 
-    return batteries.map((battery, index) => (
-      <Grid container key={index.toString()} direction="column" spacing={1}>
-        <Grid item container spacing={1}>
-          {battery.flag !== 'none' && (
+    return batteries.map((battery, index) => {
+      return (
+        <Grid container key={index.toString()} direction="column" spacing={1}>
+          <Grid item container spacing={1}>
+            {battery.flag !== 'none' && (
+              <Grid item xs>
+                <Typography variant="overline" color="textSecondary">
+                  {battery.flag}
+                </Typography>
+              </Grid>
+            )}
             <Grid item xs>
-              <Typography variant="overline" color="textSecondary">
-                {battery.flag}
+              <Typography
+                variant="overline"
+                style={{
+                  color: batteryLevelColors[getBatteryColor(battery.level)],
+                }}
+              >
+                {Math.round(battery.level)}%
               </Typography>
             </Grid>
-          )}
-          <Grid item xs>
-            <Typography
-              variant="overline"
-              style={{
-                color:
-                  battery.level > 80
-                    ? green[500]
-                    : battery.level > 20
-                    ? yellow[700]
-                    : red[500],
-              }}
-            >
-              {Math.round(battery.level)}%
-            </Typography>
+          </Grid>
+          <Grid item>
+            <BatteryProgress value={battery.level} variant="determinate" />
           </Grid>
         </Grid>
-        <Grid item>
-          <BatteryProgress
-            value={battery.level}
-            color="secondary"
-            variant={
-              battery.flag === 'charging' ? 'indeterminate' : 'determinate'
-            }
-          />
-        </Grid>
-      </Grid>
-    ));
+      );
+    });
   }, [batteries, isBatteryError]);
 
   const attachmentDetails = React.useMemo(() => {
