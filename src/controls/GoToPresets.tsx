@@ -76,14 +76,7 @@ const GoToLocationPresets = (): JSX.Element => {
     }
 
     return (
-      <Grid
-        item
-        xs
-        container
-        justify="space-between"
-        alignContent="center"
-        spacing={1}
-      >
+      <>
         <Grid item>
           <FormControl color="secondary" className={classes.formControl}>
             <Select
@@ -110,7 +103,7 @@ const GoToLocationPresets = (): JSX.Element => {
             </Button>
           </Box>
         </Grid>
-      </Grid>
+      </>
     );
   }, [
     classes.formControl,
@@ -126,7 +119,7 @@ const GoToLocationPresets = (): JSX.Element => {
   return (
     <Paper>
       <Box px={2} py={1}>
-        <Grid container direction="row" alignContent="center" spacing={1}>
+        <Grid container direction="row" alignItems="center" spacing={1}>
           <Grid item>
             <Typography variant="subtitle1">Go to</Typography>
           </Grid>

@@ -18,6 +18,7 @@ import { RobotAttributeClass, useRobotAttribute, useRobotStatus } from '../api';
 
 const BatteryProgress = withStyles((theme) => ({
   root: {
+    marginTop: -theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
   },
   colorPrimary: {
@@ -57,7 +58,7 @@ const RobotStatus = (): JSX.Element => {
     }
 
     return (
-      <Typography color="textSecondary">
+      <Typography variant="overline" color="textSecondary">
         {status.value}
         {status.flag !== 'none' ? <> &ndash; {status.flag}</> : ''}
       </Typography>
@@ -82,17 +83,20 @@ const RobotStatus = (): JSX.Element => {
         <Grid item container spacing={1}>
           {battery.flag !== 'none' && (
             <Grid item xs>
-              <Typography color="textSecondary">{battery.flag}</Typography>
+              <Typography variant="overline" color="textSecondary">
+                {battery.flag}
+              </Typography>
             </Grid>
           )}
           <Grid item xs>
             <Typography
+              variant="overline"
               style={{
                 color:
                   battery.level > 80
                     ? green[500]
                     : battery.level > 20
-                    ? yellow[500]
+                    ? yellow[700]
                     : red[500],
               }}
             >
