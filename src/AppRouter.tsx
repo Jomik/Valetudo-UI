@@ -1,6 +1,6 @@
 import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
 import MapPage from './map';
-import ControlsPage from './controls';
+import ControlsBody from './controls';
 import {
   Toolbar,
   AppBar,
@@ -77,8 +77,8 @@ const HomePage = (): JSX.Element => {
           <MapPage />
         </Grid>
         <Divider orientation="vertical" />
-        <Grid item sm={6} md={5} lg={4} xl={3}>
-          <ControlsPage />
+        <Grid item sm={4} md={4} lg={4} xl={3}>
+          <ControlsBody />
         </Grid>
       </Grid>
     );

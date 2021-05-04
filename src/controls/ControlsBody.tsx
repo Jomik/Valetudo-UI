@@ -12,7 +12,7 @@ import RobotStatus from './RobotStatus';
 import Segments from './Segments';
 import ZonePresets from './ZonePresets';
 
-const ControlsPage = (): JSX.Element => {
+const ControlsBody = (): JSX.Element => {
   const [
     basicControls,
     fanSpeed,
@@ -78,4 +78,4 @@ const ControlsPage = (): JSX.Element => {
   );
 };
 
-export default ControlsPage;
+export default ControlsBody;

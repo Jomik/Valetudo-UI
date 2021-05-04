@@ -1,3 +1,3 @@
-import ControlsPage from './ControlsPage';
+import ControlsBody from './ControlsBody';
 
-export default ControlsPage;
+export default ControlsBody;

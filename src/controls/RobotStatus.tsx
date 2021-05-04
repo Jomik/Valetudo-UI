@@ -79,7 +79,7 @@ const RobotStatus = (): JSX.Element => {
 
     return batteries.map((battery, index) => (
       <Grid container key={index.toString()} direction="column" spacing={1}>
-        <Grid item container>
+        <Grid item container spacing={1}>
           {battery.flag !== 'none' && (
             <Grid item xs>
               <Typography color="textSecondary">{battery.flag}</Typography>

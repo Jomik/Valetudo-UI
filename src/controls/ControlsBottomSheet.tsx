@@ -14,7 +14,7 @@ import {
   Stop as StopIcon,
 } from '@material-ui/icons';
 import { BottomSheet } from 'react-spring-bottom-sheet';
-import ControlsPage from './ControlsPage';
+import ControlsBody from './ControlsBody';
 import 'react-spring-bottom-sheet/dist/style.css';
 import { Capability, useBasicControlMutation, useRobotStatus } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
@@ -132,7 +132,7 @@ const ControlsBottomSheet = (): JSX.Element => {
       }
     >
       <Sheet p={1}>
-        <ControlsPage />
+        <ControlsBody />
       </Sheet>
     </StyledBottomSheet>
   );

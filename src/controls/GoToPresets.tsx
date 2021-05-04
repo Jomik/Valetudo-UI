@@ -76,7 +76,14 @@ const GoToLocationPresets = (): JSX.Element => {
     }
 
     return (
-      <Grid item xs container justify="space-between" alignContent="center">
+      <Grid
+        item
+        xs
+        container
+        justify="space-between"
+        alignContent="center"
+        spacing={1}
+      >
         <Grid item>
           <FormControl color="secondary" className={classes.formControl}>
             <Select
@@ -96,10 +103,12 @@ const GoToLocationPresets = (): JSX.Element => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item>
-          <Button disabled={!selected || isCommandLoading} onClick={handleGo}>
-            Go
-          </Button>
+        <Grid item xs>
+          <Box display="flex" justifyContent="flex-end">
+            <Button disabled={!selected || isCommandLoading} onClick={handleGo}>
+              Go
+            </Button>
+          </Box>
         </Grid>
       </Grid>
     );
