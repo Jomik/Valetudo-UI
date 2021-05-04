@@ -44,36 +44,34 @@ const Map = (props: MapProps): JSX.Element => {
     setMenu((prev) => ({ ...prev, open: false }));
   }, []);
 
+  const fourColorTheoremSolver = React.useMemo(
+    () => new FourColorTheoremSolver(layers, pixelSize),
+    [layers, pixelSize]
+  );
+
   const getColor = React.useMemo(() => {
-    const colorFinder = new FourColorTheoremSolver(layers, 6);
     return (layer: RawMapLayer): NonNullable<React.CSSProperties['color']> => {
-      const {
-        free,
-        occupied,
-        segment1,
-        segment2,
-        segment3,
-        segment4,
-        segmentFallback,
-      } = theme.map;
+      const { floor: floor, wall: wall, segment } = theme.map;
       switch (layer.type) {
         case RawMapLayerType.Floor:
-          return free;
+          return floor;
         case RawMapLayerType.Wall:
-          return occupied;
-        case RawMapLayerType.Segment:
+          return wall;
+        case RawMapLayerType.Segment: {
+          const fallback = segment[segment.length - 1];
           if (layer.metaData.segmentId === undefined) {
-            return segmentFallback;
+            return fallback;
           }
 
           return (
-            [segment1, segment2, segment3, segment4][
-              colorFinder.getColor(layer.metaData.segmentId)
-            ] ?? segmentFallback
+            segment[
+              fourColorTheoremSolver.getColor(layer.metaData.segmentId)
+            ] ?? fallback
           );
+        }
       }
     };
-  }, [layers, theme.map]);
+  }, [fourColorTheoremSolver, theme.map]);
 
   const getLayerFromPosition = React.useCallback(
     (position: Vector2d): RawMapLayer | undefined => {
