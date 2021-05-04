@@ -67,26 +67,20 @@ const MapStage = (props: MapStageProps): JSX.Element => {
     onTouchEnd,
     ...stageConfig
   } = props;
-  const { layers, pixelSize } = mapData;
+  const { layers, pixelSize, entities } = mapData;
   const classes = useStyles();
   const lastCenter = React.useRef<Vector2d | null>(null);
   const lastDragCenter = React.useRef<Vector2d | null>(null);
   const lastDist = React.useRef<number>(0);
 
-  // TODO: Remove this when Valetudo does not return empty layers.
-  const filteredLayers = React.useMemo(
-    () => layers.filter((layer) => layer.metaData.area > 0),
-    [layers]
-  );
-
   const { minX, minY, maxX, maxY } = React.useMemo(
     () => ({
-      minX: Math.min(...filteredLayers.map((layer) => layer.dimensions.x.min)),
-      maxX: Math.max(...filteredLayers.map((layer) => layer.dimensions.x.max)),
-      minY: Math.min(...filteredLayers.map((layer) => layer.dimensions.y.min)),
-      maxY: Math.max(...filteredLayers.map((layer) => layer.dimensions.y.max)),
+      minX: Math.min(...layers.map((layer) => layer.dimensions.x.min)),
+      maxX: Math.max(...layers.map((layer) => layer.dimensions.x.max)),
+      minY: Math.min(...layers.map((layer) => layer.dimensions.y.min)),
+      maxY: Math.max(...layers.map((layer) => layer.dimensions.y.max)),
     }),
-    [filteredLayers]
+    [layers]
   );
 
   const mapWidth = (maxX - minX + MapPadding * 2) * pixelSize;
@@ -109,6 +103,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
   const stageScale =
     stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
 
+  // Update scale of nodes that should have a specific size
   React.useEffect(() => {
     const stage = stageRef.current;
     if (stage === null) {
@@ -116,7 +111,7 @@ const MapStage = (props: MapStageProps): JSX.Element => {
     }
     scalePersistentNodes(stage);
     stage.batchDraw();
-  }, [stageScale]);
+  }, [stageScale, entities]);
 
   const scaleStage = React.useCallback(
     (
