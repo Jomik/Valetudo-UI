@@ -197,23 +197,21 @@ const RobotStatus = (): JSX.Element => {
       <Box p={1} />
       <AccordionDetails>
         <Grid container spacing={2} direction="column">
-          <Grid item container direction="column">
-            <Grid item xs container>
+          <Grid item container>
+            <Grid item xs container direction="column">
+              <Grid item>
+                <Typography variant="subtitle2">State</Typography>
+              </Grid>
+              <Grid item>{stateDetails}</Grid>
+            </Grid>
+            {batteries !== undefined && batteries.length > 0 && (
               <Grid item xs container direction="column">
                 <Grid item>
-                  <Typography variant="subtitle2">State</Typography>
+                  <Typography variant="subtitle2">Battery</Typography>
                 </Grid>
-                <Grid item>{stateDetails}</Grid>
+                <Grid item>{batteriesDetails}</Grid>
               </Grid>
-              {batteries !== undefined && batteries.length > 0 && (
-                <Grid item xs container direction="column">
-                  <Grid item>
-                    <Typography variant="subtitle2">Battery</Typography>
-                  </Grid>
-                  <Grid item>{batteriesDetails}</Grid>
-                </Grid>
-              )}
-            </Grid>
+            )}
           </Grid>
           <Grid item container direction="column">
             <Grid item>
