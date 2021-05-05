@@ -11,6 +11,7 @@ import {
   Typography,
   Grid,
   Divider,
+  Box,
 } from '@material-ui/core';
 import {
   Settings as SettingsIcon,
@@ -50,9 +51,13 @@ const TopNav = (): JSX.Element => {
   );
 };
 
-const useHomeStyles = makeStyles((theme) => ({
-  container: {
-    margin: theme.spacing(1),
+const useHomeStyles = makeStyles(() => ({
+  root: {
+    height: '100%',
+    flexWrap: 'nowrap',
+  },
+  scrollable: {
+    overflow: 'auto',
   },
 }));
 
@@ -69,16 +74,17 @@ const HomePage = (): JSX.Element => {
         item
         container
         direction="row"
-        spacing={2}
         justify="space-evenly"
-        className={classes.container}
+        className={classes.root}
       >
         <Grid item sm md lg xl>
           <MapPage />
         </Grid>
         <Divider orientation="vertical" />
-        <Grid item sm={4} md={4} lg={4} xl={3}>
-          <ControlsBody />
+        <Grid item sm={4} md={4} lg={4} xl={3} className={classes.scrollable}>
+          <Box m={1}>
+            <ControlsBody />
+          </Box>
         </Grid>
       </Grid>
     );
