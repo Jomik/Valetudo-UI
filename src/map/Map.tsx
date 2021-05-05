@@ -142,6 +142,7 @@ const Map = (props: MapProps): JSX.Element => {
     <>
       <MapMenu {...menu} onClose={handleCloseMenu} />
       <MapStage
+        style={{ fontSize: theme.typography.body1.fontSize }}
         mapData={mapData}
         onClick={handleMapInteraction}
         onTouchEnd={handleMapInteraction}

@@ -114,7 +114,7 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
       shadowOpacity={0.4}
       textFill={theme.palette.text.primary}
       iconFill={theme.palette.text.primary}
-      fontSize={theme.typography.h6.fontSize}
+      fontSize={'1em'}
       fontFamily={theme.typography.fontFamily}
       maximumScale={1}
       minimumScale={1}

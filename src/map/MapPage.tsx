@@ -9,7 +9,7 @@ import {
 import { useRobotMap } from '../api';
 import Map from './Map';
 
-const useMapStyles = makeStyles(() => ({
+const useStyles = makeStyles(() => ({
   container: {
     flex: '1',
     height: '100%',
@@ -22,7 +22,7 @@ const useMapStyles = makeStyles(() => ({
 
 const MapPage = (): JSX.Element => {
   const { data, isLoading, isError, refetch } = useRobotMap();
-  const classes = useMapStyles();
+  const classes = useStyles();
 
   if (isError) {
     return (
