@@ -15,7 +15,11 @@ import {
   BorderStyle as ZonesIcon,
 } from '@material-ui/icons';
 import { MapContext, useMapContext } from './MapContextProvider';
-import { useGoToMutation, useRobotStatus } from '../api';
+import {
+  useCleanSegmentsMutation,
+  useGoToMutation,
+  useRobotStatus,
+} from '../api';
 
 const StyledSpeedDial = styled(SpeedDial)({
   '& .MuiSpeedDial-fab': {
@@ -36,7 +40,7 @@ const StyledFab = styled(Fab)({
   },
 });
 
-const GoLayerAction = (): JSX.Element => {
+const GoLayer = (): JSX.Element => {
   const { goToPoint, onClear } = useMapContext();
   const { data: status } = useRobotStatus((state) => state.value);
   const { mutate, isLoading } = useGoToMutation({
@@ -84,6 +88,55 @@ const GoLayerAction = (): JSX.Element => {
   );
 };
 
+const SegmentsLayer = (): JSX.Element => {
+  const { selectedSegments, onClear } = useMapContext();
+  const { data: status } = useRobotStatus((state) => state.value);
+  const { mutate, isLoading } = useCleanSegmentsMutation({
+    onSuccess: onClear,
+  });
+
+  const canClean = status === 'idle' || status === 'docked';
+  const didSelectSegments = selectedSegments.length > 0;
+
+  const handleClick = React.useCallback(() => {
+    if (!didSelectSegments || !canClean) {
+      return;
+    }
+
+    mutate(selectedSegments);
+  }, [canClean, didSelectSegments, mutate, selectedSegments]);
+
+  return (
+    <Grid container alignItems="center" spacing={1}>
+      <Grid item>
+        <StyledFab
+          disabled={!didSelectSegments || isLoading || !canClean}
+          color="inherit"
+          size="medium"
+          variant="extended"
+          onClick={handleClick}
+        >
+          Clean {selectedSegments.length} segments
+          {isLoading && (
+            <CircularProgress
+              color="inherit"
+              size={18}
+              style={{ marginLeft: 10 }}
+            />
+          )}
+        </StyledFab>
+      </Grid>
+      {didSelectSegments && !canClean && (
+        <Grid item>
+          <Typography variant="caption" color="textSecondary">
+            Can only start segments cleaning when idle
+          </Typography>
+        </Grid>
+      )}
+    </Grid>
+  );
+};
+
 const useControlsStyles = makeStyles((theme) => ({
   root: {
     position: 'absolute',
@@ -110,8 +163,8 @@ const layerToLabel: Record<MapContext['layers'][number], string> = {
 };
 
 const layerToActions: Record<MapContext['layers'][number], JSX.Element> = {
-  go: <GoLayerAction />,
-  segments: <></>,
+  go: <GoLayer />,
+  segments: <SegmentsLayer />,
   zones: <></>,
 };
 

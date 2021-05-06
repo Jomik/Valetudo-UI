@@ -234,16 +234,20 @@ export const useCleanZonePresetsMutation = () => {
 export const useSegments = () =>
   useQuery(CacheKey.Segments, fetchSegments, { staleTime: Infinity });
 
-export const useCleanSegmentsMutation = () => {
+export const useCleanSegmentsMutation = (
+  options?: UseMutationOptions<RobotAttribute[], unknown, string[]>
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(
     (ids: string[]) => cleanSegments(ids).then(fetchStateAttributes),
     {
-      onSuccess(data) {
+      ...options,
+      async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
           updatedAt: Date.now(),
         });
+        await options?.onSuccess?.(data, ...args);
       },
     }
   );

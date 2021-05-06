@@ -6,8 +6,9 @@ import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 type Layer = 'go' | 'segments' | 'zones';
 export interface MapContext {
   layers: Array<Layer>;
-  selectedLayer?: Layer;
-  goToPoint?: Vector2d;
+  selectedLayer: Layer | undefined;
+  goToPoint: Vector2d | undefined;
+  selectedSegments: string[];
   onMapInteraction(layer: RawMapLayer, position: Vector2d): void;
   onSelectLayer(layer: Layer): void;
   onClear(): void;
@@ -38,8 +39,13 @@ const MapContextProvider = (props: {
     Capability.MapSegmentation,
     Capability.ZoneCleaning
   );
-  const [selectedLayer, setSelectedLayer] = React.useState<Layer>();
-  const [goToPoint, setGoToPoint] = React.useState<Vector2d>();
+  const [selectedLayer, setSelectedLayer] = React.useState<
+    MapContext['selectedLayer']
+  >();
+  const [goToPoint, setGoToPoint] = React.useState<MapContext['goToPoint']>();
+  const [selectedSegments, setSelectedSegments] = React.useState<
+    MapContext['selectedSegments']
+  >([]);
 
   const layers = React.useMemo(
     () =>
@@ -57,13 +63,28 @@ const MapContextProvider = (props: {
     MapContext['onMapInteraction']
   >(
     (layer, position) => {
-      if (selectedLayer === 'go') {
-        setGoToPoint((prev) =>
-          prev !== undefined && prev.x === position.x && prev.y === position.y
-            ? undefined
-            : position
-        );
-        return;
+      switch (selectedLayer) {
+        case 'go': {
+          setGoToPoint((prev) =>
+            prev !== undefined && prev.x === position.x && prev.y === position.y
+              ? undefined
+              : position
+          );
+          break;
+        }
+        case 'segments': {
+          const id = layer.metaData.segmentId;
+          if (layer.type !== 'segment' || id === undefined) {
+            return;
+          }
+          setSelectedSegments((prev) => {
+            if (prev.includes(id)) {
+              return prev.filter((v) => v !== id);
+            }
+
+            return [...prev, id];
+          });
+        }
       }
     },
     [selectedLayer]
@@ -75,6 +96,7 @@ const MapContextProvider = (props: {
 
   const handleClear = React.useCallback(() => {
     setGoToPoint(undefined);
+    setSelectedSegments([]);
   }, []);
 
   const handleSelectLayer = React.useCallback<MapContext['onSelectLayer']>(
@@ -94,6 +116,7 @@ const MapContextProvider = (props: {
         selectedLayer,
         layers,
         goToPoint,
+        selectedSegments,
       }}
     >
       {children}

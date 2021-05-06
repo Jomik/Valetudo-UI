@@ -18,6 +18,7 @@ import { inside, pairWiseArray, pointClosestTo } from './utils';
 import robotSrc from '../assets/icons/robot.svg';
 import cleaningServicesSrc from '../assets/icons/cleaning_services.svg';
 import { useMapContext } from './MapContextProvider';
+import Color from 'color';
 
 const robotImage = new window.Image();
 robotImage.src = robotSrc;
@@ -33,7 +34,12 @@ const Map = (props: MapProps): JSX.Element => {
   const { mapData } = props;
   // TODO: Validate mapData.metaData.version
   const { layers, entities, pixelSize } = mapData;
-  const { onMapInteraction, goToPoint } = useMapContext();
+  const {
+    onMapInteraction,
+    goToPoint,
+    selectedLayer,
+    selectedSegments,
+  } = useMapContext();
   const stageRef = React.useRef<{ redraw(): void }>(null);
   const theme = useTheme();
 
@@ -61,13 +67,20 @@ const Map = (props: MapProps): JSX.Element => {
             return fallback;
           }
 
-          return (
-            segment[fourColorTheoremSolver.getColor(segmentId)] ?? fallback
-          );
+          const color =
+            segment[fourColorTheoremSolver.getColor(segmentId)] ?? fallback;
+          if (
+            selectedLayer !== 'segments' ||
+            selectedSegments?.includes(segmentId)
+          ) {
+            return color;
+          }
+
+          return Color(color).desaturate(0.7).hex();
         }
       }
     };
-  }, [fourColorTheoremSolver, theme.map]);
+  }, [fourColorTheoremSolver, selectedLayer, selectedSegments, theme.map]);
 
   const handleMapInteraction = React.useCallback(
     (event: KonvaEventObject<TouchEvent | MouseEvent>) => {
