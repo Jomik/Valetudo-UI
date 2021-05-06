@@ -2,19 +2,18 @@ import Color from 'color';
 import Konva from 'konva';
 import { ShapeConfig } from 'konva/types/Shape';
 import React from 'react';
-import { KonvaNodeEvents, Shape } from 'react-konva';
+import { Shape } from 'react-konva';
 import { pairWiseArray } from './utils';
 
-export type PixelsProps = KonvaNodeEvents &
-  Konva.ShapeConfig & {
-    pixels: number[];
-    fill: string;
-    sceneFunc?: never;
-    x?: never;
-    y?: never;
-    width?: never;
-    height?: never;
-  };
+export type PixelsProps = Konva.ShapeConfig & {
+  pixels: number[];
+  fill: string;
+  sceneFunc?: never;
+  x?: never;
+  y?: never;
+  width?: never;
+  height?: never;
+};
 
 const Pixels = (props: PixelsProps): JSX.Element => {
   const { pixels, fill, ...shapeConfig } = props;

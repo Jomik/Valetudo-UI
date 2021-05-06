@@ -8,6 +8,8 @@ import {
 } from '@material-ui/core';
 import { useRobotMap } from '../api';
 import Map from './Map';
+import MapContextProvider from './MapContextProvider';
+import MapControls from './MapControls';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -52,7 +54,12 @@ const MapPage = (): JSX.Element => {
     );
   }
 
-  return <Map mapData={data} />;
+  return (
+    <MapContextProvider>
+      <MapControls />
+      <Map mapData={data} />
+    </MapContextProvider>
+  );
 };
 
 export default MapPage;

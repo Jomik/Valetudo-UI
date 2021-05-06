@@ -58,223 +58,240 @@ const scalePersistentNodes = (stage: Konva.Stage) => {
 const MapPadding = 10;
 const ScaleBound = 10;
 
-const MapStage = (props: MapStageProps): JSX.Element => {
-  const {
-    children,
-    mapData,
-    onWheel,
-    onTouchMove,
-    onTouchEnd,
-    ...stageConfig
-  } = props;
-  const { layers, pixelSize, entities } = mapData;
-  const classes = useStyles();
-  const lastCenter = React.useRef<Vector2d | null>(null);
-  const lastDragCenter = React.useRef<Vector2d | null>(null);
-  const lastDist = React.useRef<number>(0);
+const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
+  (props, ref): JSX.Element => {
+    const {
+      children,
+      mapData,
+      onWheel,
+      onTouchMove,
+      onTouchEnd,
+      ...stageConfig
+    } = props;
+    const { layers, pixelSize } = mapData;
+    const classes = useStyles();
+    const lastCenter = React.useRef<Vector2d | null>(null);
+    const lastDragCenter = React.useRef<Vector2d | null>(null);
+    const lastDist = React.useRef<number>(0);
 
-  const { minX, minY, maxX, maxY } = React.useMemo(
-    () => ({
-      minX: Math.min(...layers.map((layer) => layer.dimensions.x.min)),
-      maxX: Math.max(...layers.map((layer) => layer.dimensions.x.max)),
-      minY: Math.min(...layers.map((layer) => layer.dimensions.y.min)),
-      maxY: Math.max(...layers.map((layer) => layer.dimensions.y.max)),
-    }),
-    [layers]
-  );
+    const { minX, minY, maxX, maxY } = React.useMemo(
+      () => ({
+        minX: Math.min(...layers.map((layer) => layer.dimensions.x.min)),
+        maxX: Math.max(...layers.map((layer) => layer.dimensions.x.max)),
+        minY: Math.min(...layers.map((layer) => layer.dimensions.y.min)),
+        maxY: Math.max(...layers.map((layer) => layer.dimensions.y.max)),
+      }),
+      [layers]
+    );
 
-  const mapWidth = (maxX - minX + MapPadding * 2) * pixelSize;
-  const mapHeight = (maxY - minY + MapPadding * 2) * pixelSize;
+    const mapWidth = (maxX - minX + MapPadding * 2) * pixelSize;
+    const mapHeight = (maxY - minY + MapPadding * 2) * pixelSize;
 
-  const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
-    { containerWidth: 0, containerHeight: 0 },
-    React.useCallback(
-      (element: HTMLDivElement) => ({
-        containerWidth: element.offsetWidth,
-        containerHeight: element.offsetHeight,
+    const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
+      { containerWidth: 0, containerHeight: 0 },
+      React.useCallback(
+        (element: HTMLDivElement) => ({
+          containerWidth: element.offsetWidth,
+          containerHeight: element.offsetHeight,
+        }),
+        []
+      )
+    );
+    const stageRef = React.useRef<Konva.Stage>(null);
+
+    const stageScaleWidth = containerWidth / mapWidth;
+    const stageScaleHeight = containerHeight / mapHeight;
+    const stageScale =
+      stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        redraw() {
+          const stage = stageRef.current;
+          if (stage === null) {
+            return;
+          }
+          scalePersistentNodes(stage);
+          stage.batchDraw();
+        },
       }),
       []
-    )
-  );
-  const stageRef = React.useRef<Konva.Stage>(null);
+    );
 
-  const stageScaleWidth = containerWidth / mapWidth;
-  const stageScaleHeight = containerHeight / mapHeight;
-  const stageScale =
-    stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
-
-  // Update scale of nodes that should have a specific size
-  React.useEffect(() => {
-    const stage = stageRef.current;
-    if (stage === null) {
-      return;
-    }
-    scalePersistentNodes(stage);
-    stage.batchDraw();
-  }, [stageScale, entities]);
-
-  const scaleStage = React.useCallback(
-    (
-      stage: Konva.Stage,
-      center: Vector2d,
-      scaleDelta: number,
-      centerDelta: Vector2d = ZeroVector
-    ) => {
-      const currentScale = stage.scaleX();
-
-      // local coordinates of center point
-      const localCenter = {
-        x: (center.x - stage.x()) / currentScale,
-        y: (center.y - stage.y()) / currentScale,
-      };
-
-      const newScale = bound(
-        currentScale * scaleDelta,
-        stageScale,
-        stageScale * ScaleBound
-      );
-
-      const newPos = {
-        x: center.x - localCenter.x * newScale + centerDelta.x,
-        y: center.y - localCenter.y * newScale + centerDelta.y,
-      };
-
-      stage.scale({ x: newScale, y: newScale });
-      stage.position(newPos);
-
+    // Update scale of nodes that should have a specific size
+    React.useEffect(() => {
+      const stage = stageRef.current;
+      if (stage === null) {
+        return;
+      }
       scalePersistentNodes(stage);
-
       stage.batchDraw();
-    },
-    [stageScale]
-  );
+    }, [stageScale]);
 
-  const handleScroll = React.useCallback(
-    (event: KonvaEventObject<WheelEvent>) => {
-      onWheel?.(event);
-      if (event.evt.defaultPrevented) {
-        return;
-      }
+    const scaleStage = React.useCallback(
+      (
+        stage: Konva.Stage,
+        center: Vector2d,
+        scaleDelta: number,
+        centerDelta: Vector2d = ZeroVector
+      ) => {
+        const currentScale = stage.scaleX();
 
-      event.evt.preventDefault();
-      const { currentTarget: stage } = event;
-      if (!(stage instanceof Konva.Stage)) {
-        return;
-      }
+        // local coordinates of center point
+        const localCenter = {
+          x: (center.x - stage.x()) / currentScale,
+          y: (center.y - stage.y()) / currentScale,
+        };
 
-      scaleStage(
-        stage,
-        stage.getPointerPosition() ?? ZeroVector,
-        (100 - event.evt.deltaY) / 100
-      );
-    },
-    [onWheel, scaleStage]
-  );
+        const newScale = bound(
+          currentScale * scaleDelta,
+          stageScale,
+          stageScale * ScaleBound
+        );
 
-  const handleTouchMove = React.useCallback(
-    (event: KonvaEventObject<TouchEvent>) => {
-      onTouchMove?.(event);
-      if (event.evt.defaultPrevented) {
-        return;
-      }
+        const newPos = {
+          x: center.x - localCenter.x * newScale + centerDelta.x,
+          y: center.y - localCenter.y * newScale + centerDelta.y,
+        };
 
-      event.evt.preventDefault();
-      const { currentTarget: stage } = event;
+        stage.scale({ x: newScale, y: newScale });
+        stage.position(newPos);
 
-      if (!(stage instanceof Konva.Stage)) {
-        return;
-      }
+        scalePersistentNodes(stage);
 
-      if (event.evt.touches.length === 1) {
-        const [touch1] = event.evt.touches;
-        const p1 = { x: touch1.clientX, y: touch1.clientY };
-        if (lastDragCenter.current === null) {
+        stage.batchDraw();
+      },
+      [stageScale]
+    );
+
+    const handleScroll = React.useCallback(
+      (event: KonvaEventObject<WheelEvent>) => {
+        onWheel?.(event);
+        if (event.evt.defaultPrevented) {
+          return;
+        }
+
+        event.evt.preventDefault();
+        const { currentTarget: stage } = event;
+        if (!(stage instanceof Konva.Stage)) {
+          return;
+        }
+
+        scaleStage(
+          stage,
+          stage.getPointerPosition() ?? ZeroVector,
+          (100 - event.evt.deltaY) / 100
+        );
+      },
+      [onWheel, scaleStage]
+    );
+
+    const handleTouchMove = React.useCallback(
+      (event: KonvaEventObject<TouchEvent>) => {
+        onTouchMove?.(event);
+        if (event.evt.defaultPrevented) {
+          return;
+        }
+
+        event.evt.preventDefault();
+        const { currentTarget: stage } = event;
+
+        if (!(stage instanceof Konva.Stage)) {
+          return;
+        }
+
+        if (event.evt.touches.length === 1) {
+          const [touch1] = event.evt.touches;
+          const p1 = { x: touch1.clientX, y: touch1.clientY };
+          if (lastDragCenter.current === null) {
+            lastDragCenter.current = p1;
+            return;
+          }
+
+          stage.position({
+            x: stage.x() + p1.x - lastDragCenter.current.x,
+            y: stage.y() + p1.y - lastDragCenter.current.y,
+          });
+
+          stage.batchDraw();
+
           lastDragCenter.current = p1;
           return;
         }
 
-        stage.position({
-          x: stage.x() + p1.x - lastDragCenter.current.x,
-          y: stage.y() + p1.y - lastDragCenter.current.y,
-        });
+        if (event.evt.touches.length !== 2) {
+          return;
+        }
 
-        stage.batchDraw();
+        const [touch1, touch2] = event.evt.touches;
+        const p1 = { x: touch1.clientX, y: touch1.clientY };
+        const p2 = { x: touch2.clientX, y: touch2.clientY };
+        const newCenter = getCenter(p1, p2);
+        const dist = getDistance(p1, p2);
 
-        lastDragCenter.current = p1;
-        return;
-      }
+        if (!lastCenter.current) {
+          lastCenter.current = newCenter;
+        }
+        if (!lastDist.current) {
+          lastDist.current = dist;
+        }
 
-      if (event.evt.touches.length !== 2) {
-        return;
-      }
+        const scaleDelta = dist / lastDist.current;
+        const centerDelta = {
+          x: newCenter.x - lastCenter.current.x,
+          y: newCenter.y - lastCenter.current.y,
+        };
 
-      const [touch1, touch2] = event.evt.touches;
-      const p1 = { x: touch1.clientX, y: touch1.clientY };
-      const p2 = { x: touch2.clientX, y: touch2.clientY };
-      const newCenter = getCenter(p1, p2);
-      const dist = getDistance(p1, p2);
+        scaleStage(stage, lastCenter.current, scaleDelta, centerDelta);
 
-      if (!lastCenter.current) {
-        lastCenter.current = newCenter;
-      }
-      if (!lastDist.current) {
         lastDist.current = dist;
-      }
+        lastCenter.current = newCenter;
+      },
+      [onTouchMove, scaleStage]
+    );
 
-      const scaleDelta = dist / lastDist.current;
-      const centerDelta = {
-        x: newCenter.x - lastCenter.current.x,
-        y: newCenter.y - lastCenter.current.y,
-      };
+    const handleTouchEnd = React.useCallback(
+      (event: KonvaEventObject<TouchEvent>) => {
+        lastDist.current = 0;
 
-      scaleStage(stage, lastCenter.current, scaleDelta, centerDelta);
+        if (lastDragCenter.current !== null || lastCenter.current !== null) {
+          lastCenter.current = null;
+          lastDragCenter.current = null;
+          event.evt.preventDefault();
+          return;
+        }
 
-      lastDist.current = dist;
-      lastCenter.current = newCenter;
-    },
-    [onTouchMove, scaleStage]
-  );
+        onTouchEnd?.(event);
+      },
+      [onTouchEnd]
+    );
 
-  const handleTouchEnd = React.useCallback(
-    (event: KonvaEventObject<TouchEvent>) => {
-      lastDist.current = 0;
-
-      if (lastDragCenter.current !== null || lastCenter.current !== null) {
-        lastCenter.current = null;
-        lastDragCenter.current = null;
-        event.evt.preventDefault();
-        return;
-      }
-
-      onTouchEnd?.(event);
-    },
-    [onTouchEnd]
-  );
-
-  return (
-    <>
-      <div ref={containerRef} className={classes.container}>
-        <Stage
-          className={classes.stage}
-          ref={stageRef}
-          draggable={!isTouchEnabled}
-          {...stageConfig}
-          onWheel={handleScroll}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          width={containerWidth}
-          height={containerHeight}
-          scaleX={stageScale}
-          scaleY={stageScale}
-          // TODO: Avoid using offset
-          offsetX={(minX - MapPadding) * pixelSize}
-          offsetY={(minY - MapPadding) * pixelSize}
-        >
-          {children}
-        </Stage>
-      </div>
-    </>
-  );
-};
+    return (
+      <>
+        <div ref={containerRef} className={classes.container}>
+          <Stage
+            className={classes.stage}
+            ref={stageRef}
+            draggable={!isTouchEnabled}
+            {...stageConfig}
+            onWheel={handleScroll}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            width={containerWidth}
+            height={containerHeight}
+            scaleX={stageScale}
+            scaleY={stageScale}
+            // TODO: Avoid using offset
+            offsetX={(minX - MapPadding) * pixelSize}
+            offsetY={(minY - MapPadding) * pixelSize}
+          >
+            {children}
+          </Stage>
+        </div>
+      </>
+    );
+  }
+);
 
 export default MapStage;

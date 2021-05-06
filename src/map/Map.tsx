@@ -14,11 +14,10 @@ import MapEntityShape from './MapEntityShape';
 import MapStage from './MapStage';
 import Pixels from './Pixels';
 import ChipShape from './ChipShape';
-import { pairWiseArray, pointClosestTo } from './utils';
-import { Vector2d } from 'konva/types/types';
-import MapMenu, { MapMenuProps } from './MapMenu';
+import { inside, pairWiseArray, pointClosestTo } from './utils';
 import robotSrc from '../assets/icons/robot.svg';
 import cleaningServicesSrc from '../assets/icons/cleaning_services.svg';
+import { useMapContext } from './MapContextProvider';
 
 const robotImage = new window.Image();
 robotImage.src = robotSrc;
@@ -34,15 +33,13 @@ const Map = (props: MapProps): JSX.Element => {
   const { mapData } = props;
   // TODO: Validate mapData.metaData.version
   const { layers, entities, pixelSize } = mapData;
+  const { onMapInteraction, goToPoint } = useMapContext();
+  const stageRef = React.useRef<{ redraw(): void }>(null);
   const theme = useTheme();
 
-  const [menu, setMenu] = React.useState<Omit<MapMenuProps, 'onClose'>>({
-    open: false,
-  });
-
-  const handleCloseMenu = React.useCallback(() => {
-    setMenu((prev) => ({ ...prev, open: false }));
-  }, []);
+  React.useEffect(() => {
+    stageRef?.current?.redraw();
+  }, [entities, goToPoint]);
 
   const fourColorTheoremSolver = React.useMemo(
     () => new FourColorTheoremSolver(layers, pixelSize),
@@ -58,34 +55,19 @@ const Map = (props: MapProps): JSX.Element => {
         case RawMapLayerType.Wall:
           return wall;
         case RawMapLayerType.Segment: {
+          const { segmentId } = layer.metaData;
           const fallback = segment[segment.length - 1];
-          if (layer.metaData.segmentId === undefined) {
+          if (segmentId === undefined) {
             return fallback;
           }
 
           return (
-            segment[
-              fourColorTheoremSolver.getColor(layer.metaData.segmentId)
-            ] ?? fallback
+            segment[fourColorTheoremSolver.getColor(segmentId)] ?? fallback
           );
         }
       }
     };
   }, [fourColorTheoremSolver, theme.map]);
-
-  const getLayerFromPosition = React.useCallback(
-    (position: Vector2d): RawMapLayer | undefined => {
-      const targetX = Math.floor(position.x / pixelSize);
-      const targetY = Math.floor(position.y / pixelSize);
-
-      return layers.find((layer) =>
-        pairWiseArray(layer.pixels).some(
-          ([x, y]) => x === targetX && y === targetY
-        )
-      );
-    },
-    [layers, pixelSize]
-  );
 
   const handleMapInteraction = React.useCallback(
     (event: KonvaEventObject<TouchEvent | MouseEvent>) => {
@@ -95,42 +77,30 @@ const Map = (props: MapProps): JSX.Element => {
       }
 
       const pointer = stage.getPointerPosition() ?? { x: 0, y: 0 };
-      const stagePosition = {
-        x: (pointer.x - stage.x()) / stage.scaleX() + stage.offsetX(),
-        y: (pointer.y - stage.y()) / stage.scaleY() + stage.offsetY(),
+      const position = {
+        x: Math.floor(
+          (pointer.x - stage.x()) / stage.scaleX() + stage.offsetX()
+        ),
+        y: Math.floor(
+          (pointer.y - stage.y()) / stage.scaleY() + stage.offsetY()
+        ),
       };
 
-      const layer = getLayerFromPosition(stagePosition);
+      const layerX = Math.floor(position.x / pixelSize);
+      const layerY = Math.floor(position.y / pixelSize);
 
-      if (layer === undefined || layer.type === 'wall') {
+      const layer = layers.find(
+        ({ pixels, dimensions }) =>
+          inside([layerX, layerY], dimensions) &&
+          pairWiseArray(pixels).some(([x, y]) => x === layerX && y === layerY)
+      );
+      if (layer === undefined) {
         return;
       }
-      event.evt.preventDefault();
 
-      let position: Vector2d;
-      if ('changedTouches' in event.evt) {
-        const { clientX, clientY } = event.evt.changedTouches[0];
-        position = {
-          x: clientX,
-          y: clientY,
-        };
-      } else {
-        const { x, y } = event.evt;
-        position = { x, y };
-      }
-
-      setMenu({
-        open: true,
-        anchorPosition: {
-          left: position.x,
-          top: position.y,
-        },
-        position: stagePosition,
-        segment:
-          layer.type === RawMapLayerType.Segment ? layer.metaData : undefined,
-      });
+      onMapInteraction(layer, position);
     },
-    [getLayerFromPosition]
+    [onMapInteraction, layers, pixelSize]
   );
 
   const entitiesWithoutRobot = entities.filter(
@@ -139,61 +109,69 @@ const Map = (props: MapProps): JSX.Element => {
   const robot = entities.find((x) => x.type === RawMapEntityType.RobotPosition);
 
   return (
-    <>
-      <MapMenu {...menu} onClose={handleCloseMenu} />
-      <MapStage
-        style={{ fontSize: theme.typography.body1.fontSize }}
-        mapData={mapData}
-        onClick={handleMapInteraction}
-        onTouchEnd={handleMapInteraction}
-      >
-        {/*
+    <MapStage
+      ref={stageRef}
+      style={{ fontSize: theme.typography.body1.fontSize }}
+      mapData={mapData}
+      onClick={handleMapInteraction}
+      onTouchEnd={handleMapInteraction}
+    >
+      {/*
         We have to provide the theme here to "bridge" the Stage.
         See: https://github.com/konvajs/react-konva#usage-with-react-context
       */}
-        <ThemeProvider theme={theme}>
-          <Layer listening={false}>
-            {layers.map((layer, index) => (
-              <Pixels
-                key={`${layer.type}:${layer.metaData.segmentId ?? index}`}
-                pixels={layer.pixels}
-                scaleX={pixelSize}
-                scaleY={pixelSize}
-                fill={getColor(layer)}
-              />
-            ))}
-          </Layer>
-          <Layer listening={false}>
-            {entitiesWithoutRobot.map((entity, index) => (
-              <MapEntityShape
-                key={index.toString()}
-                entity={entity}
-                pixelSize={pixelSize}
-              />
-            ))}
-            {robot && <MapEntityShape entity={robot} pixelSize={pixelSize} />}
-            {layers
-              .filter((layer) => layer.type === RawMapLayerType.Segment)
-              .map(({ metaData, type, dimensions, pixels }) => {
-                const [x, y] = pointClosestTo(pairWiseArray(pixels), [
-                  dimensions.x.mid,
-                  dimensions.y.mid,
-                ]);
+      <ThemeProvider theme={theme}>
+        <Layer listening={false}>
+          {layers.map((layer) => (
+            <Pixels
+              key={`${layer.type}:${layer.metaData.segmentId}`}
+              pixels={layer.pixels}
+              scaleX={pixelSize}
+              scaleY={pixelSize}
+              fill={getColor(layer)}
+            />
+          ))}
+          {entitiesWithoutRobot.map((entity, index) => (
+            <MapEntityShape
+              key={index.toString()}
+              active={true}
+              entity={entity}
+              pixelSize={pixelSize}
+            />
+          ))}
+          {goToPoint && (
+            <MapEntityShape
+              entity={{
+                metaData: {},
+                points: [goToPoint.x, goToPoint.y],
+                type: RawMapEntityType.GoToTarget,
+              }}
+              active={false}
+              pixelSize={pixelSize}
+            />
+          )}
+          {robot && <MapEntityShape entity={robot} pixelSize={pixelSize} />}
+          {layers
+            .filter((layer) => layer.type === RawMapLayerType.Segment)
+            .map(({ metaData, type, dimensions, pixels }) => {
+              const [x, y] = pointClosestTo(pairWiseArray(pixels), [
+                dimensions.x.mid,
+                dimensions.y.mid,
+              ]);
 
-                return (
-                  <ChipShape
-                    key={`${type}:${metaData.segmentId}`}
-                    text={metaData.name ?? `# ${metaData.segmentId}`}
-                    icon={metaData.active ? cleaningServices : undefined}
-                    x={x * pixelSize}
-                    y={y * pixelSize}
-                  />
-                );
-              })}
-          </Layer>
-        </ThemeProvider>
-      </MapStage>
-    </>
+              return (
+                <ChipShape
+                  key={`${type}:${metaData.segmentId}`}
+                  text={metaData.name ?? `# ${metaData.segmentId}`}
+                  icon={metaData.active ? cleaningServices : undefined}
+                  x={x * pixelSize}
+                  y={y * pixelSize}
+                />
+              );
+            })}
+        </Layer>
+      </ThemeProvider>
+    </MapStage>
   );
 };
 

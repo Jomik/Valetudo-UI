@@ -4,7 +4,8 @@ import { Image, Line } from 'react-konva';
 import { RawMapEntity, RawMapEntityType } from '../api';
 import robotSrc from '../assets/icons/robot.svg';
 import chargerSrc from '../assets/icons/charger.svg';
-import markerSrc from '../assets/icons/marker_active.svg';
+import markerActiveSrc from '../assets/icons/marker_active.svg';
+import markerSrc from '../assets/icons/marker.svg';
 import { ImageConfig } from 'konva/types/shapes/Image';
 
 const robotImage = new window.Image();
@@ -16,13 +17,17 @@ chargerImage.src = chargerSrc;
 const markerImage = new window.Image();
 markerImage.src = markerSrc;
 
+const markerActiveImage = new window.Image();
+markerActiveImage.src = markerActiveSrc;
+
 export interface MapEntityShapeProps {
   entity: RawMapEntity;
+  active?: boolean;
   pixelSize: number;
 }
 
 const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
-  const { entity, pixelSize } = props;
+  const { active, entity, pixelSize } = props;
   const theme = useTheme();
 
   const commonImageProps = (image: HTMLImageElement): ImageConfig => ({
@@ -50,8 +55,8 @@ const MapEntityShape = (props: MapEntityShapeProps): JSX.Element | null => {
     case RawMapEntityType.GoToTarget:
       return (
         <Image
-          {...commonImageProps(markerImage)}
-          offsetY={markerImage.height}
+          {...commonImageProps(active ? markerActiveImage : markerImage)}
+          offsetY={markerActiveImage.height}
         />
       );
     case RawMapEntityType.Path:

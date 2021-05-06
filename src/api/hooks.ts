@@ -2,6 +2,7 @@
 import React from 'react';
 import {
   useMutation,
+  UseMutationOptions,
   useQuery,
   useQueryClient,
   UseQueryResult,
@@ -24,6 +25,7 @@ import {
   subscribeToMap,
   subscribeToStateAttributes,
   updatePresetSelection,
+  Coordinates,
 } from './client';
 import {
   PresetSelectionState,
@@ -191,17 +193,21 @@ export const useBasicControlMutation = () => {
   );
 };
 
-export const useGoToMutation = () => {
+export const useGoToMutation = (
+  options?: UseMutationOptions<RobotAttribute[], unknown, Coordinates>
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(
     (coordinates: { x: number; y: number }) =>
       sendGoToCommand(coordinates).then(fetchStateAttributes),
     {
-      onSuccess(data) {
+      ...options,
+      async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
           updatedAt: Date.now(),
         });
+        await options?.onSuccess?.(data, ...args);
       },
     }
   );

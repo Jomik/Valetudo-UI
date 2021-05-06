@@ -8,6 +8,12 @@ export const pairWise = function* <T>(arr: T[]): Generator<[T, T]> {
 
 export const pairWiseArray = <T>(arr: T[]): [T, T][] => [...pairWise(arr)];
 
+export const inside = (
+  [x, y]: [x: number, y: number],
+  box: { x: { min: number; max: number }; y: { min: number; max: number } }
+): boolean =>
+  x >= box.x.min && x <= box.x.max && y >= box.y.min && y <= box.y.max;
+
 export const bound = (value: number, min: number, max: number): number =>
   Math.min(max, Math.max(min, value));
 
