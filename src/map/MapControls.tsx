@@ -57,7 +57,7 @@ const GoLayerAction = (): JSX.Element => {
     <Grid container alignItems="center" spacing={1}>
       <Grid item>
         <StyledFab
-          // disabled={goToPoint === undefined || isLoading || !canGo}
+          disabled={goToPoint === undefined || isLoading || !canGo}
           color="inherit"
           size="medium"
           variant="extended"
