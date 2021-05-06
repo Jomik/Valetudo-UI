@@ -46,7 +46,7 @@ const GoToLocationPresets = (): JSX.Element => {
   );
 
   const handleGo = React.useCallback(() => {
-    if (selected === undefined) {
+    if (selected === '') {
       return;
     }
 
@@ -79,14 +79,9 @@ const GoToLocationPresets = (): JSX.Element => {
       <>
         <Grid item>
           <FormControl color="secondary" className={classes.formControl}>
-            <Select
-              labelId="gotolocation-label"
-              value={selected}
-              onChange={handleChange}
-              displayEmpty
-            >
+            <Select value={selected} onChange={handleChange} displayEmpty>
               <MenuItem value="">
-                <em>Nowhere</em>
+                <em>Location</em>
               </MenuItem>
               {locations?.map(({ name, id }) => (
                 <MenuItem key={id} value={id}>
