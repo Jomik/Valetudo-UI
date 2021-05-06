@@ -209,7 +209,9 @@ const MapControls = (): JSX.Element | null => {
             ))}
           </StyledSpeedDial>
         </Grid>
-        <Grid item>{layerToActions[selectedLayer]}</Grid>
+        <Grid item xs>
+          {layerToActions[selectedLayer]}
+        </Grid>
       </Grid>
     </>
   );
