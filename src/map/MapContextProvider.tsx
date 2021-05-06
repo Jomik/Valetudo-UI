@@ -2,6 +2,7 @@ import { Vector2d } from 'konva/types/types';
 import React from 'react';
 import { Capability, RawMapLayer } from '../api';
 import { useCapabilitiesSupported } from '../CapabilitiesProvider';
+import { manhatten } from './utils';
 
 type Layer = 'go' | 'segments' | 'zones';
 export interface MapContext {
@@ -66,7 +67,8 @@ const MapContextProvider = (props: {
       switch (selectedLayer) {
         case 'go': {
           setGoToPoint((prev) =>
-            prev !== undefined && prev.x === position.x && prev.y === position.y
+            prev !== undefined &&
+            manhatten([prev.x, prev.y], [position.x, position.y]) < 30
               ? undefined
               : position
           );
