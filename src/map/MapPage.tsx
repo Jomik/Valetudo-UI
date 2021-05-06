@@ -56,8 +56,9 @@ const MapPage = (): JSX.Element => {
 
   return (
     <MapContextProvider>
-      <MapControls />
-      <Map mapData={data} />
+      <MapControls>
+        <Map mapData={data} />
+      </MapControls>
     </MapContextProvider>
   );
 };

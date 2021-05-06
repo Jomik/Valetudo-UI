@@ -1,5 +1,6 @@
 import {
   Backdrop,
+  Box,
   CircularProgress,
   Fab,
   Grid,
@@ -58,7 +59,7 @@ const GoLayer = (): JSX.Element => {
   }, [canGo, goToPoint, mutate]);
 
   return (
-    <Grid container alignItems="center" spacing={1}>
+    <Grid container alignItems="center" spacing={1} direction="row-reverse">
       <Grid item>
         <StyledFab
           disabled={goToPoint === undefined || isLoading || !canGo}
@@ -107,7 +108,7 @@ const SegmentsLayer = (): JSX.Element => {
   }, [canClean, didSelectSegments, mutate, selectedSegments]);
 
   return (
-    <Grid container alignItems="center" spacing={1}>
+    <Grid container alignItems="center" spacing={1} direction="row-reverse">
       <Grid item>
         <StyledFab
           disabled={!didSelectSegments || isLoading || !canClean}
@@ -139,14 +140,25 @@ const SegmentsLayer = (): JSX.Element => {
 
 const useControlsStyles = makeStyles((theme) => ({
   root: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  },
+  container: {
     position: 'absolute',
-    top: theme.spacing(10),
-    left: theme.spacing(2),
-    zIndex: theme.zIndex.drawer + 2,
     pointerEvents: 'none',
+    bottom: theme.spacing(10),
+    left: theme.spacing(2),
+    right: theme.spacing(2),
+  },
+  speedDial: {
+    zIndex: theme.zIndex.speedDial,
   },
   backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
+    zIndex: theme.zIndex.speedDial - 1,
+  },
+  layer: {
+    zIndex: theme.zIndex.speedDial - 2,
   },
 }));
 
@@ -168,7 +180,8 @@ const layerToActions: Record<MapContext['layers'][number], JSX.Element> = {
   zones: <></>,
 };
 
-const MapControls = (): JSX.Element | null => {
+const MapControls = (props: { children: JSX.Element }): JSX.Element | null => {
+  const { children } = props;
   const classes = useControlsStyles();
   const [open, setOpen] = React.useState(false);
   const { layers, selectedLayer, onSelectLayer } = useMapContext();
@@ -185,34 +198,42 @@ const MapControls = (): JSX.Element | null => {
   return (
     <>
       <Backdrop open={open} className={classes.backdrop} />
-      <Grid container spacing={1} className={classes.root}>
-        <Grid item>
-          <StyledSpeedDial
-            color="inherit"
-            open={open}
-            icon={layerToIcon[selectedLayer]}
-            onOpen={() => setOpen(true)}
-            onClose={() => setOpen(false)}
-            ariaLabel="MapLayer SpeedDial"
-            direction="down"
-            FabProps={{ size: 'small' }}
+      <Box className={classes.root}>
+        {children}
+        <Box className={classes.container}>
+          <Grid
+            container
+            spacing={1}
+            alignItems="flex-end"
+            direction="row-reverse"
           >
-            {layers.map((layer) => (
-              <SpeedDialAction
-                key={layer}
-                tooltipOpen
-                tooltipTitle={layerToLabel[layer]}
-                tooltipPlacement="right"
-                icon={layerToIcon[layer]}
-                onClick={selectLayer(layer)}
-              />
-            ))}
-          </StyledSpeedDial>
-        </Grid>
-        <Grid item xs>
-          {layerToActions[selectedLayer]}
-        </Grid>
-      </Grid>
+            <Grid item className={classes.speedDial}>
+              <StyledSpeedDial
+                color="inherit"
+                open={open}
+                icon={layerToIcon[selectedLayer]}
+                onOpen={() => setOpen(true)}
+                onClose={() => setOpen(false)}
+                ariaLabel="MapLayer SpeedDial"
+                FabProps={{ size: 'small' }}
+              >
+                {layers.map((layer) => (
+                  <SpeedDialAction
+                    key={layer}
+                    tooltipOpen
+                    tooltipTitle={layerToLabel[layer]}
+                    icon={layerToIcon[layer]}
+                    onClick={selectLayer(layer)}
+                  />
+                ))}
+              </StyledSpeedDial>
+            </Grid>
+            <Grid item xs className={classes.layer}>
+              {layerToActions[selectedLayer]}
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
     </>
   );
 };

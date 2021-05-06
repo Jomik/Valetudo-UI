@@ -1,4 +1,4 @@
-import { Box, Grid, styled, Typography } from '@material-ui/core';
+import { Box, Divider, Grid, styled, Typography } from '@material-ui/core';
 import { BottomSheet } from 'react-spring-bottom-sheet';
 import ControlsBody from './ControlsBody';
 import 'react-spring-bottom-sheet/dist/style.css';
@@ -10,6 +10,13 @@ const StyledBottomSheet = styled(BottomSheet)(({ theme }) => ({
   '--rsbs-ml': 'env(safe-area-inset-left)',
   '--rsbs-mr': 'env(safe-area-inset-right)',
   '--rsbs-overlay-rounded': '8px',
+  zIndex: theme.zIndex.drawer,
+  '& [data-rsbs-overlay]': {
+    zIndex: theme.zIndex.drawer + 1,
+  },
+  '& [data-rsbs-header]': {
+    padding: 0,
+  },
 }));
 
 const Sheet = styled(Box)(({ theme }) => ({
@@ -31,9 +38,12 @@ const ControlsBottomSheet = (): JSX.Element => {
         <>
           <Grid container>
             <Grid item>
-              <Typography variant="subtitle1">Controls</Typography>
+              <Box px={2} pt={2} pb={1}>
+                <Typography variant="subtitle1">Controls</Typography>
+              </Box>
             </Grid>
           </Grid>
+          <Divider />
         </>
       }
     >
