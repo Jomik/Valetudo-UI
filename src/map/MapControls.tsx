@@ -108,7 +108,7 @@ const SegmentsLayer = (): JSX.Element => {
   }, [canClean, didSelectSegments, mutate, selectedSegments]);
 
   return (
-    <Grid container alignItems="center" spacing={1} direction="row-reverse">
+    <Grid container spacing={1} direction="column" alignItems="flex-end">
       <Grid item>
         <StyledFab
           disabled={!didSelectSegments || isLoading || !canClean}
@@ -147,7 +147,7 @@ const useControlsStyles = makeStyles((theme) => ({
   container: {
     position: 'absolute',
     pointerEvents: 'none',
-    bottom: theme.spacing(10),
+    top: theme.spacing(2),
     left: theme.spacing(2),
     right: theme.spacing(2),
   },
@@ -201,14 +201,10 @@ const MapControls = (props: { children: JSX.Element }): JSX.Element | null => {
       <Box className={classes.root}>
         {children}
         <Box className={classes.container}>
-          <Grid
-            container
-            spacing={1}
-            alignItems="flex-end"
-            direction="row-reverse"
-          >
+          <Grid container spacing={1} direction="row-reverse">
             <Grid item className={classes.speedDial}>
               <StyledSpeedDial
+                direction="down"
                 color="inherit"
                 open={open}
                 icon={layerToIcon[selectedLayer]}
