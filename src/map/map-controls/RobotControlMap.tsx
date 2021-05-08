@@ -33,12 +33,12 @@ const RobotControlMap = (props: RobotControlMapProps): JSX.Element => {
     goToPoint,
   } = useRobotMapLayerContext();
 
-  const layers = React.useMemo<MapLayer[]>(() => {
-    const fourColorTheoremSolver = new FourColorTheoremSolver(
-      data.layers,
-      data.pixelSize
-    );
+  const fourColorTheoremSolver = React.useMemo(
+    () => new FourColorTheoremSolver(data.layers, data.pixelSize),
+    [data.layers, data.pixelSize]
+  );
 
+  const layers = React.useMemo<MapLayer[]>(() => {
     const getColor = (
       layer: RawMapLayer
     ): NonNullable<React.CSSProperties['color']> => {
@@ -82,7 +82,14 @@ const RobotControlMap = (props: RobotControlMapProps): JSX.Element => {
         color: getColor(layer),
       };
     });
-  }, [data.layers, data.pixelSize, selectedLayer, selectedSegments, theme.map]);
+  }, [
+    data.layers,
+    data.pixelSize,
+    fourColorTheoremSolver,
+    selectedLayer,
+    selectedSegments,
+    theme.map,
+  ]);
 
   const labels = React.useMemo<MapLabel[]>(
     () =>
