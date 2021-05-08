@@ -3,6 +3,7 @@ import {
   Button,
   CircularProgress,
   FormControl,
+  FormHelperText,
   Grid,
   makeStyles,
   MenuItem,
@@ -26,7 +27,7 @@ const useStyles = makeStyles(() => ({
 
 const GoToLocationPresets = (): JSX.Element => {
   const classes = useStyles();
-  const { data: state } = useRobotStatus((status) => status.value);
+  const { data: status } = useRobotStatus((status) => status.value);
   const {
     data: locations,
     isLoading: isLocationsLoading,
@@ -45,16 +46,15 @@ const GoToLocationPresets = (): JSX.Element => {
     []
   );
 
+  const canGo = status === 'idle' || status === 'docked';
+
   const handleGo = React.useCallback(() => {
-    if (selected === '') {
+    if (selected === '' || !canGo) {
       return;
     }
 
-    if (state !== 'docked' && state !== 'idle') {
-      return;
-    }
     goToLocation(selected);
-  }, [goToLocation, selected, state]);
+  }, [canGo, goToLocation, selected]);
 
   const body = React.useMemo(() => {
     if (isLocationsLoading) {
@@ -89,11 +89,17 @@ const GoToLocationPresets = (): JSX.Element => {
                 </MenuItem>
               ))}
             </Select>
+            {!canGo && (
+              <FormHelperText>Can only go to location when idle</FormHelperText>
+            )}
           </FormControl>
         </Grid>
         <Grid item xs>
           <Box display="flex" justifyContent="flex-end">
-            <Button disabled={!selected || isCommandLoading} onClick={handleGo}>
+            <Button
+              disabled={!selected || isCommandLoading || !canGo}
+              onClick={handleGo}
+            >
               Go
             </Button>
           </Box>
@@ -101,6 +107,7 @@ const GoToLocationPresets = (): JSX.Element => {
       </>
     );
   }, [
+    canGo,
     classes.formControl,
     handleChange,
     handleGo,
