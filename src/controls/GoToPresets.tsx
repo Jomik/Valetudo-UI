@@ -36,7 +36,11 @@ const GoToLocationPresets = (): JSX.Element => {
   const {
     isLoading: isCommandLoading,
     mutate: goToLocation,
-  } = useGoToLocationPresetMutation();
+  } = useGoToLocationPresetMutation({
+    onSuccess() {
+      setSelected('');
+    },
+  });
   const [selected, setSelected] = React.useState<string>('');
 
   const handleChange = React.useCallback(

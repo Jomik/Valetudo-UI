@@ -34,7 +34,11 @@ const ZonePresets = (): JSX.Element => {
   const {
     isLoading: isCleaningLoading,
     mutate: cleanZones,
-  } = useCleanZonePresetsMutation();
+  } = useCleanZonePresetsMutation({
+    onSuccess() {
+      setSelected({});
+    },
+  });
   const [selected, setSelected] = React.useState<Record<string, boolean>>({});
   const isLoading = isZonesLoading || isCleaningLoading;
 

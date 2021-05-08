@@ -35,7 +35,11 @@ const Segments = (): JSX.Element => {
   const {
     isLoading: isCleaningLoading,
     mutate: cleanSegments,
-  } = useCleanSegmentsMutation();
+  } = useCleanSegmentsMutation({
+    onSuccess() {
+      setSelected({});
+    },
+  });
   const [selected, setSelected] = React.useState<Record<string, boolean>>({});
   const isLoading = isSegmentsLoading || isCleaningLoading;
 
