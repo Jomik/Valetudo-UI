@@ -5,11 +5,12 @@ import {
   Container,
   makeStyles,
   Typography,
+  useTheme,
 } from '@material-ui/core';
 import { useRobotMap } from '../api';
-import Map from './Map';
-import MapContextProvider from './MapContextProvider';
-import MapControls from './MapControls';
+import RobotControlMap from './map-controls/RobotControlMap';
+import RobotControlMapProvider from './map-controls/RobotControlMapProvider';
+import RobotMapLayers from './map-controls/RobotMapLayers';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -25,6 +26,7 @@ const useStyles = makeStyles(() => ({
 const MapPage = (): JSX.Element => {
   const { data, isLoading, isError, refetch } = useRobotMap();
   const classes = useStyles();
+  const theme = useTheme();
 
   if (isError) {
     return (
@@ -55,11 +57,11 @@ const MapPage = (): JSX.Element => {
   }
 
   return (
-    <MapContextProvider>
-      <MapControls>
-        <Map mapData={data} />
-      </MapControls>
-    </MapContextProvider>
+    <RobotControlMapProvider>
+      <RobotMapLayers>
+        <RobotControlMap data={data} padding={theme.spacing(8)} />
+      </RobotMapLayers>
+    </RobotControlMapProvider>
   );
 };
 

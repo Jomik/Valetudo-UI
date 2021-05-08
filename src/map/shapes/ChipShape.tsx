@@ -13,12 +13,12 @@ export type ChipShapeProps = KonvaNodeEvents &
     sceneFunc?: never;
     width?: never;
     height?: never;
-    icon?: HTMLImageElement;
+    icon?: CanvasImageSource;
     iconFill?: string;
   };
 
 const drawIcon = (
-  icon: HTMLImageElement,
+  icon: CanvasImageSource,
   context: Konva.Context,
   shape: Konva.Shape,
   scale: number
@@ -106,6 +106,7 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
 
   return (
     <Shape
+      listening={false}
       fill={theme.palette.background.paper}
       shadowEnabled={true}
       shadowColor="#000000"

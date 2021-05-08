@@ -1,23 +1,24 @@
-import { Vector2d } from 'konva/types/types';
 import React from 'react';
-import { Capability, RawMapLayer } from '../api';
-import { useCapabilitiesSupported } from '../CapabilitiesProvider';
-import { manhatten } from './utils';
+import { Capability, Coordinates } from '../../api';
+import { useCapabilitiesSupported } from '../../CapabilitiesProvider';
+import { manhatten } from '../utils';
 
 type Layer = 'go' | 'segments' | 'zones';
-export interface MapContext {
+export interface RobotMapLayerContext {
   layers: Array<Layer>;
   selectedLayer: Layer | undefined;
-  goToPoint: Vector2d | undefined;
+  goToPoint: Coordinates | undefined;
   selectedSegments: string[];
-  onMapInteraction(layer: RawMapLayer, position: Vector2d): void;
+  onMapInteraction(position: Coordinates, segmentId: string | undefined): void;
   onSelectLayer(layer: Layer): void;
   onClear(): void;
 }
 
-const Context = React.createContext<MapContext | undefined>(undefined);
+const Context = React.createContext<RobotMapLayerContext | undefined>(
+  undefined
+);
 
-export const useMapContext = (): MapContext => {
+export const useRobotMapLayerContext = (): RobotMapLayerContext => {
   const context = React.useContext(Context);
 
   if (context === undefined) {
@@ -27,8 +28,8 @@ export const useMapContext = (): MapContext => {
   return context;
 };
 
-const MapContextProvider = (props: {
-  children: React.ReactNode;
+const RobotMapLayersProvider = (props: {
+  children: JSX.Element;
 }): JSX.Element => {
   const { children } = props;
   const [
@@ -41,11 +42,13 @@ const MapContextProvider = (props: {
     Capability.ZoneCleaning
   );
   const [selectedLayer, setSelectedLayer] = React.useState<
-    MapContext['selectedLayer']
+    RobotMapLayerContext['selectedLayer']
   >();
-  const [goToPoint, setGoToPoint] = React.useState<MapContext['goToPoint']>();
+  const [goToPoint, setGoToPoint] = React.useState<
+    RobotMapLayerContext['goToPoint']
+  >();
   const [selectedSegments, setSelectedSegments] = React.useState<
-    MapContext['selectedSegments']
+    RobotMapLayerContext['selectedSegments']
   >([]);
 
   const layers = React.useMemo(
@@ -61,9 +64,9 @@ const MapContextProvider = (props: {
   );
 
   const handleMapInteraction = React.useCallback<
-    MapContext['onMapInteraction']
+    RobotMapLayerContext['onMapInteraction']
   >(
-    (layer, position) => {
+    (position, segmentId) => {
       switch (selectedLayer) {
         case 'go': {
           setGoToPoint((prev) =>
@@ -75,16 +78,16 @@ const MapContextProvider = (props: {
           break;
         }
         case 'segments': {
-          const id = layer.metaData.segmentId;
-          if (layer.type !== 'segment' || id === undefined) {
+          if (segmentId === undefined) {
             return;
           }
+
           setSelectedSegments((prev) => {
-            if (prev.includes(id)) {
-              return prev.filter((v) => v !== id);
+            if (prev.includes(segmentId)) {
+              return prev.filter((v) => v !== segmentId);
             }
 
-            return [...prev, id];
+            return [...prev, segmentId];
           });
         }
       }
@@ -101,7 +104,9 @@ const MapContextProvider = (props: {
     setSelectedSegments([]);
   }, []);
 
-  const handleSelectLayer = React.useCallback<MapContext['onSelectLayer']>(
+  const handleSelectLayer = React.useCallback<
+    RobotMapLayerContext['onSelectLayer']
+  >(
     (layer) => {
       setSelectedLayer(layer);
       handleClear();
@@ -126,4 +131,4 @@ const MapContextProvider = (props: {
   );
 };
 
-export default MapContextProvider;
+export default RobotMapLayersProvider;

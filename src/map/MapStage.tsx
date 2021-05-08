@@ -4,7 +4,6 @@ import { Vector2d } from 'konva/types/types';
 import React from 'react';
 import { Stage, StageProps } from 'react-konva';
 import { useHTMLElement } from '../hooks';
-import { RawMapData } from '../api';
 import {
   bound,
   getCenter,
@@ -27,13 +26,13 @@ const useStyles = makeStyles(() => ({
 
 export type MapStageProps = StageProps & {
   children: JSX.Element;
-  mapData: RawMapData;
-  width?: never;
-  height?: never;
+  width: number;
+  padding?: number;
+  height: number;
+  offset?: never;
+  scale?: never;
   scaleX?: never;
   scaleY?: never;
-  offsetX?: never;
-  offsetY?: never;
 };
 
 const scalePersistentNodes = (stage: Konva.Stage) => {
@@ -55,37 +54,26 @@ const scalePersistentNodes = (stage: Konva.Stage) => {
     });
 };
 
-const MapPadding = 10;
 const ScaleBound = 10;
 
 const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
   (props, ref): JSX.Element => {
     const {
       children,
-      mapData,
+      padding = 0,
+      offsetX = 0,
+      offsetY = 0,
+      width,
+      height,
       onWheel,
       onTouchMove,
       onTouchEnd,
       ...stageConfig
     } = props;
-    const { layers, pixelSize } = mapData;
     const classes = useStyles();
     const lastCenter = React.useRef<Vector2d | null>(null);
     const lastDragCenter = React.useRef<Vector2d | null>(null);
     const lastDist = React.useRef<number>(0);
-
-    const { minX, minY, maxX, maxY } = React.useMemo(
-      () => ({
-        minX: Math.min(...layers.map((layer) => layer.dimensions.x.min)),
-        maxX: Math.max(...layers.map((layer) => layer.dimensions.x.max)),
-        minY: Math.min(...layers.map((layer) => layer.dimensions.y.min)),
-        maxY: Math.max(...layers.map((layer) => layer.dimensions.y.max)),
-      }),
-      [layers]
-    );
-
-    const mapWidth = (maxX - minX + MapPadding * 2) * pixelSize;
-    const mapHeight = (maxY - minY + MapPadding * 2) * pixelSize;
 
     const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
       { containerWidth: 0, containerHeight: 0 },
@@ -99,8 +87,8 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
     );
     const stageRef = React.useRef<Konva.Stage>(null);
 
-    const stageScaleWidth = containerWidth / mapWidth;
-    const stageScaleHeight = containerHeight / mapHeight;
+    const stageScaleWidth = (containerWidth - padding * 2) / width;
+    const stageScaleHeight = (containerHeight - padding * 2) / height;
     const stageScale =
       stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
 
@@ -271,10 +259,10 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
       <>
         <div ref={containerRef} className={classes.container}>
           <Stage
+            {...stageConfig}
             className={classes.stage}
             ref={stageRef}
             draggable={!isTouchEnabled}
-            {...stageConfig}
             onWheel={handleScroll}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -282,9 +270,8 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
             height={containerHeight}
             scaleX={stageScale}
             scaleY={stageScale}
-            // TODO: Avoid using offset
-            offsetX={(minX - MapPadding) * pixelSize}
-            offsetY={(minY - MapPadding) * pixelSize}
+            offsetX={offsetX - padding}
+            offsetY={offsetY - padding}
           >
             {children}
           </Stage>

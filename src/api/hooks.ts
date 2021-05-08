@@ -216,16 +216,20 @@ export const useGoToMutation = (
 export const useZonePresets = () =>
   useQuery(CacheKey.ZonePresets, fetchZonePresets, { staleTime: Infinity });
 
-export const useCleanZonePresetsMutation = () => {
+export const useCleanZonePresetsMutation = (
+  options?: UseMutationOptions<RobotAttribute[], unknown, string[]>
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(
     (ids: string[]) => cleanZonePresets(ids).then(fetchStateAttributes),
     {
-      onSuccess(data) {
+      ...options,
+      async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
           updatedAt: Date.now(),
         });
+        await options?.onSuccess?.(data, ...args);
       },
     }
   );
@@ -258,16 +262,20 @@ export const useGoToLocationPresets = () =>
     staleTime: Infinity,
   });
 
-export const useGoToLocationPresetMutation = () => {
+export const useGoToLocationPresetMutation = (
+  options?: UseMutationOptions<RobotAttribute[], unknown, string>
+) => {
   const queryClient = useQueryClient();
 
   return useMutation(
     (id: string) => goToLocationPreset(id).then(fetchStateAttributes),
     {
-      onSuccess(data) {
+      ...options,
+      async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
           updatedAt: Date.now(),
         });
+        await options?.onSuccess?.(data, ...args);
       },
     }
   );

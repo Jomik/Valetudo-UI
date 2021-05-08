@@ -3,20 +3,24 @@ import Konva from 'konva';
 import { ShapeConfig } from 'konva/types/Shape';
 import React from 'react';
 import { Shape } from 'react-konva';
-import { pairWiseArray } from './utils';
+import { pairWiseArray } from '../utils';
 
 export type PixelsProps = Konva.ShapeConfig & {
   pixels: number[];
+  pixelSize: number;
   fill: string;
   sceneFunc?: never;
+  scaleX?: never;
+  scaleY?: never;
+  scale?: never;
   x?: never;
   y?: never;
   width?: never;
   height?: never;
 };
 
-const Pixels = (props: PixelsProps): JSX.Element => {
-  const { pixels, fill, ...shapeConfig } = props;
+const PixelsShape = (props: PixelsProps): JSX.Element => {
+  const { pixels, pixelSize, fill, ...shapeConfig } = props;
 
   const coords = React.useMemo(() => pairWiseArray(pixels), [pixels]);
   const { minX, maxX, minY, maxY } = React.useMemo(
@@ -78,7 +82,15 @@ const Pixels = (props: PixelsProps): JSX.Element => {
     [imageCanvas, minX, minY]
   );
 
-  return <Shape {...shapeConfig} sceneFunc={sceneFunc} />;
+  return (
+    <Shape
+      listening={false}
+      {...shapeConfig}
+      scaleX={pixelSize}
+      scaleY={pixelSize}
+      sceneFunc={sceneFunc}
+    />
+  );
 };
 
-export default Pixels;
+export default PixelsShape;
