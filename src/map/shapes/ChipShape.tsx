@@ -61,7 +61,8 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
         fontBoundingBoxAscent: height,
       } = context.measureText(text);
       const iconScale = height / 24;
-      const width = textWidth + (icon ? iconScale * 20 : 0);
+      const baseWidth = textWidth + (icon ? iconScale * 20 : 0);
+      const width = Math.max(baseWidth, 20);
       const radius = Math.min(width / 2, height / 2);
 
       context.translate(-width / 2, -height / 2);
@@ -94,7 +95,7 @@ const ChipShape = (props: ChipShapeProps): JSX.Element => {
 
       context.translate(0, height);
       context.setAttr('fillStyle', shape.getAttr('textFill'));
-      context.fillText(text, 0, 0);
+      context.fillText(text, (width - baseWidth) / 2, 0);
 
       if (icon) {
         context.translate(width - 20 * iconScale, -height);
