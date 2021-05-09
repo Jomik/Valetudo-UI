@@ -175,48 +175,30 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
       [onWheel, scaleStage]
     );
 
-    const handleTouchMove = React.useCallback(
-      (event: KonvaEventObject<TouchEvent>) => {
-        onTouchMove?.(event);
-        if (event.evt.defaultPrevented) {
+    const handleOneTouch = React.useCallback(
+      (stage: Konva.Stage, touch: Vector2d) => {
+        if (lastDragCenter.current === null) {
+          lastDragCenter.current = touch;
           return;
         }
 
-        event.evt.preventDefault();
-        const { currentTarget: stage } = event;
+        stage.position({
+          x: stage.x() + touch.x - lastDragCenter.current.x,
+          y: stage.y() + touch.y - lastDragCenter.current.y,
+        });
 
-        if (!(stage instanceof Konva.Stage)) {
-          return;
-        }
+        stage.batchDraw();
 
-        if (event.evt.touches.length === 1) {
-          const [touch1] = event.evt.touches;
-          const p1 = { x: touch1.clientX, y: touch1.clientY };
-          if (lastDragCenter.current === null) {
-            lastDragCenter.current = p1;
-            return;
-          }
+        lastDragCenter.current = touch;
+      },
+      []
+    );
 
-          stage.position({
-            x: stage.x() + p1.x - lastDragCenter.current.x,
-            y: stage.y() + p1.y - lastDragCenter.current.y,
-          });
-
-          stage.batchDraw();
-
-          lastDragCenter.current = p1;
-          return;
-        }
-
-        if (event.evt.touches.length !== 2) {
-          return;
-        }
-
-        const [touch1, touch2] = event.evt.touches;
-        const p1 = { x: touch1.clientX, y: touch1.clientY };
-        const p2 = { x: touch2.clientX, y: touch2.clientY };
-        const newCenter = getCenter(p1, p2);
-        const dist = getDistance(p1, p2);
+    const handleTwoTouches = React.useCallback(
+      (stage: Konva.Stage, touches: [Vector2d, Vector2d]) => {
+        const [touch1, touch2] = touches;
+        const newCenter = getCenter(touch1, touch2);
+        const dist = getDistance(touch1, touch2);
 
         if (!lastCenter.current) {
           lastCenter.current = newCenter;
@@ -236,7 +218,35 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
         lastDist.current = dist;
         lastCenter.current = newCenter;
       },
-      [onTouchMove, scaleStage]
+      [scaleStage]
+    );
+
+    const handleTouchMove = React.useCallback(
+      (event: KonvaEventObject<TouchEvent>) => {
+        onTouchMove?.(event);
+        if (event.evt.defaultPrevented) {
+          return;
+        }
+
+        event.evt.preventDefault();
+        const { currentTarget: stage } = event;
+
+        if (!(stage instanceof Konva.Stage)) {
+          return;
+        }
+
+        if (event.evt.touches.length === 1) {
+          const [touch1] = event.evt.touches;
+          const p1 = { x: touch1.clientX, y: touch1.clientY };
+          handleOneTouch(stage, p1);
+        } else if (event.evt.touches.length === 2) {
+          const [touch1, touch2] = event.evt.touches;
+          const p1 = { x: touch1.clientX, y: touch1.clientY };
+          const p2 = { x: touch2.clientX, y: touch2.clientY };
+          handleTwoTouches(stage, [p1, p2]);
+        }
+      },
+      [handleOneTouch, handleTwoTouches, onTouchMove]
     );
 
     const handleTouchEnd = React.useCallback(
@@ -256,27 +266,25 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
     );
 
     return (
-      <>
-        <div ref={containerRef} className={classes.container}>
-          <Stage
-            {...stageConfig}
-            className={classes.stage}
-            ref={stageRef}
-            draggable={!isTouchEnabled}
-            onWheel={handleScroll}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            width={containerWidth}
-            height={containerHeight}
-            scaleX={stageScale}
-            scaleY={stageScale}
-            offsetX={offsetX - padding}
-            offsetY={offsetY - padding}
-          >
-            {children}
-          </Stage>
-        </div>
-      </>
+      <div ref={containerRef} className={classes.container}>
+        <Stage
+          {...stageConfig}
+          className={classes.stage}
+          ref={stageRef}
+          draggable={!isTouchEnabled}
+          onWheel={handleScroll}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          width={containerWidth}
+          height={containerHeight}
+          scaleX={stageScale}
+          scaleY={stageScale}
+          offsetX={offsetX - padding}
+          offsetY={offsetY - padding}
+        >
+          {children}
+        </Stage>
+      </div>
     );
   }
 );
