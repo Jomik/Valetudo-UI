@@ -104,7 +104,7 @@ const RobotControlMap = (props: RobotControlMapProps): JSX.Element => {
           ]);
 
           return {
-            text: name ?? `# ${segmentId}`,
+            text: name ?? segmentId ?? '?',
             position: [x * data.pixelSize, y * data.pixelSize],
             icon: active ? cleaningServices : undefined,
           };
