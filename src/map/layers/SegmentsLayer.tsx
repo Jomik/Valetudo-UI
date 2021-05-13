@@ -76,7 +76,7 @@ const SegmentsLayerOverlay = (
       <Grid item>
         <Fade in={didSelectSegments && !canClean}>
           <Typography variant="caption" color="textSecondary">
-            Can only start segments cleaning when idle
+            Can only start segment cleaning when idle
           </Typography>
         </Fade>
       </Grid>
