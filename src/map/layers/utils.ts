@@ -7,8 +7,11 @@ import { Theme } from '@material-ui/core';
 const cleaningServices = new window.Image();
 cleaningServices.src = cleaningServicesSrc;
 
-export const labelsFromMapData = (data: RawMapData): MapLabel[] =>
-  data.layers
+export const labelsFromMapData = (
+  layers: RawMapData['layers'],
+  pixelSize: RawMapData['pixelSize']
+): MapLabel[] =>
+  layers
     .filter((layer) => layer.type === 'segment')
     .map((layer) => {
       const { pixels, dimensions, metaData } = layer;
@@ -20,7 +23,7 @@ export const labelsFromMapData = (data: RawMapData): MapLabel[] =>
 
       return {
         text: name ?? segmentId ?? '?',
-        position: [x * data.pixelSize, y * data.pixelSize],
+        position: [x * pixelSize, y * pixelSize],
         icon: active ? cleaningServices : undefined,
       };
     });
@@ -52,16 +55,17 @@ export const getLayerColor = (
 };
 
 export const layersFromMapData = (
-  data: RawMapData,
+  layers: RawMapData['layers'],
+  pixelSize: RawMapData['pixelSize'],
   getColor: (layer: RawMapLayer) => NonNullable<React.CSSProperties['color']>
 ): MapLayer[] =>
-  data.layers.map((layer) => {
+  layers.map((layer) => {
     const { pixels, dimensions, type, metaData } = layer;
 
     return {
       id: metaData.segmentId ?? type,
       pixels,
-      pixelSize: data.pixelSize,
+      pixelSize,
       dimensions: {
         x: [dimensions.x.min, dimensions.x.max],
         y: [dimensions.y.min, dimensions.y.max],

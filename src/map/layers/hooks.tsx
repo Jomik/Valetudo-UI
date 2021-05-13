@@ -6,24 +6,8 @@ import { FourColorTheoremSolver } from '../map-color-finder';
 import { RawMapEntityShape } from '../shapes';
 import { labelsFromMapData, getLayerColor, layersFromMapData } from './utils';
 
-export const useDefaultMapData = (
-  data: RawMapData
-): {
-  layers: MapLayer[];
-  entities: React.ReactNode[];
-  labels: MapLabel[];
-} => {
+export const useMapLayers = (data: RawMapData): MapLayer[] => {
   const theme = useTheme();
-
-  const labels = React.useMemo(() => labelsFromMapData(data), [data]);
-
-  const entities = React.useMemo<React.ReactNode[]>(
-    () =>
-      data.entities.map((entity, index) => (
-        <RawMapEntityShape key={index} entity={entity} />
-      )),
-    [data.entities]
-  );
 
   const fourColorTheoremSolver = React.useMemo(
     () => new FourColorTheoremSolver(data.layers, data.pixelSize),
@@ -41,14 +25,25 @@ export const useDefaultMapData = (
     [fourColorTheoremSolver, theme.map]
   );
 
-  const layers = React.useMemo(() => layersFromMapData(data, getColor), [
-    data,
-    getColor,
-  ]);
+  return React.useMemo(
+    () => layersFromMapData(data.layers, data.pixelSize, getColor),
+    [data, getColor]
+  );
+};
 
-  return {
-    labels,
-    entities,
-    layers,
-  };
+export const useMapLabels = (data: RawMapData): MapLabel[] => {
+  return React.useMemo(() => labelsFromMapData(data.layers, data.pixelSize), [
+    data.layers,
+    data.pixelSize,
+  ]);
+};
+
+export const useMapEntities = (data: RawMapData): JSX.Element[] => {
+  return React.useMemo(
+    () =>
+      data.entities.map((entity, index) => (
+        <RawMapEntityShape entity={entity} key={index} />
+      )),
+    [data.entities]
+  );
 };

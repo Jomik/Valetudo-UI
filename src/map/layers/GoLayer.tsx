@@ -6,8 +6,8 @@ import { LayerActionsContainer, LayerActionButton } from './Styled';
 import { Image } from 'react-konva';
 import markerSrc from '../shapes/assets/marker.svg';
 import { MapLayersProps } from './types';
-import { useDefaultMapData } from './hooks';
 import { manhatten, pairWiseArray } from '../utils';
+import { useMapEntities, useMapLabels, useMapLayers } from './hooks';
 
 const markerImage = new window.Image();
 markerImage.src = markerSrc;
@@ -81,7 +81,9 @@ const GoLayer = (props: MapLayersProps): JSX.Element => {
   const { data, padding } = props;
   const [goToPoint, setGoToPoint] = React.useState<Coordinates>();
 
-  const mapData = useDefaultMapData(data);
+  const entities: React.ReactNode[] = useMapEntities(data);
+  const labels = useMapLabels(data);
+  const layers = useMapLayers(data);
 
   const handleClear = React.useCallback(() => {
     setGoToPoint(undefined);
@@ -128,8 +130,9 @@ const GoLayer = (props: MapLayersProps): JSX.Element => {
   return (
     <>
       <Map
-        {...mapData}
-        entities={mapData.entities.concat(goToMarker)}
+        layers={layers}
+        labels={labels}
+        entities={entities.concat(goToMarker)}
         padding={padding}
         onClick={handleClick}
       />

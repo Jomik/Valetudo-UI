@@ -4,9 +4,9 @@ import { useCleanSegmentsMutation, useRobotStatus } from '../../api';
 import Map from '../Map';
 import { LayerActionsContainer, LayerActionButton } from './Styled';
 import { MapLayersProps } from './types';
-import { useDefaultMapData } from './hooks';
 import { manhatten, pairWiseArray } from '../utils';
 import Color from 'color';
+import { useMapLabels, useMapLayers } from './hooks';
 
 interface SegmentsLayerOverlayProps {
   segments: string[];
@@ -80,7 +80,8 @@ const SegmentsLayer = (props: MapLayersProps): JSX.Element => {
   const { data, padding } = props;
   const [selectedSegments, setSelectedSegments] = React.useState<string[]>([]);
 
-  const { layers, labels } = useDefaultMapData(data);
+  const layers = useMapLayers(data);
+  const labels = useMapLabels(data);
 
   const handleClear = React.useCallback(() => {
     setSelectedSegments([]);
