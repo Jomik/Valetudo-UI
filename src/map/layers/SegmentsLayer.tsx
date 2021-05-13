@@ -1,4 +1,10 @@
-import { CircularProgress, Fade, Grid, Typography } from '@material-ui/core';
+import {
+  CircularProgress,
+  Fade,
+  Grid,
+  Typography,
+  Zoom,
+} from '@material-ui/core';
 import React from 'react';
 import { useCleanSegmentsMutation, useRobotStatus } from '../../api';
 import Map from '../Map';
@@ -36,22 +42,24 @@ const SegmentsLayerOverlay = (
   return (
     <Grid container alignItems="center" spacing={1} direction="row-reverse">
       <Grid item>
-        <LayerActionButton
-          disabled={!didSelectSegments || isLoading || !canClean}
-          color="inherit"
-          size="medium"
-          variant="extended"
-          onClick={handleClick}
-        >
-          Clean {segments.length} segments
-          {isLoading && (
-            <CircularProgress
-              color="inherit"
-              size={18}
-              style={{ marginLeft: 10 }}
-            />
-          )}
-        </LayerActionButton>
+        <Zoom in>
+          <LayerActionButton
+            disabled={!didSelectSegments || isLoading || !canClean}
+            color="inherit"
+            size="medium"
+            variant="extended"
+            onClick={handleClick}
+          >
+            Clean {segments.length} segments
+            {isLoading && (
+              <CircularProgress
+                color="inherit"
+                size={18}
+                style={{ marginLeft: 10 }}
+              />
+            )}
+          </LayerActionButton>
+        </Zoom>
       </Grid>
       <Grid item>
         <Fade in={didSelectSegments && !isLoading}>
