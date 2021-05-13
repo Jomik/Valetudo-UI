@@ -32,7 +32,7 @@ const SegmentsLayerOverlay = (
   const didSelectSegments = segments.length > 0;
 
   const handleClick = React.useCallback(() => {
-    if (didSelectSegments || !canClean) {
+    if (!didSelectSegments || !canClean) {
       return;
     }
 
