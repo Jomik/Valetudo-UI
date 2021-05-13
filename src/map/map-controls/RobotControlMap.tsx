@@ -123,6 +123,7 @@ const RobotControlMap = (props: RobotControlMapProps): JSX.Element => {
   const goToMarker =
     goToPoint !== undefined ? (
       <Image
+        key="gotopoint"
         image={markerImage}
         minimumScale={1}
         {...goToPoint}
