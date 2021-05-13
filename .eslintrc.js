@@ -31,7 +31,7 @@ module.exports = {
     ],
   },
   rules: {
-    '@typescript-eslint/no-unused-vars': ['warn'],
+    '@typescript-eslint/no-unused-vars': ['warn', { varsIgnorePattern: '^_' }],
     'linebreak-style': ['error', 'unix'],
     '@typescript-eslint/no-explicit-any': 'off',
 
