@@ -59,7 +59,7 @@ const MapPage = (): JSX.Element => {
   return (
     <RobotControlMapProvider>
       <RobotMapLayers>
-        <RobotControlMap data={data} padding={theme.spacing(8)} />
+        <RobotControlMap data={data} padding={theme.spacing(2)} />
       </RobotMapLayers>
     </RobotControlMapProvider>
   );

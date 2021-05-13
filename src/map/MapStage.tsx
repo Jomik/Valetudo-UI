@@ -87,10 +87,9 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
     );
     const stageRef = React.useRef<Konva.Stage>(null);
 
-    const stageScaleWidth = (containerWidth - padding * 2) / width;
-    const stageScaleHeight = (containerHeight - padding * 2) / height;
-    const stageScale =
-      stageScaleWidth < stageScaleHeight ? stageScaleWidth : stageScaleHeight;
+    const stageScaleX = (containerWidth - padding * 2) / width;
+    const stageScaleY = (containerHeight - padding * 2) / height;
+    const stageScale = Math.min(stageScaleX, stageScaleY);
 
     React.useImperativeHandle(
       ref,
@@ -113,6 +112,7 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
       if (stage === null) {
         return;
       }
+      stage.scale({ x: stageScale, y: stageScale });
       scalePersistentNodes(stage);
       stage.batchDraw();
     }, [stageScale]);
@@ -175,6 +175,32 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
       [onWheel, scaleStage]
     );
 
+    const dragBoundFunc = React.useMemo(
+      () =>
+        function (this: Konva.Node, pos: Vector2d): Vector2d {
+          const scaledPadding = padding / stageScale;
+          const scale = this.scaleX();
+
+          const calculateBoundaries = (
+            value: number,
+            container: number,
+            map: number
+          ) =>
+            bound(
+              value,
+              -(map * stageScale - scaledPadding) * (scale / stageScale),
+              (Math.max(container, map * stageScale) - scaledPadding * 2) *
+                (stageScale / scale)
+            );
+
+          return {
+            x: calculateBoundaries(pos.x, containerWidth, width),
+            y: calculateBoundaries(pos.y, containerHeight, height),
+          };
+        },
+      [containerHeight, containerWidth, height, padding, stageScale, width]
+    );
+
     const handleOneTouch = React.useCallback(
       (stage: Konva.Stage, touch: Vector2d) => {
         if (lastDragCenter.current === null) {
@@ -182,16 +208,18 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
           return;
         }
 
-        stage.position({
-          x: stage.x() + touch.x - lastDragCenter.current.x,
-          y: stage.y() + touch.y - lastDragCenter.current.y,
-        });
+        stage.position(
+          dragBoundFunc.bind(stage)({
+            x: stage.x() + touch.x - lastDragCenter.current.x,
+            y: stage.y() + touch.y - lastDragCenter.current.y,
+          })
+        );
 
         stage.batchDraw();
 
         lastDragCenter.current = touch;
       },
-      []
+      [dragBoundFunc]
     );
 
     const handleTwoTouches = React.useCallback(
@@ -272,6 +300,7 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
           className={classes.stage}
           ref={stageRef}
           draggable={!isTouchEnabled}
+          dragBoundFunc={dragBoundFunc}
           onWheel={handleScroll}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -279,8 +308,8 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
           height={containerHeight}
           scaleX={stageScale}
           scaleY={stageScale}
-          offsetX={offsetX - padding}
-          offsetY={offsetY - padding}
+          offsetX={offsetX - padding / stageScale}
+          offsetY={offsetY - padding / stageScale}
         >
           {children}
         </Stage>
