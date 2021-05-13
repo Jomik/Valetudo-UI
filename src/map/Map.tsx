@@ -22,7 +22,7 @@ export interface MapLabel {
 
 export interface MapProps {
   layers: MapLayer[];
-  entities?: JSX.Element[];
+  entities?: Array<React.ReactNode>;
   labels?: MapLabel[];
   onClick?(position: [x: number, y: number]): void;
   padding?: number;

@@ -8,9 +8,7 @@ import {
   useTheme,
 } from '@material-ui/core';
 import { useRobotMap } from '../api';
-import RobotControlMap from './map-controls/RobotControlMap';
-import RobotControlMapProvider from './map-controls/RobotControlMapProvider';
-import RobotMapLayers from './map-controls/RobotMapLayers';
+import MapLayers from './layers';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -56,13 +54,7 @@ const MapPage = (): JSX.Element => {
     );
   }
 
-  return (
-    <RobotControlMapProvider>
-      <RobotMapLayers>
-        <RobotControlMap data={data} padding={theme.spacing(2)} />
-      </RobotMapLayers>
-    </RobotControlMapProvider>
-  );
+  return <MapLayers data={data} padding={theme.spacing(2)} />;
 };
 
 export default MapPage;
