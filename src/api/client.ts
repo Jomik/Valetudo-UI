@@ -105,15 +105,14 @@ export const sendBasicControlCommand = async (
   );
 };
 
-export const sendGoToCommand = async ({ x, y }: Coordinates): Promise<void> => {
+export const sendGoToCommand = async (
+  coordinates: Coordinates
+): Promise<void> => {
   await valetudoAPI.put<void>(
     `/robot/capabilities/${Capability.GoToLocation}`,
     {
       action: 'goto',
-      coordinates: {
-        x: Math.round(x),
-        y: Math.round(y),
-      },
+      coordinates: floorObject(coordinates),
     }
   );
 };
@@ -146,7 +145,7 @@ export const cleanTemporaryZones = async (zones: Zone[]): Promise<void> => {
     `/robot/capabilities/${Capability.ZoneCleaning}`,
     {
       action: 'clean',
-      zones,
+      zones: zones.map(floorObject),
     }
   );
 };
@@ -180,4 +179,27 @@ export const goToLocationPreset = async (id: string): Promise<void> => {
       action: 'goto',
     }
   );
+};
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+const floorObject = <T extends object>(obj: T): T => {
+  if (Array.isArray(obj)) {
+    return obj.map(floorObject) as T;
+  }
+
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => {
+      if (typeof v === 'number') {
+        return [k, Math.floor(v)];
+      }
+      if (typeof v === 'object' && v !== null) {
+        if (Array.isArray(v)) {
+          return [k, v.map(floorObject)];
+        }
+
+        return [k, floorObject(v)];
+      }
+      return [k, v];
+    })
+  ) as T;
 };
