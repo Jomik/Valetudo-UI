@@ -5,7 +5,7 @@ import { MapLayersProps } from './types';
 const ViewLayer = (props: MapLayersProps): JSX.Element => {
   const { data, padding } = props;
 
-  const entities = useMapEntities(data);
+  const entities = useMapEntities(data.entities);
   const labels = useMapLabels(data);
   const layers = useMapLayers(data);
 

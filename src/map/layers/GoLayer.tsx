@@ -89,7 +89,7 @@ const GoLayer = (props: MapLayersProps): JSX.Element => {
   const { data, padding } = props;
   const [goToPoint, setGoToPoint] = React.useState<Coordinates>();
 
-  const entities: React.ReactNode[] = useMapEntities(data);
+  const entities: React.ReactNode[] = useMapEntities(data.entities);
   const labels = useMapLabels(data);
   const layers = useMapLayers(data);
 

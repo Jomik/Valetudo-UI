@@ -26,6 +26,8 @@ import {
   subscribeToStateAttributes,
   updatePresetSelection,
   Coordinates,
+  fetchZoneProperties,
+  cleanTemporaryZones,
 } from './client';
 import {
   PresetSelectionState,
@@ -34,6 +36,7 @@ import {
   StatusState,
 } from './RawRobotState';
 import { isAttribute, replaceAttribute } from './utils';
+import { Zone } from './Zone';
 
 enum CacheKey {
   Capabilities = 'capabilities',
@@ -41,6 +44,7 @@ enum CacheKey {
   Attributes = 'attributes',
   PresetSelections = 'preset_selections',
   ZonePresets = 'zone_presets',
+  ZoneProperties = 'zone_properties',
   Segments = 'segments',
   GoToLocationPresets = 'go_to_location_presets',
 }
@@ -216,6 +220,11 @@ export const useGoToMutation = (
 export const useZonePresets = () =>
   useQuery(CacheKey.ZonePresets, fetchZonePresets, { staleTime: Infinity });
 
+export const useZoneProperties = () =>
+  useQuery(CacheKey.ZoneProperties, fetchZoneProperties, {
+    staleTime: Infinity,
+  });
+
 export const useCleanZonePresetsMutation = (
   options?: UseMutationOptions<RobotAttribute[], unknown, string[]>
 ) => {
@@ -223,6 +232,25 @@ export const useCleanZonePresetsMutation = (
 
   return useMutation(
     (ids: string[]) => cleanZonePresets(ids).then(fetchStateAttributes),
+    {
+      ...options,
+      async onSuccess(data, ...args) {
+        queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
+          updatedAt: Date.now(),
+        });
+        await options?.onSuccess?.(data, ...args);
+      },
+    }
+  );
+};
+
+export const useCleanTemporaryZonesMutation = (
+  options?: UseMutationOptions<RobotAttribute[], unknown, Zone[]>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (zones: Zone[]) => cleanTemporaryZones(zones).then(fetchStateAttributes),
     {
       ...options,
       async onSuccess(data, ...args) {

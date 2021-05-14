@@ -2824,6 +2824,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/uuid@npm:^8":
+  version: 8.3.0
+  resolution: "@types/uuid@npm:8.3.0"
+  checksum: 620985aed8fdb4aed153daca5235f4303457a67a4d181efac0021712eabd9edd7e88895f79730c0e651effde7633b1b61e49a81519ac8d4e75019d2ac9b6412f
+  languageName: node
+  linkType: hard
+
 "@types/warning@npm:^3.0.0":
   version: 3.0.0
   resolution: "@types/warning@npm:3.0.0"
@@ -15917,21 +15924,21 @@ typescript@4.2.4:
   languageName: node
   linkType: hard
 
+"uuid@npm:8.3.2, uuid@npm:^8.3.0":
+  version: 8.3.2
+  resolution: "uuid@npm:8.3.2"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: aed2bcef341f95635f308fea8831fb9038b18c485fe7e71feb89d2e05602dfecad0cb6f2246fae096d4da425cca6e8a71056f28abd97ad98cf770a2018853248
+  languageName: node
+  linkType: hard
+
 "uuid@npm:^3.3.2, uuid@npm:^3.4.0":
   version: 3.4.0
   resolution: "uuid@npm:3.4.0"
   bin:
     uuid: ./bin/uuid
   checksum: 1ce3f37e214d6d0dc94a6a9663a0365013ace66bc3fd5b203e6f5d2eeb978aaee1192367222386345d30b4c6a447928c501121aa84c637724bf105ef57284949
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^8.3.0":
-  version: 8.3.2
-  resolution: "uuid@npm:8.3.2"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: aed2bcef341f95635f308fea8831fb9038b18c485fe7e71feb89d2e05602dfecad0cb6f2246fae096d4da425cca6e8a71056f28abd97ad98cf770a2018853248
   languageName: node
   linkType: hard
 
@@ -15971,6 +15978,7 @@ typescript@4.2.4:
     "@types/react": 17.0.4
     "@types/react-dom": 17.0.3
     "@types/react-router-dom": 5.1.7
+    "@types/uuid": ^8
     "@typescript-eslint/eslint-plugin": 4.22.0
     "@typescript-eslint/parser": 4.22.0
     axios: 0.21.1
@@ -15993,6 +16001,7 @@ typescript@4.2.4:
     react-spring-bottom-sheet: 3.2.1
     source-map-explorer: 2.5.2
     typescript: 4.2.4
+    uuid: 8.3.2
     web-vitals: 1.1.1
   languageName: unknown
   linkType: soft

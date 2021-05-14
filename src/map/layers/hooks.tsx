@@ -38,12 +38,14 @@ export const useMapLabels = (data: RawMapData): MapLabel[] => {
   ]);
 };
 
-export const useMapEntities = (data: RawMapData): JSX.Element[] => {
+export const useMapEntities = (
+  entities: RawMapData['entities']
+): JSX.Element[] => {
   return React.useMemo(
     () =>
-      data.entities.map((entity, index) => (
+      entities.map((entity, index) => (
         <RawMapEntityShape entity={entity} key={index} />
       )),
-    [data.entities]
+    [entities]
   );
 };

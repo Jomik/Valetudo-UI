@@ -2,7 +2,7 @@ import axios from 'axios';
 import { RawMapData } from './RawMapData';
 import { Capability } from './Capability';
 import { PresetSelectionState, RobotAttribute } from './RawRobotState';
-import { ZonePreset } from './Zone';
+import { Zone, ZonePreset, ZoneProperties } from './Zone';
 import { Segment } from './Segment';
 import { GoToLocation } from './GoToLocation';
 
@@ -125,12 +125,29 @@ export const fetchZonePresets = async (): Promise<ZonePreset[]> =>
     )
     .then(({ data }) => Object.values(data));
 
+export const fetchZoneProperties = async (): Promise<ZoneProperties> =>
+  valetudoAPI
+    .get<ZoneProperties>(
+      `/robot/capabilities/${Capability.ZoneCleaning}/properties`
+    )
+    .then(({ data }) => data);
+
 export const cleanZonePresets = async (ids: string[]): Promise<void> => {
   await valetudoAPI.put<void>(
     `/robot/capabilities/${Capability.ZoneCleaning}/presets`,
     {
       action: 'clean',
       ids,
+    }
+  );
+};
+
+export const cleanTemporaryZones = async (zones: Zone[]): Promise<void> => {
+  await valetudoAPI.put<void>(
+    `/robot/capabilities/${Capability.ZoneCleaning}`,
+    {
+      action: 'clean',
+      zones,
     }
   );
 };

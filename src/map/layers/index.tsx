@@ -13,6 +13,7 @@ import ViewLayer from './ViewLayer';
 import { Capability } from '../../api';
 import { useCapabilitiesSupported } from '../../CapabilitiesProvider';
 import SegmentsLayer from './SegmentsLayer';
+import ZonesLayer from './ZonesLayer';
 
 const useStyles = makeStyles((theme) => ({
   speedDial: {
@@ -40,17 +41,13 @@ const StyledSpeedDial = styled(SpeedDial)({
   },
 });
 
-const Empty = (): JSX.Element => {
-  return <> </>;
-};
-
 type Layer = 'View' | 'Go' | 'Segments' | 'Zones';
 
 const layerToComponent: Record<Layer, React.ComponentType<MapLayersProps>> = {
   View: ViewLayer,
   Go: GoLayer,
   Segments: SegmentsLayer,
-  Zones: Empty,
+  Zones: ZonesLayer,
 };
 const layerToIcon: Record<Layer, JSX.Element> = {
   View: <ViewIcon />,

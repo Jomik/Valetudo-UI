@@ -18,3 +18,14 @@ export interface ZonePreset {
   name: string;
   zones: Zone[];
 }
+
+export interface ZoneProperties {
+  zoneCount: {
+    min: number;
+    max: number;
+  };
+  iterationCount: {
+    min: number;
+    max: number;
+  };
+}
