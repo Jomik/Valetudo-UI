@@ -47,8 +47,10 @@ interface ZoneEntityProps {
 }
 const ZoneEntityShape = (props: ZoneEntityProps): JSX.Element => {
   const { zone, isSelected, pixelSize, onSelect, onChange } = props;
+  const { position, width, height } = zone;
   const shapeRef = React.useRef<Konva.Rect>(null);
   const transformerRef = React.useRef<Konva.Transformer>(null);
+  const minimumSize = 5 * pixelSize;
 
   React.useEffect(() => {
     if (isSelected) {
@@ -66,9 +68,9 @@ const ZoneEntityShape = (props: ZoneEntityProps): JSX.Element => {
   return (
     <React.Fragment>
       <Rect
-        {...zone.position}
-        width={zone.width}
-        height={zone.height}
+        {...position}
+        width={width}
+        height={height}
         strokeWidth={5}
         stroke="#404040"
         fill="#FAFAFAAA"
@@ -106,8 +108,8 @@ const ZoneEntityShape = (props: ZoneEntityProps): JSX.Element => {
             ...zone,
             position: { x: node.x(), y: node.y() },
             // set minimal value
-            width: Math.max(5, node.width() * scaleX),
-            height: Math.max(node.height() * scaleY),
+            width: Math.max(minimumSize, node.width() * scaleX),
+            height: Math.max(minimumSize, node.height() * scaleY),
           });
         }}
       />
@@ -117,7 +119,7 @@ const ZoneEntityShape = (props: ZoneEntityProps): JSX.Element => {
           rotateEnabled={false}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize
-            if (newBox.width < 5 * pixelSize || newBox.height < 5 * pixelSize) {
+            if (newBox.width < minimumSize || newBox.height < minimumSize) {
               return oldBox;
             }
             return newBox;
