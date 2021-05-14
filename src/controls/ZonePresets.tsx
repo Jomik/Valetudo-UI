@@ -1,144 +1,132 @@
 import {
-  Accordion,
-  AccordionActions,
-  AccordionDetails,
-  AccordionSummary,
+  Box,
   Button,
-  Checkbox,
   CircularProgress,
-  Divider,
   FormControl,
-  FormControlLabel,
-  FormGroup,
   FormHelperText,
-  FormLabel,
   Grid,
+  makeStyles,
+  MenuItem,
+  Paper,
+  Select,
   Typography,
 } from '@material-ui/core';
-import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import React from 'react';
 import {
-  useCleanZonePresetsMutation,
+  Capability,
+  useCleanZonePresetMutation,
   useRobotStatus,
   useZonePresets,
 } from '../api';
 
+const useStyles = makeStyles(() => ({
+  formControl: {
+    minWidth: 120,
+  },
+}));
+
 const ZonePresets = (): JSX.Element => {
-  const { data: state } = useRobotStatus((status) => status.value);
+  const classes = useStyles();
+  const { data: status } = useRobotStatus((status) => status.value);
+  const { data: zones, isLoading: isZonesLoading, isError } = useZonePresets();
   const {
-    data: zones,
-    isLoading: isZonesLoading,
-    isError,
-    refetch,
-  } = useZonePresets();
-  const {
-    isLoading: isCleaningLoading,
+    isLoading: isCommandLoading,
     mutate: cleanZones,
-  } = useCleanZonePresetsMutation({
+  } = useCleanZonePresetMutation({
     onSuccess() {
-      setSelected({});
+      setSelected('');
     },
   });
-  const [selected, setSelected] = React.useState<Record<string, boolean>>({});
-  const isLoading = isZonesLoading || isCleaningLoading;
+  const [selected, setSelected] = React.useState<string>('');
+  const canClean = status === 'idle' || status === 'docked';
 
-  const handleCheckboxChange = React.useCallback(
-    ({ target }: React.ChangeEvent<HTMLInputElement>) => {
-      setSelected((prev) => ({
-        ...prev,
-        [target.id]: target.checked,
-      }));
+  const handleChange = React.useCallback(
+    (event: React.ChangeEvent<{ value: unknown }>) => {
+      setSelected(event.target.value as string);
     },
     []
   );
-  const handleRetry = React.useCallback(() => {
-    refetch();
-  }, [refetch]);
 
   const handleClean = React.useCallback(() => {
-    cleanZones(
-      Object.entries(selected)
-        .filter(([, selected]) => selected)
-        .map(([id]) => id)
-    );
-  }, [cleanZones, selected]);
+    if (selected === '' || !canClean) {
+      return;
+    }
+    cleanZones(selected);
+  }, [canClean, cleanZones, selected]);
 
-  const noZonesSelected = Object.values(selected).every((val) => !val);
-
-  const details = React.useMemo(() => {
-    if (isError) {
+  const body = React.useMemo(() => {
+    if (isZonesLoading) {
       return (
-        <Typography color="error">
-          An error occurred while loading zones
-        </Typography>
+        <Grid item>
+          <CircularProgress size={20} />
+        </Grid>
       );
     }
 
-    if (zones === undefined || zones.length === 0) {
-      return <Typography>No zone presets found</Typography>;
+    if (isError || zones === undefined) {
+      return (
+        <Grid item>
+          <Typography color="error">
+            Error loading {Capability.ZoneCleaning}
+          </Typography>
+        </Grid>
+      );
     }
 
     return (
-      <FormControl component="fieldset">
-        <FormGroup>
-          <FormLabel color="secondary" component="legend">
-            Select zones to be cleaned
-          </FormLabel>
-          {zones.map(({ name, id }) => (
-            <FormControlLabel
-              key={id}
-              control={
-                <Checkbox
-                  checked={selected[id] ?? false}
-                  onChange={handleCheckboxChange}
-                  id={id}
-                />
-              }
-              label={name}
-            />
-          ))}
-        </FormGroup>
-        <FormHelperText>Can only start cleaning when idle</FormHelperText>
-      </FormControl>
+      <>
+        <Grid item>
+          <FormControl color="secondary" className={classes.formControl}>
+            <Select value={selected} onChange={handleChange} displayEmpty>
+              <MenuItem value="">
+                <em>Zone</em>
+              </MenuItem>
+              {zones.map(({ name, id }) => (
+                <MenuItem key={id} value={id}>
+                  {name}
+                </MenuItem>
+              ))}
+            </Select>
+            {!canClean && selected !== '' && (
+              <FormHelperText>Can only start cleaning when idle</FormHelperText>
+            )}
+          </FormControl>
+        </Grid>
+        <Grid item xs>
+          <Box display="flex" justifyContent="flex-end">
+            <Button
+              disabled={!selected || isCommandLoading || !canClean}
+              onClick={handleClean}
+            >
+              Clean
+            </Button>
+          </Box>
+        </Grid>
+      </>
     );
-  }, [handleCheckboxChange, isError, selected, zones]);
+  }, [
+    canClean,
+    classes.formControl,
+    handleChange,
+    handleClean,
+    isCommandLoading,
+    isError,
+    isZonesLoading,
+    selected,
+    zones,
+  ]);
 
   return (
-    <Accordion disabled={zones === undefined && isLoading}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Grid container justify="space-between" alignItems="center">
+    <Paper>
+      <Box px={2} py={1}>
+        <Grid container direction="row" alignItems="center" spacing={1}>
           <Grid item>
-            <Typography>Zone presets</Typography>
+            <Typography variant="subtitle1">Clean zone</Typography>
           </Grid>
-          {isLoading && (
-            <Grid item>
-              <CircularProgress color="inherit" size="1rem" />
-            </Grid>
-          )}
+          {body}
         </Grid>
-      </AccordionSummary>
-      <Divider />
-      <AccordionDetails>{details}</AccordionDetails>
-      <Divider />
-      <AccordionActions>
-        {isError ? (
-          <Button size="small" onClick={handleRetry}>
-            Retry
-          </Button>
-        ) : (
-          <Button
-            size="small"
-            disabled={
-              noZonesSelected || (state !== 'idle' && state !== 'docked')
-            }
-            onClick={handleClean}
-          >
-            Clean zones
-          </Button>
-        )}
-      </AccordionActions>
-    </Accordion>
+      </Box>
+    </Paper>
   );
 };
-
 export default ZonePresets;

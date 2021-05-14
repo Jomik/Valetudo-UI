@@ -87,13 +87,13 @@ const GoToLocationPresets = (): JSX.Element => {
               <MenuItem value="">
                 <em>Location</em>
               </MenuItem>
-              {locations?.map(({ name, id }) => (
+              {locations.map(({ name, id }) => (
                 <MenuItem key={id} value={id}>
                   {name}
                 </MenuItem>
               ))}
             </Select>
-            {!canGo && (
+            {!canGo && selected !== '' && (
               <FormHelperText>Can only go to location when idle</FormHelperText>
             )}
           </FormControl>

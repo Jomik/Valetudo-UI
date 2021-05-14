@@ -132,12 +132,11 @@ export const fetchZoneProperties = async (): Promise<ZoneProperties> =>
     )
     .then(({ data }) => data);
 
-export const cleanZonePresets = async (ids: string[]): Promise<void> => {
+export const cleanZonePreset = async (id: string): Promise<void> => {
   await valetudoAPI.put<void>(
-    `/robot/capabilities/${Capability.ZoneCleaning}/presets`,
+    `/robot/capabilities/${Capability.ZoneCleaning}/presets/${id}`,
     {
       action: 'clean',
-      ids,
     }
   );
 };

@@ -11,7 +11,7 @@ import { Capability } from './Capability';
 import {
   BasicControlCommands,
   cleanSegments,
-  cleanZonePresets,
+  cleanZonePreset,
   fetchCapabilities,
   fetchGoToLocationPresets,
   fetchPresetSelections,
@@ -225,13 +225,13 @@ export const useZoneProperties = () =>
     staleTime: Infinity,
   });
 
-export const useCleanZonePresetsMutation = (
-  options?: UseMutationOptions<RobotAttribute[], unknown, string[]>
+export const useCleanZonePresetMutation = (
+  options?: UseMutationOptions<RobotAttribute[], unknown, string>
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    (ids: string[]) => cleanZonePresets(ids).then(fetchStateAttributes),
+    (id: string) => cleanZonePreset(id).then(fetchStateAttributes),
     {
       ...options,
       async onSuccess(data, ...args) {
