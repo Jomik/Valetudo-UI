@@ -177,19 +177,17 @@ const PresetSelectionControl = (props: PresetSelectionProps): JSX.Element => {
                 {label}
               </Typography>
             </Grid>
-            {isUpdating && (
-              <Grid item>
-                <Fade
-                  in={isUpdating}
-                  style={{
-                    transitionDelay: isUpdating ? '500ms' : '0ms',
-                  }}
-                  unmountOnExit
-                >
-                  <CircularProgress size={20} color="secondary" />
-                </Fade>
-              </Grid>
-            )}
+            <Grid item>
+              <Fade
+                in={isUpdating}
+                style={{
+                  transitionDelay: isUpdating ? '500ms' : '0ms',
+                }}
+                unmountOnExit
+              >
+                <CircularProgress size={20} color="secondary" />
+              </Fade>
+            </Grid>
           </Grid>
           {body}
         </Box>

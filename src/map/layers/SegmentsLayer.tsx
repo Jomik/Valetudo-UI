@@ -62,7 +62,7 @@ const SegmentsLayerOverlay = (
         </Zoom>
       </Grid>
       <Grid item>
-        <Fade in={didSelectSegments && !isLoading}>
+        <Zoom in={didSelectSegments && !isLoading} unmountOnExit>
           <LayerActionButton
             color="inherit"
             size="medium"
@@ -71,10 +71,10 @@ const SegmentsLayerOverlay = (
           >
             Clear
           </LayerActionButton>
-        </Fade>
+        </Zoom>
       </Grid>
       <Grid item>
-        <Fade in={didSelectSegments && !canClean}>
+        <Fade in={didSelectSegments && !canClean} unmountOnExit>
           <Typography variant="caption" color="textSecondary">
             Can only start segment cleaning when idle
           </Typography>

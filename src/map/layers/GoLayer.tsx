@@ -63,7 +63,7 @@ const GoLayerOverlay = (props: GoLayerOverlayProps): JSX.Element => {
         </Zoom>
       </Grid>
       <Grid item>
-        <Fade in={goToPoint !== undefined && !isLoading}>
+        <Zoom in={goToPoint !== undefined && !isLoading} unmountOnExit>
           <LayerActionButton
             color="inherit"
             size="medium"
@@ -72,10 +72,10 @@ const GoLayerOverlay = (props: GoLayerOverlayProps): JSX.Element => {
           >
             Clear
           </LayerActionButton>
-        </Fade>
+        </Zoom>
       </Grid>
       <Grid item>
-        <Fade in={goToPoint !== undefined && !canGo}>
+        <Fade in={goToPoint !== undefined && !canGo} unmountOnExit>
           <Typography variant="caption" color="textSecondary">
             Can only go to point when idle
           </Typography>
