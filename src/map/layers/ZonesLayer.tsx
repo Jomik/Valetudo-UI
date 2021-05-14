@@ -133,10 +133,11 @@ const ZoneEntityShape = (props: ZoneEntityProps): JSX.Element => {
 interface ZonesLayerOverlayProps {
   zones: Zone[];
   onClear(): void;
+  onDelete?(): void;
 }
 
 const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
-  const { zones, onClear } = props;
+  const { zones, onDelete, onClear } = props;
   const { data: status } = useRobotStatus((state) => state.value);
   const { mutate, isLoading: isMutating } = useCleanTemporaryZonesMutation({
     onSuccess: onClear,
@@ -198,7 +199,7 @@ const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
         </Zoom>
       </Grid>
       <Grid item>
-        <Fade in={didSelectZones && !isMutating}>
+        <Zoom in={didSelectZones && !isMutating} unmountOnExit>
           <LayerActionButton
             color="inherit"
             size="medium"
@@ -207,10 +208,22 @@ const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
           >
             Clear
           </LayerActionButton>
-        </Fade>
+        </Zoom>
       </Grid>
       <Grid item>
-        <Fade in={didSelectZones && !canClean}>
+        <Zoom in={onDelete !== undefined} unmountOnExit>
+          <LayerActionButton
+            color="inherit"
+            size="medium"
+            variant="extended"
+            onClick={onDelete}
+          >
+            Delete
+          </LayerActionButton>
+        </Zoom>
+      </Grid>
+      <Grid item>
+        <Fade in={didSelectZones && !canClean} unmountOnExit>
           <Typography variant="caption" color="textSecondary">
             Can only start zone cleaning when idle
           </Typography>
@@ -260,6 +273,17 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
 
   const handleClick = React.useCallback(
     (position: [number, number]) => {
+      if (
+        zones.some((zone) =>
+          inside(position, {
+            x: [zone.position.x, zone.position.x + zone.width],
+            y: [zone.position.y, zone.position.y + zone.height],
+          })
+        )
+      ) {
+        return;
+      }
+
       const maxZoneCount = properties?.zoneCount.max;
       if (maxZoneCount === undefined) {
         return;
@@ -274,17 +298,6 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
             variant: 'info',
           }
         );
-        return;
-      }
-
-      if (
-        zones.some((zone) =>
-          inside(position, {
-            x: [zone.position.x, zone.position.x + zone.width],
-            y: [zone.position.y, zone.position.y + zone.height],
-          })
-        )
-      ) {
         return;
       }
 
@@ -305,6 +318,11 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
     },
     [enqueueSnackbar, properties, zones]
   );
+
+  const handleDelete = (id: string) => () => {
+    setSelectedId(undefined);
+    setZones((prev) => prev.filter((zone) => zone.id !== id));
+  };
 
   const zoneEntities = React.useMemo(
     () =>
@@ -368,7 +386,13 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
         onClick={handleClick}
       />
       <LayerActionsContainer>
-        <ZonesLayerOverlay onClear={handleClear} zones={zones} />
+        <ZonesLayerOverlay
+          onClear={handleClear}
+          zones={zones}
+          onDelete={
+            selectedId !== undefined ? handleDelete(selectedId) : undefined
+          }
+        />
       </LayerActionsContainer>
     </>
   );
