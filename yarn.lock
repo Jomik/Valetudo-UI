@@ -2824,7 +2824,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^8":
+"@types/uuid@npm:8.3.0":
   version: 8.3.0
   resolution: "@types/uuid@npm:8.3.0"
   checksum: 620985aed8fdb4aed153daca5235f4303457a67a4d181efac0021712eabd9edd7e88895f79730c0e651effde7633b1b61e49a81519ac8d4e75019d2ac9b6412f
@@ -15978,7 +15978,7 @@ typescript@4.2.4:
     "@types/react": 17.0.4
     "@types/react-dom": 17.0.3
     "@types/react-router-dom": 5.1.7
-    "@types/uuid": ^8
+    "@types/uuid": 8.3.0
     "@typescript-eslint/eslint-plugin": 4.22.0
     "@typescript-eslint/parser": 4.22.0
     axios: 0.21.1
