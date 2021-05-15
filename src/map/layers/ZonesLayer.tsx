@@ -17,6 +17,7 @@ import {
   useCleanTemporaryZonesMutation,
   useRobotStatus,
   useZoneProperties,
+  ZoneProperties,
 } from '../../api';
 import Map from '../Map';
 import { LayerActionsContainer, LayerActionButton } from './Styled';
@@ -24,8 +25,8 @@ import { MapLayersProps } from './types';
 import { useMapEntities, useMapLayers } from './hooks';
 import { Rect, Transformer } from 'react-konva';
 import Konva from 'konva';
-import { inside } from '../utils';
-import { useSnackbar } from 'notistack';
+import { MapStageRef } from '../MapStage';
+import { bound } from '../utils';
 
 interface Zone {
   id: string;
@@ -132,13 +133,15 @@ const ZoneEntityShape = (props: ZoneEntityProps): JSX.Element => {
 
 interface ZonesLayerOverlayProps {
   zones: Zone[];
+  properties: ZoneProperties;
   onClear(): void;
   onDelete?(): void;
   onDone(): void;
+  onAdd(): void;
 }
 
 const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
-  const { zones, onDelete, onClear, onDone } = props;
+  const { zones, properties, onDelete, onClear, onDone, onAdd } = props;
   const { data: status } = useRobotStatus((state) => state.value);
   const { mutate, isLoading: isMutating } = useCleanTemporaryZonesMutation({
     onSuccess: onDone,
@@ -200,8 +203,22 @@ const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
         </Zoom>
       </Grid>
       <Grid item>
-        <Zoom in={didSelectZones && !isMutating} unmountOnExit>
+        <Zoom in>
           <LayerActionButton
+            disabled={zones.length === properties.zoneCount.max || isMutating}
+            color="inherit"
+            size="medium"
+            variant="extended"
+            onClick={onAdd}
+          >
+            Add ({zones.length}/{properties.zoneCount.max})
+          </LayerActionButton>
+        </Zoom>
+      </Grid>
+      <Grid item>
+        <Zoom in={didSelectZones} unmountOnExit>
+          <LayerActionButton
+            disabled={isMutating}
             color="inherit"
             size="medium"
             variant="extended"
@@ -214,6 +231,7 @@ const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
       <Grid item>
         <Zoom in={onDelete !== undefined} unmountOnExit>
           <LayerActionButton
+            disabled={isMutating}
             color="inherit"
             size="medium"
             variant="extended"
@@ -257,7 +275,7 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
   const { data: properties, isLoading, isError, refetch } = useZoneProperties();
   const [zones, setZones] = React.useState<Zone[]>([]);
   const [selectedId, setSelectedId] = React.useState<string>();
-  const { enqueueSnackbar } = useSnackbar();
+  const stageRef = React.useRef<MapStageRef>(null);
 
   const layers = useMapLayers(data);
   const entities = useMapEntities(
@@ -272,53 +290,44 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
     setSelectedId(undefined);
   }, []);
 
-  const handleClick = React.useCallback(
-    (position: [number, number]) => {
-      if (
-        zones.some((zone) =>
-          inside(position, {
-            x: [zone.position.x, zone.position.x + zone.width],
-            y: [zone.position.y, zone.position.y + zone.height],
-          })
-        )
-      ) {
-        return;
-      }
+  const handleAdd = React.useCallback(() => {
+    const stage = stageRef.current;
+    if (
+      stage === null ||
+      properties === undefined ||
+      zones.length >= properties.zoneCount.max
+    ) {
+      return;
+    }
 
-      const maxZoneCount = properties?.zoneCount.max;
-      if (maxZoneCount === undefined) {
-        return;
-      }
+    const id = uuid.v4();
+    const map = stage.map();
+    const view = stage.view();
 
-      if (zones.length >= maxZoneCount) {
-        enqueueSnackbar(
-          `A max of ${maxZoneCount} zones can be cleaned at once.`,
-          {
-            key: `${Capability.ZoneCleaning}:ZonesMaxed`,
-            preventDuplicate: true,
-            variant: 'info',
-          }
-        );
-        return;
-      }
+    const axisPosition = (axis: 'x' | 'y') =>
+      bound(
+        map.origin[axis] +
+          view[axis === 'x' ? 'width' : 'height'] / 2 / map.scale -
+          view.position[axis] / map.scale,
+        map.origin[axis],
+        map.origin[axis] + map[axis === 'x' ? 'width' : 'height']
+      );
 
-      const [x, y] = position;
-      const id = uuid.v4();
+    const x = axisPosition('x');
+    const y = axisPosition('y');
 
-      setZones((prev) => [
-        ...prev,
-        {
-          id,
-          iterations: 1,
-          position: { x: x - 50, y: y - 50 },
-          width: 100,
-          height: 100,
-        },
-      ]);
-      setSelectedId(id);
-    },
-    [enqueueSnackbar, properties, zones]
-  );
+    setZones((prev) => [
+      ...prev,
+      {
+        id,
+        iterations: 1,
+        position: { x: x - 50, y: y - 50 },
+        width: 100,
+        height: 100,
+      },
+    ]);
+    setSelectedId(id);
+  }, [properties, zones]);
 
   const handleDelete = (id: string) => () => {
     setSelectedId(undefined);
@@ -381,16 +390,18 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
   return (
     <>
       <Map
+        ref={stageRef}
         layers={layers}
         entities={entities.concat(zoneEntities)}
         padding={padding}
-        onClick={handleClick}
       />
       <LayerActionsContainer>
         <ZonesLayerOverlay
-          onClear={handleClear}
-          onDone={onDone}
           zones={zones}
+          properties={properties}
+          onClear={handleClear}
+          onAdd={handleAdd}
+          onDone={onDone}
           onDelete={
             selectedId !== undefined ? handleDelete(selectedId) : undefined
           }

@@ -14,6 +14,8 @@ import {
 import { makeStyles } from '@material-ui/core';
 
 Konva.hitOnDragEnabled = isTouchEnabled;
+const ScaleBound = 10;
+
 const useStyles = makeStyles(() => ({
   container: {
     position: 'relative',
@@ -24,17 +26,6 @@ const useStyles = makeStyles(() => ({
     position: 'absolute',
   },
 }));
-
-export type MapStageProps = StageProps & {
-  children: JSX.Element;
-  width: number;
-  padding?: number;
-  height: number;
-  offset?: never;
-  scale?: never;
-  scaleX?: never;
-  scaleY?: never;
-};
 
 const scalePersistentNodes = (stage: Konva.Stage) => {
   stage
@@ -55,9 +46,40 @@ const scalePersistentNodes = (stage: Konva.Stage) => {
     });
 };
 
-const ScaleBound = 10;
+export interface MapStageProps extends StageProps {
+  children: JSX.Element;
+  width: number;
+  padding?: number;
+  height: number;
+  offset?: never;
+  scale?: never;
+  scaleX?: never;
+  scaleY?: never;
+}
 
-const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
+export interface MapStageRef {
+  redraw(): void;
+  view(): {
+    width: number;
+    height: number;
+    scale: number;
+    position: {
+      x: number;
+      y: number;
+    };
+  };
+  map(): {
+    width: number;
+    height: number;
+    scale: number;
+    origin: {
+      x: number;
+      y: number;
+    };
+  };
+}
+
+const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
   (props, ref): JSX.Element => {
     const {
       children,
@@ -91,19 +113,34 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
     const stageScaleY = (containerHeight - padding * 2) / height;
     const stageScale = Math.min(stageScaleX, stageScaleY);
 
-    React.useImperativeHandle(
+    React.useImperativeHandle<MapStageRef | null, MapStageRef | null>(
       ref,
-      () => ({
-        redraw() {
-          const stage = stageRef.current;
-          if (stage === null) {
-            return;
-          }
-          scalePersistentNodes(stage);
-          stage.batchDraw();
-        },
-      }),
-      []
+      () => {
+        const stage = stageRef.current;
+        if (stage === null) {
+          return null;
+        }
+
+        return {
+          view: () => ({
+            width: containerWidth,
+            height: containerHeight,
+            position: stage.position(),
+            scale: stageScale,
+          }),
+          map: () => ({
+            width,
+            height,
+            scale: stage.scaleX(),
+            origin: stage.offset(),
+          }),
+          redraw() {
+            scalePersistentNodes(stage);
+            stage.batchDraw();
+          },
+        };
+      },
+      [containerHeight, containerWidth, height, stageScale, width]
     );
 
     // Update scale of nodes that should have a specific size
