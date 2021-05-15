@@ -13,6 +13,7 @@ import {
 } from './utils';
 import { makeStyles } from '@material-ui/core';
 
+Konva.hitOnDragEnabled = isTouchEnabled;
 const useStyles = makeStyles(() => ({
   container: {
     position: 'relative',
@@ -72,7 +73,6 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
     } = props;
     const classes = useStyles();
     const lastCenter = React.useRef<Vector2d | null>(null);
-    const lastDragCenter = React.useRef<Vector2d | null>(null);
     const lastDist = React.useRef<number>(0);
 
     const [containerRef, { containerWidth, containerHeight }] = useHTMLElement(
@@ -201,32 +201,13 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
       [containerHeight, containerWidth, height, padding, stageScale, width]
     );
 
-    const handleOneTouch = React.useCallback(
-      (stage: Konva.Stage, touch: Vector2d) => {
-        if (lastDragCenter.current === null) {
-          lastDragCenter.current = touch;
-          return;
-        }
-
-        stage.position(
-          dragBoundFunc.bind(stage)({
-            x: stage.x() + touch.x - lastDragCenter.current.x,
-            y: stage.y() + touch.y - lastDragCenter.current.y,
-          })
-        );
-
-        stage.batchDraw();
-
-        lastDragCenter.current = touch;
-      },
-      [dragBoundFunc]
-    );
-
     const handleTwoTouches = React.useCallback(
       (stage: Konva.Stage, touches: [Vector2d, Vector2d]) => {
         const [touch1, touch2] = touches;
         const newCenter = getCenter(touch1, touch2);
         const dist = getDistance(touch1, touch2);
+
+        stage.stopDrag();
 
         if (!lastCenter.current) {
           lastCenter.current = newCenter;
@@ -256,34 +237,30 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
           return;
         }
 
-        event.evt.preventDefault();
         const { currentTarget: stage } = event;
 
         if (!(stage instanceof Konva.Stage)) {
           return;
         }
 
-        if (event.evt.touches.length === 1) {
-          const [touch1] = event.evt.touches;
-          const p1 = { x: touch1.clientX, y: touch1.clientY };
-          handleOneTouch(stage, p1);
-        } else if (event.evt.touches.length === 2) {
+        event.evt.preventDefault();
+
+        if (event.evt.touches.length === 2) {
           const [touch1, touch2] = event.evt.touches;
           const p1 = { x: touch1.clientX, y: touch1.clientY };
           const p2 = { x: touch2.clientX, y: touch2.clientY };
           handleTwoTouches(stage, [p1, p2]);
         }
       },
-      [handleOneTouch, handleTwoTouches, onTouchMove]
+      [handleTwoTouches, onTouchMove]
     );
 
     const handleTouchEnd = React.useCallback(
       (event: KonvaEventObject<TouchEvent>) => {
         lastDist.current = 0;
 
-        if (lastDragCenter.current !== null || lastCenter.current !== null) {
+        if (lastCenter.current !== null) {
           lastCenter.current = null;
-          lastDragCenter.current = null;
           event.evt.preventDefault();
           return;
         }
@@ -299,7 +276,7 @@ const MapStage = React.forwardRef<{ redraw(): void }, MapStageProps>(
           {...stageConfig}
           className={classes.stage}
           ref={stageRef}
-          draggable={!isTouchEnabled}
+          draggable
           dragBoundFunc={dragBoundFunc}
           onWheel={handleScroll}
           onTouchMove={handleTouchMove}

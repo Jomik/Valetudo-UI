@@ -92,7 +92,7 @@ const Map = (props: MapProps): JSX.Element => {
       ref={stageRef}
       style={{ fontSize: theme.typography.body1.fontSize }}
       onClick={handleMapInteraction}
-      onTouchEnd={handleMapInteraction}
+      onTap={handleMapInteraction}
     >
       {/*
         We have to provide the theme here to "bridge" the Stage.
