@@ -38,6 +38,14 @@ export const useMapLabels = (data: RawMapData): MapLabel[] => {
   ]);
 };
 
+const entityOrder: Partial<Record<RawMapEntityType, number>> = {
+  [RawMapEntityType.RobotPosition]: 1,
+  [RawMapEntityType.ChargerLocation]: 2,
+};
+
+const maxEntityOrder =
+  Math.max(...Object.values(entityOrder).map((v) => v ?? 0)) + 1;
+
 export const useMapEntities = (
   entities: RawMapData['entities'],
   typeArray?: RawMapEntityType[]
@@ -46,7 +54,14 @@ export const useMapEntities = (
     const filteredArray = typeArray
       ? entities.filter(({ type }) => typeArray.includes(type))
       : entities;
-    return filteredArray.map((entity, index) => (
+
+    const sortedArray = [...filteredArray].sort(
+      (a, b) =>
+        (entityOrder[b.type] ?? maxEntityOrder) -
+        (entityOrder[a.type] ?? maxEntityOrder)
+    );
+
+    return sortedArray.map((entity, index) => (
       <RawMapEntityShape entity={entity} key={index} />
     ));
   }, [entities, typeArray]);

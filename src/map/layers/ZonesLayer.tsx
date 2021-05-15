@@ -256,6 +256,8 @@ const ShownEntities = [
   RawMapEntityType.NoGoArea,
   RawMapEntityType.NoMopArea,
   RawMapEntityType.VirtualWall,
+  RawMapEntityType.RobotPosition,
+  RawMapEntityType.ChargerLocation,
 ];
 
 const useStyles = makeStyles(() => ({

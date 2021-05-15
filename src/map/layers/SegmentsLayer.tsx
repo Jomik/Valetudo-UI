@@ -6,13 +6,17 @@ import {
   Zoom,
 } from '@material-ui/core';
 import React from 'react';
-import { useCleanSegmentsMutation, useRobotStatus } from '../../api';
+import {
+  RawMapEntityType,
+  useCleanSegmentsMutation,
+  useRobotStatus,
+} from '../../api';
 import Map from '../Map';
 import { LayerActionsContainer, LayerActionButton } from './Styled';
 import { MapLayersProps } from './types';
 import { manhatten, pairWiseArray } from '../utils';
 import Color from 'color';
-import { useMapLabels, useMapLayers } from './hooks';
+import { useMapEntities, useMapLabels, useMapLayers } from './hooks';
 
 interface SegmentsLayerOverlayProps {
   segments: string[];
@@ -85,12 +89,18 @@ const SegmentsLayerOverlay = (
   );
 };
 
+const ShownEntities = [
+  RawMapEntityType.RobotPosition,
+  RawMapEntityType.ChargerLocation,
+];
+
 const SegmentsLayer = (props: MapLayersProps): JSX.Element => {
   const { data, padding, onDone } = props;
   const [selectedSegments, setSelectedSegments] = React.useState<string[]>([]);
 
   const layers = useMapLayers(data);
   const labels = useMapLabels(data);
+  const entities = useMapEntities(data.entities, ShownEntities);
 
   const handleClear = React.useCallback(() => {
     setSelectedSegments([]);
@@ -141,6 +151,7 @@ const SegmentsLayer = (props: MapLayersProps): JSX.Element => {
     <>
       <Map
         layers={coloredLayers}
+        entities={entities}
         labels={labels}
         padding={padding}
         onClick={handleClick}
