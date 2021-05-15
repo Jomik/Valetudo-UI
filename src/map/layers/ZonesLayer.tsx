@@ -278,12 +278,7 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
   const stageRef = React.useRef<MapStageRef>(null);
 
   const layers = useMapLayers(data);
-  const entities = useMapEntities(
-    React.useMemo(
-      () => data.entities.filter(({ type }) => ShownEntities.includes(type)),
-      [data.entities]
-    )
-  );
+  const entities = useMapEntities(data.entities, ShownEntities);
 
   const handleClear = React.useCallback(() => {
     setZones([]);

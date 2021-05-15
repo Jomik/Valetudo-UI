@@ -1,6 +1,6 @@
 import { useTheme } from '@material-ui/core';
 import React from 'react';
-import { RawMapData } from '../../api';
+import { RawMapData, RawMapEntityType } from '../../api';
 import { MapLabel, MapLayer } from '../Map';
 import { FourColorTheoremSolver } from '../map-color-finder';
 import { RawMapEntityShape } from '../shapes';
@@ -39,13 +39,15 @@ export const useMapLabels = (data: RawMapData): MapLabel[] => {
 };
 
 export const useMapEntities = (
-  entities: RawMapData['entities']
+  entities: RawMapData['entities'],
+  typeArray?: RawMapEntityType[]
 ): JSX.Element[] => {
-  return React.useMemo(
-    () =>
-      entities.map((entity, index) => (
-        <RawMapEntityShape entity={entity} key={index} />
-      )),
-    [entities]
-  );
+  return React.useMemo(() => {
+    const filteredArray = typeArray
+      ? entities.filter(({ type }) => typeArray.includes(type))
+      : entities;
+    return filteredArray.map((entity, index) => (
+      <RawMapEntityShape entity={entity} key={index} />
+    ));
+  }, [entities, typeArray]);
 };

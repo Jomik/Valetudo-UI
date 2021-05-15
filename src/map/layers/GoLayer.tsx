@@ -6,7 +6,12 @@ import {
   Zoom,
 } from '@material-ui/core';
 import React from 'react';
-import { Coordinates, useGoToMutation, useRobotStatus } from '../../api';
+import {
+  Coordinates,
+  RawMapEntityType,
+  useGoToMutation,
+  useRobotStatus,
+} from '../../api';
 import Map from '../Map';
 import { LayerActionsContainer, LayerActionButton } from './Styled';
 import { Image } from 'react-konva';
@@ -86,11 +91,20 @@ const GoLayerOverlay = (props: GoLayerOverlayProps): JSX.Element => {
   );
 };
 
+const ShownEntities = [
+  RawMapEntityType.NoGoArea,
+  RawMapEntityType.NoMopArea,
+  RawMapEntityType.VirtualWall,
+];
+
 const GoLayer = (props: MapLayersProps): JSX.Element => {
   const { data, padding, onDone } = props;
   const [goToPoint, setGoToPoint] = React.useState<Coordinates>();
 
-  const entities: React.ReactNode[] = useMapEntities(data.entities);
+  const entities: React.ReactNode[] = useMapEntities(
+    data.entities,
+    ShownEntities
+  );
   const labels = useMapLabels(data);
   const layers = useMapLayers(data);
 
