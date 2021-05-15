@@ -134,13 +134,14 @@ interface ZonesLayerOverlayProps {
   zones: Zone[];
   onClear(): void;
   onDelete?(): void;
+  onDone(): void;
 }
 
 const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
-  const { zones, onDelete, onClear } = props;
+  const { zones, onDelete, onClear, onDone } = props;
   const { data: status } = useRobotStatus((state) => state.value);
   const { mutate, isLoading: isMutating } = useCleanTemporaryZonesMutation({
-    onSuccess: onClear,
+    onSuccess: onDone,
   });
 
   const canClean = status === 'idle' || status === 'docked';
@@ -251,7 +252,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const ZonesLayer = (props: MapLayersProps): JSX.Element => {
-  const { data, padding } = props;
+  const { data, padding, onDone } = props;
   const classes = useStyles();
   const { data: properties, isLoading, isError, refetch } = useZoneProperties();
   const [zones, setZones] = React.useState<Zone[]>([]);
@@ -388,6 +389,7 @@ const ZonesLayer = (props: MapLayersProps): JSX.Element => {
       <LayerActionsContainer>
         <ZonesLayerOverlay
           onClear={handleClear}
+          onDone={onDone}
           zones={zones}
           onDelete={
             selectedId !== undefined ? handleDelete(selectedId) : undefined

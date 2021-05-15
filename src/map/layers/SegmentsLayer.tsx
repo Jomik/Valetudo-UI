@@ -17,15 +17,16 @@ import { useMapLabels, useMapLayers } from './hooks';
 interface SegmentsLayerOverlayProps {
   segments: string[];
   onClear(): void;
+  onDone(): void;
 }
 
 const SegmentsLayerOverlay = (
   props: SegmentsLayerOverlayProps
 ): JSX.Element => {
-  const { segments, onClear } = props;
+  const { segments, onClear, onDone } = props;
   const { data: status } = useRobotStatus((state) => state.value);
   const { mutate, isLoading } = useCleanSegmentsMutation({
-    onSuccess: onClear,
+    onSuccess: onDone,
   });
 
   const canClean = status === 'idle' || status === 'docked';
@@ -85,7 +86,7 @@ const SegmentsLayerOverlay = (
 };
 
 const SegmentsLayer = (props: MapLayersProps): JSX.Element => {
-  const { data, padding } = props;
+  const { data, padding, onDone } = props;
   const [selectedSegments, setSelectedSegments] = React.useState<string[]>([]);
 
   const layers = useMapLayers(data);
@@ -147,6 +148,7 @@ const SegmentsLayer = (props: MapLayersProps): JSX.Element => {
       <LayerActionsContainer>
         <SegmentsLayerOverlay
           onClear={handleClear}
+          onDone={onDone}
           segments={selectedSegments}
         />
       </LayerActionsContainer>

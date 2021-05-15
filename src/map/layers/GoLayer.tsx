@@ -21,13 +21,14 @@ markerImage.src = markerSrc;
 interface GoLayerOverlayProps {
   goToPoint: Coordinates | undefined;
   onClear(): void;
+  onDone(): void;
 }
 
 const GoLayerOverlay = (props: GoLayerOverlayProps): JSX.Element => {
-  const { goToPoint, onClear } = props;
+  const { goToPoint, onClear, onDone } = props;
   const { data: status } = useRobotStatus((state) => state.value);
   const { mutate, isLoading } = useGoToMutation({
-    onSuccess: onClear,
+    onSuccess: onDone,
   });
 
   const canGo = status === 'idle' || status === 'docked';
@@ -86,7 +87,7 @@ const GoLayerOverlay = (props: GoLayerOverlayProps): JSX.Element => {
 };
 
 const GoLayer = (props: MapLayersProps): JSX.Element => {
-  const { data, padding } = props;
+  const { data, padding, onDone } = props;
   const [goToPoint, setGoToPoint] = React.useState<Coordinates>();
 
   const entities: React.ReactNode[] = useMapEntities(data.entities);
@@ -145,7 +146,11 @@ const GoLayer = (props: MapLayersProps): JSX.Element => {
         onClick={handleClick}
       />
       <LayerActionsContainer>
-        <GoLayerOverlay goToPoint={goToPoint} onClear={handleClear} />
+        <GoLayerOverlay
+          goToPoint={goToPoint}
+          onClear={handleClear}
+          onDone={onDone}
+        />
       </LayerActionsContainer>
     </>
   );

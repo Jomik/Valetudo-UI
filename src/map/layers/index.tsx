@@ -56,7 +56,7 @@ const layerToIcon: Record<Layer, JSX.Element> = {
   Zones: <ZonesIcon />,
 };
 
-const MapLayers = (props: MapLayersProps): JSX.Element => {
+const MapLayers = (props: Omit<MapLayersProps, 'onDone'>): JSX.Element => {
   const classes = useStyles();
   const [
     goToLocation,
@@ -118,7 +118,7 @@ const MapLayers = (props: MapLayersProps): JSX.Element => {
   if (layers.length === 1) {
     return (
       <Root>
-        <LayerComponent {...props} />
+        <LayerComponent {...props} onDone={selectLayer('View')} />
       </Root>
     );
   }
@@ -126,7 +126,7 @@ const MapLayers = (props: MapLayersProps): JSX.Element => {
   return (
     <Root>
       <Backdrop open={open} className={classes.backdrop} />
-      <LayerComponent {...props} />
+      <LayerComponent {...props} onDone={selectLayer('View')} />
       <StyledSpeedDial
         className={classes.speedDial}
         direction="down"
