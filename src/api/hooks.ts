@@ -10,8 +10,8 @@ import {
 import { Capability } from './Capability';
 import {
   BasicControlCommands,
-  cleanSegments,
-  cleanZonePreset,
+  sendCleanSegmentsCommand,
+  sendCleanZonePresetCommand,
   fetchCapabilities,
   fetchGoToLocationPresets,
   fetchPresetSelections,
@@ -19,7 +19,7 @@ import {
   fetchSegments,
   fetchStateAttributes,
   fetchZonePresets,
-  goToLocationPreset,
+  sendGoToLocationPresetCommand,
   sendBasicControlCommand,
   sendGoToCommand,
   subscribeToMap,
@@ -27,7 +27,7 @@ import {
   updatePresetSelection,
   Coordinates,
   fetchZoneProperties,
-  cleanTemporaryZones,
+  sendCleanTemporaryZonesCommand,
 } from './client';
 import {
   PresetSelectionState,
@@ -59,24 +59,24 @@ const useSSECacheUpdater = <T>(
   }, [key, queryClient, subscriber]);
 };
 
-export const useCapabilities = () =>
+export const useCapabilitiesQuery = () =>
   useQuery(CacheKey.Capabilities, fetchCapabilities, { staleTime: Infinity });
 
-export const useRobotMap = () => {
+export const useRobotMapQuery = () => {
   useSSECacheUpdater(CacheKey.Map, subscribeToMap);
   return useQuery(CacheKey.Map, fetchMap, {
     staleTime: 1000,
   });
 };
 
-export function useRobotAttribute<C extends RobotAttributeClass>(
+export function useRobotAttributeQuery<C extends RobotAttributeClass>(
   clazz: C
 ): UseQueryResult<Extract<RobotAttribute, { __class: C }>[]>;
-export function useRobotAttribute<C extends RobotAttributeClass, T>(
+export function useRobotAttributeQuery<C extends RobotAttributeClass, T>(
   clazz: C,
   select: (attributes: Extract<RobotAttribute, { __class: C }>[]) => T
 ): UseQueryResult<T>;
-export function useRobotAttribute<C extends RobotAttributeClass>(
+export function useRobotAttributeQuery<C extends RobotAttributeClass>(
   clazz: C,
   select?: (attributes: Extract<RobotAttribute, { __class: C }>[]) => any
 ): UseQueryResult<any> {
@@ -91,11 +91,11 @@ export function useRobotAttribute<C extends RobotAttributeClass>(
   });
 }
 
-export function useRobotStatus(): UseQueryResult<StatusState>;
-export function useRobotStatus<T>(
+export function useRobotStatusQuery(): UseQueryResult<StatusState>;
+export function useRobotStatusQuery<T>(
   select: (status: StatusState) => T
 ): UseQueryResult<T>;
-export function useRobotStatus(select?: (status: StatusState) => any) {
+export function useRobotStatusQuery(select?: (status: StatusState) => any) {
   useSSECacheUpdater(CacheKey.Attributes, subscribeToStateAttributes);
   return useQuery(CacheKey.Attributes, fetchStateAttributes, {
     staleTime: 1000,
@@ -114,7 +114,7 @@ export function useRobotStatus(select?: (status: StatusState) => any) {
   });
 }
 
-export const usePresetSelections = (
+export const usePresetSelectionsQuery = (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
 ) =>
   useQuery(
@@ -217,10 +217,10 @@ export const useGoToMutation = (
   );
 };
 
-export const useZonePresets = () =>
+export const useZonePresetsQuery = () =>
   useQuery(CacheKey.ZonePresets, fetchZonePresets, { staleTime: Infinity });
 
-export const useZoneProperties = () =>
+export const useZonePropertiesQuery = () =>
   useQuery(CacheKey.ZoneProperties, fetchZoneProperties, {
     staleTime: Infinity,
   });
@@ -231,7 +231,7 @@ export const useCleanZonePresetMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(
-    (id: string) => cleanZonePreset(id).then(fetchStateAttributes),
+    (id: string) => sendCleanZonePresetCommand(id).then(fetchStateAttributes),
     {
       ...options,
       async onSuccess(data, ...args) {
@@ -250,7 +250,8 @@ export const useCleanTemporaryZonesMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(
-    (zones: Zone[]) => cleanTemporaryZones(zones).then(fetchStateAttributes),
+    (zones: Zone[]) =>
+      sendCleanTemporaryZonesCommand(zones).then(fetchStateAttributes),
     {
       ...options,
       async onSuccess(data, ...args) {
@@ -263,7 +264,7 @@ export const useCleanTemporaryZonesMutation = (
   );
 };
 
-export const useSegments = () =>
+export const useSegmentsQuery = () =>
   useQuery(CacheKey.Segments, fetchSegments, { staleTime: Infinity });
 
 export const useCleanSegmentsMutation = (
@@ -272,7 +273,7 @@ export const useCleanSegmentsMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(
-    (ids: string[]) => cleanSegments(ids).then(fetchStateAttributes),
+    (ids: string[]) => sendCleanSegmentsCommand(ids).then(fetchStateAttributes),
     {
       ...options,
       async onSuccess(data, ...args) {
@@ -285,7 +286,7 @@ export const useCleanSegmentsMutation = (
   );
 };
 
-export const useGoToLocationPresets = () =>
+export const useGoToLocationPresetsQuery = () =>
   useQuery(CacheKey.GoToLocationPresets, fetchGoToLocationPresets, {
     staleTime: Infinity,
   });
@@ -296,7 +297,8 @@ export const useGoToLocationPresetMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(
-    (id: string) => goToLocationPreset(id).then(fetchStateAttributes),
+    (id: string) =>
+      sendGoToLocationPresetCommand(id).then(fetchStateAttributes),
     {
       ...options,
       async onSuccess(data, ...args) {

@@ -15,8 +15,8 @@ import React from 'react';
 import {
   Capability,
   useCleanZonePresetMutation,
-  useRobotStatus,
-  useZonePresets,
+  useRobotStatusQuery,
+  useZonePresetsQuery,
 } from '../api';
 
 const useStyles = makeStyles(() => ({
@@ -27,8 +27,12 @@ const useStyles = makeStyles(() => ({
 
 const ZonePresets = (): JSX.Element => {
   const classes = useStyles();
-  const { data: status } = useRobotStatus((status) => status.value);
-  const { data: zones, isLoading: isZonesLoading, isError } = useZonePresets();
+  const { data: status } = useRobotStatusQuery((status) => status.value);
+  const {
+    data: zones,
+    isLoading: isZonesLoading,
+    isError,
+  } = useZonePresetsQuery();
   const {
     isLoading: isCommandLoading,
     mutate: cleanZones,

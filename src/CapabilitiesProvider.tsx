@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { SnackbarKey, useSnackbar } from 'notistack';
 import React from 'react';
-import { Capability, useCapabilities } from './api';
+import { Capability, useCapabilitiesQuery } from './api';
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
@@ -25,7 +25,7 @@ const CapabilitiesProvider = (props: {
 }): JSX.Element => {
   const { children } = props;
   const classes = useStyles();
-  const { isError, isLoading, data, refetch } = useCapabilities();
+  const { isError, isLoading, data, refetch } = useCapabilitiesQuery();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const snackbarKey = React.useRef<SnackbarKey>();
 

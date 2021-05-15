@@ -9,7 +9,7 @@ import React from 'react';
 import {
   RawMapEntityType,
   useCleanSegmentsMutation,
-  useRobotStatus,
+  useRobotStatusQuery,
 } from '../../api';
 import Map from '../Map';
 import { LayerActionsContainer, LayerActionButton } from './Styled';
@@ -28,7 +28,7 @@ const SegmentsLayerOverlay = (
   props: SegmentsLayerOverlayProps
 ): JSX.Element => {
   const { segments, onClear, onDone } = props;
-  const { data: status } = useRobotStatus((state) => state.value);
+  const { data: status } = useRobotStatusQuery((state) => state.value);
   const { mutate, isLoading } = useCleanSegmentsMutation({
     onSuccess: onDone,
   });

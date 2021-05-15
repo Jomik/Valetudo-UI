@@ -6,7 +6,11 @@ import {
   Typography,
   Grid,
 } from '@material-ui/core';
-import { useRobotStatus, useBasicControlMutation, StatusState } from '../api';
+import {
+  useRobotStatusQuery,
+  useBasicControlMutation,
+  StatusState,
+} from '../api';
 import {
   Home as HomeIcon,
   Pause as PauseIcon,
@@ -28,7 +32,7 @@ const PauseStates: StatusState['value'][] = ['cleaning', 'returning', 'moving'];
 
 const BasicControls = (): JSX.Element => {
   const classes = useStyles();
-  const { data: status } = useRobotStatus();
+  const { data: status } = useRobotStatusQuery();
   const { mutate, isLoading } = useBasicControlMutation();
   const sendCommand = (...args: Parameters<typeof mutate>) => () =>
     mutate(...args);

@@ -16,8 +16,8 @@ import {
   PresetSelectionState,
   RobotAttributeClass,
   usePresetSelectionMutation,
-  usePresetSelections,
-  useRobotAttribute,
+  usePresetSelectionsQuery,
+  useRobotAttributeQuery,
 } from '../api';
 
 const DiscreteSlider = withStyles((theme) => ({
@@ -53,14 +53,16 @@ export interface PresetSelectionProps {
 
 const PresetSelectionControl = (props: PresetSelectionProps): JSX.Element => {
   const { capability, label, icon } = props;
-  const { data: preset } = useRobotAttribute(
+  const { data: preset } = useRobotAttributeQuery(
     RobotAttributeClass.PresetSelectionState,
     (attributes) =>
       attributes.filter(
         (attribute) => attribute.type === capabilityToPresetType[capability]
       )[0]
   );
-  const { isLoading, isError, data: presets } = usePresetSelections(capability);
+  const { isLoading, isError, data: presets } = usePresetSelectionsQuery(
+    capability
+  );
   const { mutate, isLoading: isUpdating } = usePresetSelectionMutation(
     capability
   );

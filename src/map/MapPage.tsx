@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from '@material-ui/core';
-import { useRobotMap } from '../api';
+import { useRobotMapQuery } from '../api';
 import MapLayers from './layers';
 
 const useStyles = makeStyles(() => ({
@@ -22,7 +22,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const MapPage = (): JSX.Element => {
-  const { data, isLoading, isError, refetch } = useRobotMap();
+  const { data, isLoading, isError, refetch } = useRobotMapQuery();
   const classes = useStyles();
   const theme = useTheme();
 

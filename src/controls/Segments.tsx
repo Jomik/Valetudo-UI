@@ -20,18 +20,18 @@ import React from 'react';
 import {
   Segment,
   useCleanSegmentsMutation,
-  useRobotStatus,
-  useSegments,
+  useRobotStatusQuery,
+  useSegmentsQuery,
 } from '../api';
 
 const Segments = (): JSX.Element => {
-  const { data: state } = useRobotStatus((status) => status.value);
+  const { data: state } = useRobotStatusQuery((status) => status.value);
   const {
     data: segments,
     isLoading: isSegmentsLoading,
     isError,
     refetch,
-  } = useSegments();
+  } = useSegmentsQuery();
   const {
     isLoading: isCleaningLoading,
     mutate: cleanSegments,

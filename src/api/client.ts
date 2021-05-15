@@ -5,6 +5,7 @@ import { PresetSelectionState, RobotAttribute } from './RawRobotState';
 import { Zone, ZonePreset, ZoneProperties } from './Zone';
 import { Segment } from './Segment';
 import { GoToLocation } from './GoToLocation';
+import { floorObject } from './utils';
 
 export type Coordinates = {
   x: number;
@@ -131,7 +132,7 @@ export const fetchZoneProperties = async (): Promise<ZoneProperties> =>
     )
     .then(({ data }) => data);
 
-export const cleanZonePreset = async (id: string): Promise<void> => {
+export const sendCleanZonePresetCommand = async (id: string): Promise<void> => {
   await valetudoAPI.put<void>(
     `/robot/capabilities/${Capability.ZoneCleaning}/presets/${id}`,
     {
@@ -140,7 +141,9 @@ export const cleanZonePreset = async (id: string): Promise<void> => {
   );
 };
 
-export const cleanTemporaryZones = async (zones: Zone[]): Promise<void> => {
+export const sendCleanTemporaryZonesCommand = async (
+  zones: Zone[]
+): Promise<void> => {
   await valetudoAPI.put<void>(
     `/robot/capabilities/${Capability.ZoneCleaning}`,
     {
@@ -155,7 +158,9 @@ export const fetchSegments = async (): Promise<Segment[]> =>
     .get<Segment[]>(`/robot/capabilities/${Capability.MapSegmentation}`)
     .then(({ data }) => data);
 
-export const cleanSegments = async (ids: string[]): Promise<void> => {
+export const sendCleanSegmentsCommand = async (
+  ids: string[]
+): Promise<void> => {
   await valetudoAPI.put<void>(
     `/robot/capabilities/${Capability.MapSegmentation}`,
     {
@@ -172,34 +177,13 @@ export const fetchGoToLocationPresets = async (): Promise<Segment[]> =>
     )
     .then(({ data }) => Object.values(data));
 
-export const goToLocationPreset = async (id: string): Promise<void> => {
+export const sendGoToLocationPresetCommand = async (
+  id: string
+): Promise<void> => {
   await valetudoAPI.put<void>(
     `/robot/capabilities/${Capability.GoToLocation}/presets/${id}`,
     {
       action: 'goto',
     }
   );
-};
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-const floorObject = <T extends object>(obj: T): T => {
-  if (Array.isArray(obj)) {
-    return obj.map(floorObject) as T;
-  }
-
-  return Object.fromEntries(
-    Object.entries(obj).map(([k, v]) => {
-      if (typeof v === 'number') {
-        return [k, Math.floor(v)];
-      }
-      if (typeof v === 'object' && v !== null) {
-        if (Array.isArray(v)) {
-          return [k, v.map(floorObject)];
-        }
-
-        return [k, floorObject(v)];
-      }
-      return [k, v];
-    })
-  ) as T;
 };

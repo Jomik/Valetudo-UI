@@ -15,8 +15,8 @@ import React from 'react';
 import {
   Capability,
   useGoToLocationPresetMutation,
-  useGoToLocationPresets,
-  useRobotStatus,
+  useGoToLocationPresetsQuery,
+  useRobotStatusQuery,
 } from '../api';
 
 const useStyles = makeStyles(() => ({
@@ -27,12 +27,12 @@ const useStyles = makeStyles(() => ({
 
 const GoToLocationPresets = (): JSX.Element => {
   const classes = useStyles();
-  const { data: status } = useRobotStatus((status) => status.value);
+  const { data: status } = useRobotStatusQuery((status) => status.value);
   const {
     data: locations,
     isLoading: isLocationsLoading,
     isError,
-  } = useGoToLocationPresets();
+  } = useGoToLocationPresetsQuery();
   const {
     isLoading: isCommandLoading,
     mutate: goToLocation,

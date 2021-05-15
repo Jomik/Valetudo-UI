@@ -15,8 +15,8 @@ import {
   Capability,
   RawMapEntityType,
   useCleanTemporaryZonesMutation,
-  useRobotStatus,
-  useZoneProperties,
+  useRobotStatusQuery,
+  useZonePropertiesQuery,
   ZoneProperties,
 } from '../../api';
 import Map from '../Map';
@@ -142,7 +142,7 @@ interface ZonesLayerOverlayProps {
 
 const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
   const { zones, properties, onDelete, onClear, onDone, onAdd } = props;
-  const { data: status } = useRobotStatus((state) => state.value);
+  const { data: status } = useRobotStatusQuery((state) => state.value);
   const { mutate, isLoading: isMutating } = useCleanTemporaryZonesMutation({
     onSuccess: onDone,
   });
@@ -274,7 +274,12 @@ const useStyles = makeStyles(() => ({
 const ZonesLayer = (props: MapLayersProps): JSX.Element => {
   const { data, padding, onDone } = props;
   const classes = useStyles();
-  const { data: properties, isLoading, isError, refetch } = useZoneProperties();
+  const {
+    data: properties,
+    isLoading,
+    isError,
+    refetch,
+  } = useZonePropertiesQuery();
   const [zones, setZones] = React.useState<Zone[]>([]);
   const [selectedId, setSelectedId] = React.useState<string>();
   const stageRef = React.useRef<MapStageRef>(null);

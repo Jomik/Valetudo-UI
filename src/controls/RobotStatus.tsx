@@ -15,7 +15,11 @@ import { green, red, yellow } from '@material-ui/core/colors';
 import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import React from 'react';
-import { RobotAttributeClass, useRobotAttribute, useRobotStatus } from '../api';
+import {
+  RobotAttributeClass,
+  useRobotAttributeQuery,
+  useRobotStatusQuery,
+} from '../api';
 
 const batteryLevelColors = {
   red: red[500],
@@ -78,17 +82,17 @@ const RobotStatus = (): JSX.Element => {
     data: status,
     isLoading: isStatusLoading,
     isError: isStatusError,
-  } = useRobotStatus();
+  } = useRobotStatusQuery();
   const {
     data: attachments,
     isLoading: isAttachmentLoading,
     isError: isAttachmentError,
-  } = useRobotAttribute(RobotAttributeClass.AttachmentState);
+  } = useRobotAttributeQuery(RobotAttributeClass.AttachmentState);
   const {
     data: batteries,
     isLoading: isBatteryLoading,
     isError: isBatteryError,
-  } = useRobotAttribute(RobotAttributeClass.BatteryState);
+  } = useRobotAttributeQuery(RobotAttributeClass.BatteryState);
   const isLoading = isStatusLoading || isAttachmentLoading || isBatteryLoading;
 
   const stateDetails = React.useMemo(() => {

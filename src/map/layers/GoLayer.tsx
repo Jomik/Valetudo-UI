@@ -10,7 +10,7 @@ import {
   Coordinates,
   RawMapEntityType,
   useGoToMutation,
-  useRobotStatus,
+  useRobotStatusQuery,
 } from '../../api';
 import Map from '../Map';
 import { LayerActionsContainer, LayerActionButton } from './Styled';
@@ -31,7 +31,7 @@ interface GoLayerOverlayProps {
 
 const GoLayerOverlay = (props: GoLayerOverlayProps): JSX.Element => {
   const { goToPoint, onClear, onDone } = props;
-  const { data: status } = useRobotStatus((state) => state.value);
+  const { data: status } = useRobotStatusQuery((state) => state.value);
   const { mutate, isLoading } = useGoToMutation({
     onSuccess: onDone,
   });
