@@ -94,9 +94,9 @@ export const updatePresetSelection = async (
   });
 };
 
-export type BasicControlCommands = 'start' | 'stop' | 'pause' | 'home';
+export type BasicControlCommand = 'start' | 'stop' | 'pause' | 'home';
 export const sendBasicControlCommand = async (
-  command: BasicControlCommands
+  command: BasicControlCommand
 ): Promise<void> => {
   await valetudoAPI.put<void>(
     `/robot/capabilities/${Capability.BasicControl}`,
@@ -186,4 +186,10 @@ export const sendGoToLocationPresetCommand = async (
       action: 'goto',
     }
   );
+};
+
+export const sendLocateCommand = async (): Promise<void> => {
+  await valetudoAPI.put<void>(`/robot/capabilities/${Capability.Locate}`, {
+    action: 'locate',
+  });
 };

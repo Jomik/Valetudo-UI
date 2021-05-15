@@ -10,7 +10,7 @@ import {
 } from 'react-query';
 import { Capability } from './Capability';
 import {
-  BasicControlCommands,
+  BasicControlCommand,
   sendCleanSegmentsCommand,
   sendCleanZonePresetCommand,
   fetchCapabilities,
@@ -29,6 +29,7 @@ import {
   Coordinates,
   fetchZoneProperties,
   sendCleanTemporaryZonesCommand,
+  sendLocateCommand,
 } from './client';
 import {
   PresetSelectionState,
@@ -170,7 +171,7 @@ export const useBasicControlMutation = () => {
   const onError = useOnCommandError(Capability.BasicControl);
 
   return useMutation(
-    (command: BasicControlCommands) =>
+    (command: BasicControlCommand) =>
       sendBasicControlCommand(command).then(fetchStateAttributes),
     {
       onError,
@@ -305,4 +306,10 @@ export const useGoToLocationPresetMutation = (
       },
     }
   );
+};
+
+export const useLocateMutation = () => {
+  const onError = useOnCommandError(Capability.Locate);
+
+  return useMutation(sendLocateCommand, { onError });
 };

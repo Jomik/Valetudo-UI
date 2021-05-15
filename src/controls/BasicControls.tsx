@@ -10,15 +10,19 @@ import {
   useRobotStatusQuery,
   useBasicControlMutation,
   StatusState,
+  Capability,
+  useLocateMutation,
+  BasicControlCommand,
 } from '../api';
 import {
   Home as HomeIcon,
+  NotListedLocation as LocateIcon,
   Pause as PauseIcon,
   PlayArrow as StartIcon,
   Stop as StopIcon,
   SvgIconComponent,
 } from '@material-ui/icons';
-import { BasicControlCommands } from '../api';
+import { useCapabilitiesSupported } from '../CapabilitiesProvider';
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -30,12 +34,31 @@ const useStyles = makeStyles((theme) => ({
 const StartStates: StatusState['value'][] = ['idle', 'docked', 'paused'];
 const PauseStates: StatusState['value'][] = ['cleaning', 'returning', 'moving'];
 
+interface CommandButton {
+  command: BasicControlCommand | 'locate';
+  enabled: boolean;
+  label: string;
+  Icon: SvgIconComponent;
+}
+
 const BasicControls = (): JSX.Element => {
   const classes = useStyles();
   const { data: status } = useRobotStatusQuery();
-  const { mutate, isLoading } = useBasicControlMutation();
-  const sendCommand = (...args: Parameters<typeof mutate>) => () =>
-    mutate(...args);
+  const {
+    mutate,
+    isLoading: isBasicControlLoading,
+  } = useBasicControlMutation();
+  const [locateSupported] = useCapabilitiesSupported(Capability.Locate);
+  const { mutate: locate, isLoading: isLocateLoading } = useLocateMutation();
+  const isLoading = isBasicControlLoading || isLocateLoading;
+
+  const sendCommand = (command: BasicControlCommand | 'locate') => () => {
+    if (command === 'locate') {
+      locate();
+      return;
+    }
+    mutate(command);
+  };
 
   if (status === undefined) {
     return (
@@ -48,12 +71,18 @@ const BasicControls = (): JSX.Element => {
   }
 
   const { flag, value: state } = status;
-  const buttons: Array<{
-    command: BasicControlCommands;
-    enabled: boolean;
-    label: string;
-    Icon: SvgIconComponent;
-  }> = [
+
+  const locateButtons: CommandButton[] = locateSupported
+    ? [
+        {
+          command: 'locate',
+          enabled: true,
+          label: 'Locate',
+          Icon: LocateIcon,
+        },
+      ]
+    : [];
+  const buttons: CommandButton[] = [
     {
       command: 'start',
       enabled: StartStates.includes(state),
@@ -78,6 +107,7 @@ const BasicControls = (): JSX.Element => {
       Icon: HomeIcon,
       label: 'Dock',
     },
+    ...locateButtons,
   ];
 
   return (
