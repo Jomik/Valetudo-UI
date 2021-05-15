@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { useSnackbar } from 'notistack';
 import React from 'react';
 import {
   useMutation,
@@ -48,6 +49,18 @@ enum CacheKey {
   Segments = 'segments',
   GoToLocationPresets = 'go_to_location_presets',
 }
+
+const useOnCommandError = (capability: Capability): (() => void) => {
+  const { enqueueSnackbar } = useSnackbar();
+
+  return React.useCallback(() => {
+    enqueueSnackbar(`An error occured while sending command to ${capability}`, {
+      preventDuplicate: true,
+      key: capability,
+    });
+  }, [capability, enqueueSnackbar]);
+};
+
 const useSSECacheUpdater = <T>(
   key: CacheKey,
   subscriber: (listener: (data: T) => void) => () => void
@@ -136,6 +149,8 @@ export const usePresetSelectionMutation = (
   capability: Capability.FanSpeedControl | Capability.WaterUsageControl
 ) => {
   const queryClient = useQueryClient();
+  const onError = useOnCommandError(capability);
+
   return useMutation<
     void,
     unknown,
@@ -169,6 +184,8 @@ export const usePresetSelectionMutation = (
       queryClient.invalidateQueries(CacheKey.Attributes);
     },
     onError(_err, _variables, context) {
+      onError();
+
       if (context?.previousAttributes === undefined) {
         return;
       }
@@ -183,11 +200,13 @@ export const usePresetSelectionMutation = (
 
 export const useBasicControlMutation = () => {
   const queryClient = useQueryClient();
+  const onError = useOnCommandError(Capability.BasicControl);
 
   return useMutation(
     (command: BasicControlCommands) =>
       sendBasicControlCommand(command).then(fetchStateAttributes),
     {
+      onError,
       onSuccess(data) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
           updatedAt: Date.now(),
@@ -201,11 +220,13 @@ export const useGoToMutation = (
   options?: UseMutationOptions<RobotAttribute[], unknown, Coordinates>
 ) => {
   const queryClient = useQueryClient();
+  const onError = useOnCommandError(Capability.GoToLocation);
 
   return useMutation(
     (coordinates: { x: number; y: number }) =>
       sendGoToCommand(coordinates).then(fetchStateAttributes),
     {
+      onError,
       ...options,
       async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
@@ -229,10 +250,12 @@ export const useCleanZonePresetMutation = (
   options?: UseMutationOptions<RobotAttribute[], unknown, string>
 ) => {
   const queryClient = useQueryClient();
+  const onError = useOnCommandError(Capability.ZoneCleaning);
 
   return useMutation(
     (id: string) => sendCleanZonePresetCommand(id).then(fetchStateAttributes),
     {
+      onError,
       ...options,
       async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
@@ -248,11 +271,13 @@ export const useCleanTemporaryZonesMutation = (
   options?: UseMutationOptions<RobotAttribute[], unknown, Zone[]>
 ) => {
   const queryClient = useQueryClient();
+  const onError = useOnCommandError(Capability.ZoneCleaning);
 
   return useMutation(
     (zones: Zone[]) =>
       sendCleanTemporaryZonesCommand(zones).then(fetchStateAttributes),
     {
+      onError,
       ...options,
       async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
@@ -271,10 +296,12 @@ export const useCleanSegmentsMutation = (
   options?: UseMutationOptions<RobotAttribute[], unknown, string[]>
 ) => {
   const queryClient = useQueryClient();
+  const onError = useOnCommandError(Capability.ZoneCleaning);
 
   return useMutation(
     (ids: string[]) => sendCleanSegmentsCommand(ids).then(fetchStateAttributes),
     {
+      onError,
       ...options,
       async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
@@ -295,11 +322,13 @@ export const useGoToLocationPresetMutation = (
   options?: UseMutationOptions<RobotAttribute[], unknown, string>
 ) => {
   const queryClient = useQueryClient();
+  const onError = useOnCommandError(Capability.ZoneCleaning);
 
   return useMutation(
     (id: string) =>
       sendGoToLocationPresetCommand(id).then(fetchStateAttributes),
     {
+      onError,
       ...options,
       async onSuccess(data, ...args) {
         queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
