@@ -36,7 +36,7 @@ import {
   RobotAttributeClass,
   StatusState,
 } from './RawRobotState';
-import { isAttribute, replaceAttribute } from './utils';
+import { isAttribute } from './utils';
 import { Zone } from './Zone';
 
 enum CacheKey {
@@ -151,51 +151,18 @@ export const usePresetSelectionMutation = (
   const queryClient = useQueryClient();
   const onError = useOnCommandError(capability);
 
-  return useMutation<
-    void,
-    unknown,
-    PresetSelectionState['value'],
-    { previousAttributes: RobotAttribute[] } | undefined
-  >((level) => updatePresetSelection(capability, level), {
-    async onMutate(level) {
-      await queryClient.cancelQueries(CacheKey.Attributes);
-
-      const attributes = queryClient.getQueryData<RobotAttribute[]>(
-        CacheKey.Attributes
-      );
-      if (attributes === undefined) {
-        return;
-      }
-
-      const type = capabilityToPresetType[capability];
-
-      queryClient.setQueryData<RobotAttribute[]>(
-        CacheKey.Attributes,
-        replaceAttribute(
-          RobotAttributeClass.PresetSelectionState,
-          (attribute) => attribute.type === type,
-          (attribute) => ({ ...attribute, level })
-        )(attributes)
-      );
-
-      return { previousAttributes: attributes };
-    },
-    onSettled() {
-      queryClient.invalidateQueries(CacheKey.Attributes);
-    },
-    onError(_err, _variables, context) {
-      onError();
-
-      if (context?.previousAttributes === undefined) {
-        return;
-      }
-
-      queryClient.setQueryData<RobotAttribute[]>(
-        CacheKey.Attributes,
-        context.previousAttributes
-      );
-    },
-  });
+  return useMutation(
+    (level: PresetSelectionState['value']) =>
+      updatePresetSelection(capability, level).then(fetchStateAttributes),
+    {
+      onSuccess(data) {
+        queryClient.setQueryData<RobotAttribute[]>(CacheKey.Attributes, data, {
+          updatedAt: Date.now(),
+        });
+      },
+      onError,
+    }
+  );
 };
 
 export const useBasicControlMutation = () => {
