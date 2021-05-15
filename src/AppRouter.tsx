@@ -1,4 +1,4 @@
-import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Link, Redirect, Route, Switch } from 'react-router-dom';
 import MapPage from './map';
 import ControlsBody from './controls';
 import {
@@ -127,6 +127,9 @@ const AppRouter = (): JSX.Element => {
             </Route>
             <Route exact path="/about">
               <span>About</span>
+            </Route>
+            <Route path="*">
+              <Redirect to="/" />
             </Route>
           </Switch>
         </main>
