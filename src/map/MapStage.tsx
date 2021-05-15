@@ -91,6 +91,7 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
       onWheel,
       onTouchMove,
       onTouchEnd,
+      onDragEnd,
       ...stageConfig
     } = props;
     const classes = useStyles();
@@ -215,7 +216,6 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
     const dragBoundFunc = React.useMemo(
       () =>
         function (this: Konva.Node, pos: Vector2d): Vector2d {
-          const scaledPadding = padding / stageScale;
           const scale = this.scaleX();
 
           const calculateBoundaries = (
@@ -225,8 +225,8 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
           ) =>
             bound(
               value,
-              -(map * stageScale - scaledPadding) * (scale / stageScale),
-              (Math.max(container, map * stageScale) - scaledPadding * 2) *
+              -(map * stageScale - padding) * (scale / stageScale),
+              (Math.max(container, map * stageScale) - padding * 2) *
                 (stageScale / scale)
             );
 
@@ -307,6 +307,14 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
       [onTouchEnd]
     );
 
+    // Used to supress react-konva warning.
+    const handleDragEnd = React.useCallback(
+      (event: KonvaEventObject<DragEvent>) => {
+        onDragEnd?.(event);
+      },
+      [onDragEnd]
+    );
+
     return (
       <div ref={containerRef} className={classes.container}>
         <Stage
@@ -318,12 +326,15 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
           onWheel={handleScroll}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onDragEnd={handleDragEnd}
           width={containerWidth}
           height={containerHeight}
           scaleX={stageScale}
           scaleY={stageScale}
-          offsetX={offsetX - padding / stageScale}
-          offsetY={offsetY - padding / stageScale}
+          x={(containerWidth - width * stageScale) / 2}
+          y={(containerHeight - height * stageScale) / 2}
+          offsetX={offsetX}
+          offsetY={offsetY}
         >
           {children}
         </Stage>
