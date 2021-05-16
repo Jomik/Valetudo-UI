@@ -45,7 +45,13 @@ const SegmentsLayerOverlay = (
   }, [canClean, didSelectSegments, mutate, segments]);
 
   return (
-    <Grid container alignItems="center" spacing={1} direction="row-reverse">
+    <Grid
+      container
+      alignItems="center"
+      spacing={1}
+      direction="row-reverse"
+      wrap="wrap-reverse"
+    >
       <Grid item>
         <Zoom in>
           <LayerActionButton

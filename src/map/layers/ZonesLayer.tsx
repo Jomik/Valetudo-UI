@@ -181,7 +181,13 @@ const ZonesLayerOverlay = (props: ZonesLayerOverlayProps): JSX.Element => {
   }, [canClean, didSelectZones, mutate, zones]);
 
   return (
-    <Grid container alignItems="center" spacing={1} direction="row-reverse">
+    <Grid
+      container
+      alignItems="center"
+      spacing={1}
+      direction="row-reverse"
+      wrap="wrap-reverse"
+    >
       <Grid item>
         <Zoom in>
           <LayerActionButton
