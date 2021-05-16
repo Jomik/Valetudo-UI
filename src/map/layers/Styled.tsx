@@ -15,10 +15,7 @@ export const LayerActionButton = styled(Fab)({
 export const LayerActionsContainer = styled(Box)(({ theme }) => ({
   position: 'absolute',
   pointerEvents: 'none',
-  bottom: theme.spacing(8),
-  [theme.breakpoints.up('sm')]: {
-    bottom: theme.spacing(2),
-  },
+  bottom: theme.spacing(2),
   left: theme.spacing(2),
   right: theme.spacing(2),
 }));

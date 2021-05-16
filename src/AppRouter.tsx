@@ -91,10 +91,11 @@ const HomePage = (): JSX.Element => {
   }
 
   return (
-    <>
+    // Padding set to height of the header of the bottom controls sheet
+    <Box paddingBottom="52px" width={1} height={1}>
       <MapPage />
       <ControlsBottomSheet />
-    </>
+    </Box>
   );
 };
 
