@@ -11,10 +11,10 @@ import {
   isTouchEnabled,
   ZeroVector,
 } from './utils';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, useTheme } from '@material-ui/core';
 
 Konva.hitOnDragEnabled = isTouchEnabled;
-const ScaleBound = 10;
+const MaxScaleBound = 10;
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -95,6 +95,7 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
       ...stageConfig
     } = props;
     const classes = useStyles();
+    const theme = useTheme();
     const lastCenter = React.useRef<Vector2d | null>(null);
     const lastDist = React.useRef<number>(0);
 
@@ -172,8 +173,8 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
 
         const newScale = bound(
           currentScale * scaleDelta,
-          stageScale,
-          stageScale * ScaleBound
+          stageScale * (theme.breakpoints.values.sm / 2 / containerWidth),
+          stageScale * MaxScaleBound
         );
 
         const newPos = {
@@ -188,7 +189,7 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
 
         stage.batchDraw();
       },
-      [stageScale]
+      [containerWidth, stageScale, theme.breakpoints.values.sm]
     );
 
     const handleScroll = React.useCallback(
@@ -218,21 +219,16 @@ const MapStage = React.forwardRef<MapStageRef | null, MapStageProps>(
         function (this: Konva.Node, pos: Vector2d): Vector2d {
           const scale = this.scaleX();
 
-          const calculateBoundaries = (
-            value: number,
-            container: number,
-            map: number
-          ) =>
+          const boundAxis = (value: number, container: number, map: number) =>
             bound(
               value,
-              -(map * stageScale - padding) * (scale / stageScale),
-              (Math.max(container, map * stageScale) - padding * 2) *
-                (stageScale / scale)
+              -(map * stageScale) * (scale / stageScale) + padding,
+              container - padding
             );
 
           return {
-            x: calculateBoundaries(pos.x, containerWidth, width),
-            y: calculateBoundaries(pos.y, containerHeight, height),
+            x: boundAxis(pos.x, containerWidth, width),
+            y: boundAxis(pos.y, containerHeight, height),
           };
         },
       [containerHeight, containerWidth, height, padding, stageScale, width]

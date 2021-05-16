@@ -54,7 +54,7 @@ const MapPage = (): JSX.Element => {
     );
   }
 
-  return <MapLayers data={data} padding={theme.spacing(2)} />;
+  return <MapLayers data={data} padding={theme.spacing(4)} />;
 };
 
 export default MapPage;
