@@ -8,14 +8,15 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  Typography,
   Grid,
   Divider,
   Box,
+  Button,
 } from '@material-ui/core';
 import {
   Settings as SettingsIcon,
   Info as AboutIcon,
+  Home as HomeIcon,
 } from '@material-ui/icons';
 import Div100vh from 'react-div-100vh';
 import ControlsBottomSheet from './controls/ControlsBottomSheet';
@@ -34,9 +35,16 @@ const TopNav = (): JSX.Element => {
     <>
       <AppBar position="fixed">
         <Toolbar>
-          <Typography variant="h6" noWrap>
+          <Button
+            variant="text"
+            color="inherit"
+            component={Link}
+            to="/"
+            startIcon={<HomeIcon />}
+            size="large"
+          >
             Valetudo
-          </Typography>
+          </Button>
           <div className={classes.grow} />
           <IconButton color="inherit" component={Link} to="/settings">
             <SettingsIcon />
