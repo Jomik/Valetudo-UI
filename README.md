@@ -1,3 +1,6 @@
+_Achived: Merged into [my fork of Valetudo](https://github.com/Jomik/Valetudo)_
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
